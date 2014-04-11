@@ -1,0 +1,15 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "This figure represents (on average) how many dollars in revenue a company has generated per dollar of assets. Asset Turnover is calculated by dividing total revenues for the period by total assets for the same period. Asset turnover can give an indication of how efficient a company is. A high asset turnover, which expresses how many times a company sells, or turns over, its assets in a year is a sign of high efficiency." ;
+    rdfs:label "Asset Turnover" ;
+    screener:expression "asset_turnover" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/m12> ;
+    screener:hasUnit <../../units/relative> .

@@ -1,0 +1,15 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "Revenue – Cost of goods sold as a percentage of revenue." ;
+    rdfs:label "Gross Margin" ;
+    screener:expression "gross_margin" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/m12> ;
+    screener:hasUnit <../../units/relative> .

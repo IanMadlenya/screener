@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <link rel="stylesheet" type="text/css" href="../styles/watch-list.css" />
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/watch-list.js"></script>
+</head>
+<body resource="?this">
+    <div class="container">
+        <hgroup class="page-header">
+            <h1 property="rdfs:label" />
+        </hgroup>
+        <pre class="wiki" property="rdfs:comment" />
+        <span id="sector-span"><span property="screener:includeSector" content="?includeSector" /></span>
+        <span rel="screener:ofExchange"><span about="?exchange" property="rdfs:label" /></span>
+    </div>
+    <ul rel="screener:include" class="hide column-list">
+        <li resource="?include" />
+    </ul>
+    <ul id="sector-security-list" class="column-list"></ul>
+    <ul rel="screener:exclude" class="hide column-list">
+        <li resource="?exclude" />
+    </ul>
+</body>
+</html>

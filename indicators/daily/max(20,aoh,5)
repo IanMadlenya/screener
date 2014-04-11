@@ -1,0 +1,16 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "A value of 5 when at least 5 days of no new highs are within the last 25 days. Combined with a new high indicator, this can indicate a recent and short-lived move in price as apposed to a prolonged rump." ;
+    rdfs:label "5-day Sideways Consolidation" ;
+    screener:expression "MAX(20,AOH,5)" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/d1> ;
+    screener:hasUnit <../../units/relative> ;
+    screener:isDerivedFrom <max(5,high)> .

@@ -1,0 +1,16 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a </callimachus/1.3/types/Concept> , skos:Concept ;
+    dcterms:created "2014-03-17T18:53:01.845Z"^^xsd:dateTime ;
+    dcterms:modified "2014-03-17T18:53:11.575Z"^^xsd:dateTime , "2014-03-17T19:04:55.790Z"^^xsd:dateTime ;
+    skos:definition "Daily charts represent the price action of a market based on one-day intervals. Daily charts are perhaps the most commonly used chart by traders and investors. These are handy in analyzing the short to intermediate-term time periods, however, many traders use the daily charts for long-term analysis as well. As a rule of thumb, daily charts are commonly used to analyze periods in excess of six weeks." ;
+    skos:prefLabel "Daily" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    skos:narrower <s14400> .

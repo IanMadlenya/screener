@@ -1,0 +1,13 @@
+/* inline-input-group.css */
+
+/* Fixed in Bootstrap 3.2 */
+
+.form-inline .input-group {
+    display: inline-table;
+    vertical-align: middle;
+}
+.form-inline .input-group .input-group-addon,
+.form-inline .input-group .input-group-btn,
+.form-inline .input-group .form-control {
+    width: auto;
+}

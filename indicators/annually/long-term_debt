@@ -1,0 +1,17 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment """Money that a company has borrowed for a period of time longer than a year as a percent of Total Liabilities & Equity.
+
+An excessive amount of long-term debt is dangerous, because the interest on that debt must be paid no matter how well the business is doing. Also, rising long-term debt over time is a warning sign.""" ;
+    rdfs:label "Long-Term Debt" ;
+    screener:expression "long-term_debt" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/m12> ;
+    screener:hasUnit <../../units/relative> .

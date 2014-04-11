@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="stylesheet" href="../styles/inline-input-group.css" />
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/indicator.js"></script>
+</head>
+<body resource="?this">
+    <div class="container">
+        <hgroup class="page-header">
+            <h1 property="rdfs:label" />
+        </hgroup>
+        <pre class="wiki" property="rdfs:comment" />
+        <div rel="screener:isDerivedFrom">
+            <span resource="?isDerivedFrom">
+                <span rel="screener:hasUnit" resource="?derivedFromUnit" />
+                <span property="screener:expression" content="?derivedFromExpression" />
+            </span>
+        </div>
+        <div property="screener:expression" content="?expression" />
+        <div rel="screener:hasInterval" resource="?interval" />
+        <div rel="screener:hasUnit" resource="?unit" />
+    </div>
+    <div class="container hidden-iframe">
+        <form id="backtesting-form" class="form-inline pull-right" role="form">
+            <div class="form-group">
+                <div class="input-group">
+                    <label class="input-group-addon" for="backtesting-exchange">Backtest</label>
+                    <select class="form-control input-sm" id="backtesting-exchange"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="backtesting-ticker">Ticker</label>
+                <input type="text" class="form-control input-sm" id="backtesting-ticker" placeholder="Ticker" size="4" pattern="[A-Za-z]+" required="required" />
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">As of</span>
+                    <input type="date" class="form-control input-sm" id="backtesting-asof" required="required" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-default btn-sm">Preview</button>
+        </form>
+    </div>
+    <div id="relative-div"></div>
+    <div id="derivedFrom-div"></div>
+    <div id="price-div"></div>
+    <div id="volume-div"></div>
+</body>
+</html>

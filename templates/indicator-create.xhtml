@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title>New Indicator</title>
+    <link rel="stylesheet" href="../styles/inline-input-group.css" />
+    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/indicator.js"></script>
+</head>
+<body>
+    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="screener:Indicator" class="container"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#expression').val()))">
+        <h1>New Indicator</h1>
+        <div class="row">
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                </div>
+                <div id="isDerivedFrom" dropzone="link string:text/uri-list" class="form-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label>Derived from <a href="?view" title="Browse Indicators"
+                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                    <div rel="screener:isDerivedFrom">
+                        <div resource="?isDerivedFrom" typeof="screener:Indicator" class="label label-info">
+                            <span property="rdfs:label" />
+                            <span rel="screener:hasUnit" resource="?derivedFromUnit" />
+                            <span property="screener:expression" content="?derivedFromExpression" />
+                            <a href="{?isDerivedFrom}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <label for="expression">Expression</label>
+                    <input type="text" class="form-control" id="expression" value="{screener:expression}" required="required" />
+                </div>
+                <div class="form-group">
+                    <label for="interval">Interval</label>
+                    <select id="interval" rel="screener:hasInterval" class="form-control">
+                        <option selected="selected" data-about="../intervals/d1"></option>
+                        <option selected="selected" about="?interval" rev="calli:hasComponent" resource="../intervals/" property="skos:prefLabel" />
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="unit">Unit</label>
+                    <div id="unit">
+                        <label rel="screener:hasUnit" resource="?unit" class="radio-inline">
+                            <input type="radio" name="unit" checked="checked" />
+                            <span rev="calli:hasComponent" resource="../units/" property="skos:prefLabel" />
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <fieldset class="form-group">
+            <button type="submit" class="btn btn-success">Create</button>
+        </fieldset>
+    </form>
+    <div class="container">
+        <form id="backtesting-form" class="form-inline pull-right" role="form">
+            <div class="form-group">
+                <div class="input-group">
+                    <label class="input-group-addon" for="backtesting-exchange">Backtest</label>
+                    <select class="form-control input-sm" id="backtesting-exchange"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="backtesting-ticker">Ticker</label>
+                <input type="text" class="form-control input-sm" id="backtesting-ticker" placeholder="Ticker" size="4" pattern="[A-Za-z]+" required="required" />
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">As of</span>
+                    <input type="date" class="form-control input-sm" id="backtesting-asof" required="required" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-default btn-sm">Preview</button>
+        </form>
+    </div>
+    <div id="relative-div"></div>
+    <div id="derivedFrom-div"></div>
+    <div id="price-div"></div>
+    <div id="volume-div"></div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+#
+# @Cache-Control: no-store
+# @infer true
+# @view 
+#
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
+
+SELECT ?iri ?label
+        (group_concat(?of) AS ?ofExchange)
+        (group_concat(?includeSector; separator = "\t") AS ?includeSectors)
+        (group_concat(?exclude) AS ?excludes)
+        (group_concat(?include) AS ?includes) {
+    ?iri a screener:WatchList;
+        rdfs:label ?label
+    {
+        ?iri screener:ofExchange ?of
+    } UNION {
+        ?iri screener:includeSector ?includeSector
+    } UNION {
+        ?iri screener:include ?include
+    } UNION {
+        ?iri screener:exclude ?exclude
+    }
+} GROUP BY ?iri ?label

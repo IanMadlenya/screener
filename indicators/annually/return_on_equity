@@ -1,0 +1,17 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment """This is the percentage a company earns on its total equity in a given year. The calculation is return on assets times financial leverage (total assets divided by total shareholders' equity).
+
+Return on equity shows how much profit a company generates on the money shareholders have invested in the firm. The mission of any company is to earn a high return on equity. The company's net income is found in the annual income statement. The company's net worth is taken from the company's annual balance sheet.""" ;
+    rdfs:label "Return on Equity %" ;
+    screener:expression "return_on_equity" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/m12> ;
+    screener:hasUnit <../../units/relative> .

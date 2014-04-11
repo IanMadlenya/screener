@@ -1,0 +1,27 @@
+#
+# @Cache-Control: 
+# @infer true
+# @view 
+#
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
+
+SELECT ?iri ?label ?marketOpensAt ?marketClosesAt ?tz ?marketLang ?mic ?morningstarCode ?exch ?yahooSuffix ?dtnPrefix {
+    ?iri a screener:Exchange;
+        rdfs:label ?label;
+        screener:marketOpensAt ?marketOpensAt;
+        screener:marketClosesAt ?marketClosesAt;
+        screener:inTimeZone ?inTimeZone;
+        screener:marketLang ?marketLang;
+        screener:mic ?mic;
+        screener:morningstarCode ?morningstarCode;
+        screener:exch ?exch
+    OPTIONAL {
+        ?iri screener:yahooSuffix ?yahooSuffix
+    } OPTIONAL {
+        ?iri screener:dtnPrefix ?dtnPrefix
+    }
+    BIND (replace(str(?inTimeZone), "^.*/(\\w+/\\w+)$", "$1") AS ?tz)
+} ORDER BY ?label

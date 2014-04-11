@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link id="resource-type" href="../classes/WatchList" />
+    <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
+    <link rel="stylesheet" type="text/css" href="../styles/watch-list.css" />
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/watch-list.js"></script>
+</head>
+<body>
+    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="screener:WatchList">
+        <div class="container">
+            <hgroup class="page-header">
+                <h1>{rdfs:label}</h1>
+            </hgroup>
+            <div class="row">
+                <fieldset class="col-sm-4">
+                    <div class="form-group">
+                        <label for="label">Label</label>
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="exchange-select">Exchange</label>
+                        <select class="form-control" id="exchange-select"></select>
+                    </div>
+                    <span rel="screener:ofExchange" class="hide"><span about="?exchange" /></span>
+                    <span id="sector-span" class="hide">
+                        <span property="screener:includeSector" content="?includeSector" />
+                    </span>
+                </fieldset>
+                <fieldset class="col-sm-4">
+                    <div class="form-group">
+                        <label for="sectors">Sectors</label>
+                        <div id="sectors"></div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-sm-4">
+                    <div class="form-group">
+                        <label for="include-tickers">Included ticker symbols</label>
+                        <textarea id="include-tickers" class="form-control"></textarea>
+                        <p class="help-block">Space separated list of ticker symbols to include</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="exclude-tickers">Excluded ticker symbols</label>
+                        <textarea id="exclude-tickers" class="form-control"></textarea>
+                        <p class="help-block">Space separated list of ticker symbols to exclude</p>
+                    </div>
+                </fieldset>
+            </div>
+            <fieldset class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button id="saveas" type="button" class="btn btn-info"
+                    onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), $('#resource-type').attr('href'), $('#container-resource').attr('resource'))">Save as...</button>
+                <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </fieldset>
+        </div>
+        <ul rel="screener:include" class="hide column-list">
+            <li resource="?include" />
+        </ul>
+        <ul id="sector-security-list" class="column-list"></ul>
+        <ul rel="screener:exclude" class="hide column-list">
+            <li resource="?exclude" />
+        </ul>
+    </form>
+</body>
+</html>
+

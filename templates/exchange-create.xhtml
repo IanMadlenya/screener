@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dbpprop="http://dbpedia.org/property/"
+    xmlns:dbpedia-owl="http://dbpedia.org/ontology/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title>New Market</title>
+</head>
+<body resource="?this">
+    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="screener:Exchange" class="container"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <hgroup class="page-header">
+            <h1>New Market</h1>
+        </hgroup>
+        <div class="row">
+            <fieldset class="col-sm-5">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea id="comment" class="form-control" rows="14">{rdfs:comment}</textarea>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-7">
+                <div class="form-group">
+                    <label for="marketOpensAt">Market hours</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">of</span>
+                        <input type="text" class="form-control" id="marketOpensAt" value="{screener:marketOpensAt}" required="required" datatype="xsd:time" pattern="\d\d:\d\d:\d\d" />
+                        <span class="input-group-addon">until</span>
+                        <input type="text" class="form-control" id="marketClosesAt" value="{screener:marketClosesAt}" required="required" datatype="xsd:time" pattern="\d\d:\d\d:\d\d" />
+                    </div>
+                    <p class="help-block">Such as 09:30:00 until 16:00:00</p>
+                </div>
+                <div class="form-group">
+                    <label for="timezone">Time zone</label>
+                    <select id="timezone" rel="screener:inTimeZone" class="form-control" required="required">
+                        <option selected="selected" about="?timezone" rel="dcterms:subject" resource="http://dbpedia.org/resource/Category:Tz_database" property="rdfs:label" />
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Currency and language</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <select id="currency" rel="dbpprop:currency" class="form-control" required="required">
+                                <option selected="selected" about="?currency" typeof="dbpedia-owl:Currency" property="rdfs:label" />
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="marketLang" value="{screener:marketLang}" required="required" placeholder="en-US" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="acronym">Acronym, market identifier code, and operating MIC</label>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="acronym" value="{screener:acronym}" required="required" />
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="mic" value="{screener:mic}" required="required" placeholder="MIC" />
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="operatingMIC" value="{screener:morningstarCode}" required="required" placeholder="operating MIC" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="exch">Yahoo exchange code &amp; suffix and DTN market ID &amp; prefix</label>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="exch" value="{screener:exch}" required="required" />
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="yahoo" value="{screener:yahooSuffix}" placeholder=".SUFFIX" />
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="number" min="1" class="form-control" id="marketID" value="{screener:marketID}" required="required" datatype="xsd:integer" />
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" min="1" class="form-control" id="dtn" value="{screener:dtnPrefix}" placeholder="PREFIX." />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <fieldset class="form-group">
+            <button type="submit" class="btn btn-success">Create</button>
+        </fieldset>
+    </form>
+</body>
+</html>

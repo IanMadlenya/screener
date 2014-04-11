@@ -1,0 +1,17 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment """This figure is the percentage a company earns on its assets in a given year.
+
+The calculation is net income divided by average total assets. The resulting figure is then multiplied by 100. ROA shows how much profit a company generates on its asset base. The better the company, the more profit it generates as a percentage of its assets. """ ;
+    rdfs:label "Return on Assets %" ;
+    screener:expression "return_on_assets" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    screener:hasInterval <../../intervals/m12> ;
+    screener:hasUnit <../../units/relative> .

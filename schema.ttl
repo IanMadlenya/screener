@@ -1,0 +1,231 @@
+# 
+#    Copyright (c) 2014 James Leigh, Some Rights Reserved
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 
+#    3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#    POSSIBILITY OF SUCH DAMAGE.
+# 
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+################
+# Class
+################
+
+screener:System a owl:Class;
+    rdfs:label "System";
+    rdfs:comment "Set of filters and watch lists used to produce a focus list".
+
+screener:QualifiedScreen a owl:Class;
+    rdfs:label "Qualified Screen".
+
+screener:Screen a owl:Class;
+    rdfs:label "Screen";
+    rdfs:comment "Set of filters used to convert a watch list into a focus list".
+
+screener:Filter a owl:Class;
+    rdfs:label "Filter";
+    rdfs:comment "Criterial used by a Screen".
+
+screener:Indicator a owl:Class;
+    rdfs:label "Indicator";
+    rdfs:comment "Measurement of conditions in a security".
+
+screener:Interval a owl:Class;
+    rdfs:label "Interval";
+    rdfs:comment "Concepts used to identify time intervals";
+    rdfs:subClassOf skos:Concept.
+
+screener:Unit a owl:Class;
+    rdfs:label "Unit";
+    rdfs:comment "Concepts used to identify units of meansure";
+    rdfs:subClassOf skos:Concept.
+
+screener:WatchList a owl:Class;
+    rdfs:label "Watch List";
+    rdfs:comment "Set of securities".
+
+screener:Exchange a owl:Class;
+    rdfs:label "Exchange";
+    rdfs:comment "A Stock exchange with securities listing".
+
+################
+# Property
+################
+
+screener:hasWatchList a owl:ObjectProperty;
+    rdfs:label "has watch list";
+    rdfs:comment "List of securities that are screened in this system";
+    rdfs:domain screener:System;
+    rdfs:range screener:WatchList.
+
+screener:qualifiedScreen a owl:ObjectProperty;
+    rdfs:label "qualified screen";
+    rdfs:comment "Screen used by this system to find securities";
+    rdfs:domain screener:System;
+    rdfs:range screener:QualifiedScreen.
+
+screener:screen a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "screen";
+    rdfs:comment "The screen being qualified";
+    rdfs:domain screener:QualifiedScreen;
+    rdfs:range screener:Screen.
+
+screener:hasFilter a owl:ObjectProperty;
+    rdfs:label "has filter";
+    rdfs:comment "Filter that is applied to the securities in this Screen";
+    rdfs:domain screener:Screen;
+    rdfs:range screener:Filter.
+
+screener:max a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "max";
+    rdfs:comment "Maximum value that is permitted through this filter";
+    rdfs:domain screener:Filter;
+    rdfs:range xsd:decimal.
+
+screener:min a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "min";
+    rdfs:comment "Minimum value that is permitted through this filter";
+    rdfs:domain screener:Filter;
+    rdfs:range xsd:decimal.
+
+screener:forIndicator a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "indicator";
+    rdfs:comment "Measurement used by this filter";
+    rdfs:domain screener:Filter;
+    rdfs:range screener:Indicator.
+
+screener:expression a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "expression";
+    rdfs:comment "The parameters and functions that are used to compute this indicator";
+    rdfs:domain screener:Indicator;
+    rdfs:range xsd:string.
+
+screener:isDerivedFrom a owl:ObjectProperty;
+    rdfs:label "is derived from";
+    rdfs:comment "An intermediate measurement used in the computation of this indicator";
+    rdfs:domain screener:Indicator;
+    rdfs:range screener:Indicator.
+
+screener:hasInterval a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "has interval";
+    rdfs:comment "The time interval that this indicator operates with";
+    rdfs:domain screener:Indicator;
+    rdfs:range screener:Interval.
+
+screener:hasUnit a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "has unit";
+    rdfs:comment "The unit of measure used by this indicator";
+    rdfs:domain screener:Indicator;
+    rdfs:range screener:Unit.
+
+screener:ofExchange a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "of exchange";
+    rdfs:comment "All securities in this watch list are listed on the given exchange";
+    rdfs:domain screener:WatchList;
+    rdfs:range screener:Exchange.
+
+screener:include a owl:ObjectProperty;
+    rdfs:label "include";
+    rdfs:comment "A Security that is explicitly included in this watch list";
+    rdfs:domain screener:WatchList;
+    rdfs:range screener:Security.
+
+screener:includeSector a owl:DatatypeProperty;
+    rdfs:label "include sector";
+    rdfs:comment "All securities in a sector, of the given name, are implicitly included, unless explicitly excluded";
+    rdfs:domain screener:WatchList;
+    rdfs:range xsd:string.
+
+screener:exclude a owl:ObjectProperty;
+    rdfs:label "exclude";
+    rdfs:comment "This security is not part of this watch list";
+    rdfs:domain screener:WatchList;
+    rdfs:range screener:Security.
+
+screener:marketOpensAt a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "market opens at";
+    rdfs:comment "The time at which the market is opened, in the time zone of this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:time.
+
+screener:marketClosesAt a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "market closes at";
+    rdfs:comment "The time at which the market is closed, in the time zone of this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:time.
+
+screener:inTimeZone a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "in time zone";
+    rdfs:comment "Time zone of the primary location of this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:mic a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "MIC";
+    rdfs:comment "Market Identifier Code value of ISO 10383 for this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:marketLang a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "market lang";
+    rdfs:comment "The primary language of the exchange, to lookup Yahoo! symbol";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:exch a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "exch";
+    rdfs:comment "The Yahoo! exch code for this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:yahooSuffix a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "yahoo suffix";
+    rdfs:comment "Yahoo symbol suffix used for securities in this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:marketID a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "market ID";
+    rdfs:comment "The market ID used in the DTN network";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:integer.
+
+screener:dtnPrefix a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "DTN prefix";
+    rdfs:comment "The symbol prefix used by the DTN network for securities in this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.
+
+screener:morningstarCode a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "morningstore code";
+    rdfs:comment "The acronym prefix used by Morningstar for securities in this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:string.

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title>New Screen</title>
+    <link rel="stylesheet" href="../styles/inline-input-group.css" />
+    <link rel="stylesheet" href="../styles/screen.less?less" />
+    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
+    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/screen.js"></script>
+</head>
+<body>
+    <form id="screen-form" role="form" method="POST" action="" enctype="application/rdf+xml" typeof="screener:Screen" class="container"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <hgroup class="page-header">
+            <h1>New Screen</h1>
+        </hgroup>
+        <fieldset class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div id="distribution-chart"></div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <div>
+                <label>Filters <a href="javascript:void(0)" title="Another filter"
+                    onclick="return calli.addResource(event,'#filters')" class="glyphicon glyphicon-plus" /></label>
+                <div id="filters">
+                    <div class="row" rel="screener:hasFilter" resource="?filter">
+                        <div class="col-sm-6 form-group">
+                            <input class="indicator typeahead form-control input-sm" type="text" placeholder="indicator" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <div class="input-group">
+                                <label class="input-group-addon input-sm">Min</label>
+                                <input class="min-input form-control input-sm" type="number" value="{screener:min}" datatype="xsd:integer" />
+                            </div>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <div class="input-group">
+                                <label class="input-group-addon input-sm">Max</label>
+                                <input class="max-input form-control input-sm" type="number" value="{screener:max}" datatype="xsd:integer" />
+                            </div>
+                        </div>
+                        <div rel="screener:forIndicator" resource="?indicator" />
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">Create</button>
+        </div>
+    </form>
+    <div class="container">
+        <form id="backtesting-form" class="form-inline pull-right" role="form">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">Backtest</span>
+                    <input type="text" class="form-control input-sm watch-list typeahead" id="backtesting-list" placeholder="Watch list" required="required" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">As of</span>
+                    <input type="date" class="form-control input-sm" id="backtesting-asof" required="required" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-default btn-sm">Preview</button>
+        </form>
+    </div>
+    <table id="results" class="table table-striped table-condensed"></table>
+</body>
+</html>

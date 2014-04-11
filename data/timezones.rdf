@@ -1,0 +1,1158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:dcterms="http://purl.org/dc/terms/" >
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Bissau">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Bissau</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Bissau is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GW +1151-01535 Africa/Bissau The reference point is Bissau.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Bujumbura">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Bujumbura</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Bujumbura is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BI -0323+02922 Africa/Bujumbura The reference point is Bujumbura.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Ceuta">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Ceuta</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Ceuta is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ES +3553-00519 Africa/Ceuta Ceuta &amp; Melilla The reference point is Ceuta and Melilla.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Dar_es_Salaam">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Dar es Salaam</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Dar_es_Salaam is a time zone identifier from zone file of the IANA time zone database. The data is as follows: TZ -0648+03917 Africa/Dar_es_Salaam The reference point is Dar es Salaam.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Johannesburg">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Johannesburg</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Johannesburg is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ZA -2615+02800 Africa/Johannesburg The reference point is Johannesburg.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Libreville">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Libreville</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Libreville is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GA +0023+00927 Africa/Libreville The reference location is Libreville.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Maputo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Maputo</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Maputo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MZ -2558+03235 Africa/Maputo The reference location is Maputo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Maseru">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Maseru</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Maseru is a time zone identifier from zone file of the IANA time zone database. The data is as follows: LS -2928+02730 Africa/Maseru The reference location is Maseru.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Mbabane">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Mbabane</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Mbabane is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SZ -2618+03106 Africa/Mbabane The reference location is Mbabane.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Monrovia">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Monrovia</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Monrovia is a time zone identifier from zone file of the IANA time zone database. The data is as follows: LR +0618-01047 Africa/Monrovia The reference location is Monrovia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Niamey">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Niamey</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Niamey is a time zone identifier from zone file of the IANA time zone database. The data is as follows: NE +1331+00207 Africa/Niamey The reference location is Niamey.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Porto-Novo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Porto-Novo</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Porto-Novo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BJ +0629+00237 Africa/Porto-Novo The reference point is Porto-Novo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Sao_Tome">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Sao Tome</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Sao_Tome is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ST +0020+00644 Africa/Sao_Tome The reference point is São Tomé.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Tripoli">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Tripoli</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Tripoli is a time zone identifier from zone file of the IANA time zone database. The data is as follows: LY +3254+01311 Africa/Tripoli The reference point is Tripoli.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Tunis">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Tunis</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Tunis, Tunisia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Adak">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Adak</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Adak is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +515248-1763929 America/Adak Aleutian Islands The reference point is Adak, Alaska.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Araguaina">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Araguaina</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Araguaina is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0712-04812 America/Araguaina Tocantins The reference point is Araguaína.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Buenos_Aires">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Buenos Aires</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Buenos_Aires is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -3436-05827 America/Argentina/Buenos_Aires Buenos Aires (BA, CF) The two letter codes refer to: BA Buenos Aires Province CF Buenos Aires (ex Capital Federal)</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Catamarca">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Catamarca</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Catamarca is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -2828-06547 America/Argentina/Catamarca Catamarca (CT), Chubut (CH) The reference point is San Fernando del Valle de Catamarca.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Cordoba">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Cordoba</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Córdoba is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -3124-06411 America/Argentina/Cordoba most locations (CB, CC, CN, ER, FM, MN, SE, SF) The reference point is Cordoba, Argentina.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Jujuy">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Jujuy</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Jujuy is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -2411-06518 America/Argentina/Jujuy Jujuy (JY) The reference point is San Salvador de Jujuy.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/La_Rioja">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/La Rioja</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/La_Rioja is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -2926-06651 America/Argentina/La_Rioja La Rioja (LR) The reference point is La Rioja, Argentina.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Rio_Gallegos">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Rio Gallegos</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Rio_Gallegos is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -5138-06913 America/Argentina/Rio_Gallegos Santa Cruz (SC) The reference point is Río Gallegos, Santa Cruz.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Salta">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Salta</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Salta is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -2447-06525 America/Argentina/Salta (SA, LP, NQ, RN) The reference point is Salta, Argentina. The two letter codes refer to Salta Province La Pampa Province Neuquen Province Rio Negro Province</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Boa_Vista">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Boa Vista</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Boa_Vista is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR +0249-06040 America/Boa_Vista Roraima The reference point is Boa Vista.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Boise">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Boise</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Boise is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: US +433649-1161209 America/Boise Mountain Time - south Idaho &amp; east Oregon The reference point is Boise, Idaho, the covered area are the parts of South Idaho and East Oregon that are Mountain Time Zone. Idaho - southern half, south of Salmon River Oregon - majority of Malheur County, on Idaho border</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Detroit">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Detroit</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Detroit is a time zone identifier in the IANA time zone database. The data is as follows: US +421953-0830245 America/Detroit Eastern Time - Michigan - most locations The reference point is Detroit.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Goose_Bay">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Goose Bay</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Goose_Bay is a time zone identifier in the IANA time zone database. The data is as follows: CA +5320-06025 America/Goose_Bay Atlantic Time - Labrador - most locations The reference point is Happy Valley-Goose Bay.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Knox">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Knox</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Knox is a time zone identifier in the IANA time zone database. The reference point is Knox, Indiana. The covered area is Starke County, Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Kentucky/Louisville">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Kentucky/Louisville</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Kentucky/Louisville is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +381515-0854534 America/Kentucky/Louisville Eastern Time - Kentucky - Louisville area The reference point is Louisville, Kentucky.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Kentucky/Monticello">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Kentucky/Monticello</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Kentucky/Monticello is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +364947-0845057 America/Kentucky/Monticello Eastern Time - Kentucky - Wayne County The reference point is Monticello, Kentucky.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Los_Angeles">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Los Angeles</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Los_Angeles is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +340308-1181434 America/Los_Angeles Pacific Time The reference point is Los Angeles.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Manaus">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Manaus</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Manaus is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0308-06001 America/Manaus E Amazonas The reference point is Manaus.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Menominee">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Menominee</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Menominee is a time zone identifier in the IANA time zone database. The data is as follows: US +450628-0873651 America/Menominee Central Time - Michigan - Dickinson, Gogebic, Iron &amp; Menominee Counties The reference point is Menominee, Michigan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Merida">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Merida</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Merida is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +2058-08937 America/Merida Central Time - Campeche, Yucatan The reference point is Mérida, Yucatán.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Mexico_City">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Mexico City</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Mexico_City is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +1924-09909 America/Mexico_City Central Time - most locations The reference point is Mexico City.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/North_Dakota/Center">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/North Dakota/Center</rdfs:label>
+    <rdfs:comment xml:lang="en">America/North_Dakota/Center is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +470659-1011757 America/North_Dakota/Center Central Time - North Dakota - Oliver County The reference point is Center, North Dakota.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Recife">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Recife</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Recife is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0803-03454 America/Recife Pernambuco The reference point is Recife.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Santiago">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Santiago</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Santiago is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CL -3327-07040 America/Santiago most locations The reference point is Santiago.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Sao_Paulo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Sao Paulo</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Sao_Paulo is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: BR -2332-04637 America/Sao_Paulo S &amp; SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS) The reference point is São Paulo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Tijuana">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Tijuana</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Tijuana is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +3232-11701 America/Tijuana US Pacific Time - Baja California near US border The reference point is Tijuana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Mawson">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Mawson</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Mawson is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6736+06253 Antarctica/Mawson Mawson Station, Holme Bay The reference point is Mawson Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/McMurdo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/McMurdo</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/McMurdo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -7750+16636 Antarctica/McMurdo McMurdo Station, Ross Island The reference point is McMurdo Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Palmer">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Palmer</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Palmer is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6448-06406 Antarctica/Palmer Palmer Station, Anvers Island The reference point is Palmer Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/South_Pole">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/South Pole</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/South Pole is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -9000+00000 Antarctica/South_Pole Amundsen-Scott Station, South Pole The reference point is the South Pole.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Arctic/Longyearbyen">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Arctic/Longyearbyen</rdfs:label>
+    <rdfs:comment xml:lang="en">Arctic/Longyearbyen is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SJ +7800+01600 Arctic/Longyearbyen The reference point is Longyearbyen.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Aden">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Aden</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Aden, Yemen.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Aqtobe">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Aqtobe</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Aqtobe is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KZ +5017+05710 Asia/Aqtobe Aqtobe (Aktobe) The reference point is Aktobe.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Ashgabat">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Ashgabat</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Ashgabat is a time zone identifier from zone file of the IANA time zone database. The data is as follows: TM +3757+05823 Asia/Ashgabat The reference point is Ashgabat.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Irkutsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Irkutsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Irkutsk is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5216+10420 Asia/Irkutsk Moscow+05 - Lake Baikal The reference point is Irkutsk</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Jakarta">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Jakarta</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Jakarta is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ID -0610+10648 Asia/Jakarta Java &amp; Sumatra The reference point is Jakarta.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Jayapura">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Jayapura</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Jayapura is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ID -0232+14042 Asia/Jayapura west New Guinea (Irian Jaya) &amp; Malukus (Moluccas) The reference point is Jayapura.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Karachi">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Karachi</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Karachi is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: PK +2452+06703 Asia/Karachi The reference point is Karachi.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Kashgar">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Kashgar</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Kashgar is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CN +3929+07559 Asia/Kashgar west Tibet &amp; Xinjiang The reference point is Kashgar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Magadan">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Magadan</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Magadan is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5934+15048 Asia/Magadan Moscow+08 - Magadan The reference point is Magadan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Qyzylorda">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Qyzylorda</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Qyzylorda is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KZ +4448+06528 Asia/Qyzylorda Qyzylorda (Kyzylorda, Kzyl-Orda) The reference point is Kyzylorda.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Sakhalin">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Sakhalin</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Sakhalin is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +4658+14242 Asia/Sakhalin Moscow+07 - Sakhalin Island The reference point is Yuzhno-Sakhalinsk</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Taipei">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Taipei</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Taipei is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: TW +2503+12130 Asia/Taipei The reference point is Taipei.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Tehran">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Tehran</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Tehran is a time zone identifier from the file zone. tab of the IANA time zone database. The data is as follows: IR +3540+05126 Asia/Tehran The reference point is Tehran.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Urumqi">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Urumqi</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Urumqi is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CN +4348+08735 Asia/Urumqi most of Tibet &amp; Xinjiang The reference point is Urumqi.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Atlantic/Azores">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Atlantic/Azores</rdfs:label>
+    <rdfs:comment xml:lang="en">Atlantic/Azores is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: PT +3744-02540 Atlantic/Azores Azores The reference point are the Azores.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Brisbane">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Brisbane</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Brisbane is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -2728+15302 Australia/Brisbane Queensland - most locations The reference point is Brisbane.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Broken_Hill">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Broken Hill</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Broken_Hill is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3157+14127 Australia/Broken_Hill New South Wales - Yancowinna The reference point is Broken Hill, New South Wales.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Eucla">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Eucla</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Eucla is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3143+12852 Australia/Eucla Western Australia - Eucla area The reference point is Eucla, Western Australia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Hobart">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Hobart</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Hobart is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -4253+14719 Australia/Hobart Tasmania - most locations The reference point is Hobart.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Sydney">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Sydney</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Sydney is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3352+15113 Australia/Sydney New South Wales - most locations The reference point is Sydney.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Istanbul">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Istanbul</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Istanbul is a time zone identifier from zone file of the IANA time zone database. The data is as follows: TR +4101+02858 Europe/Istanbul The reference point is Istanbul.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Moscow">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Moscow</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Moscow is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5545+03735 Europe/Moscow Moscow+00 - west Russia The reference point is Moscow.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Oslo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Oslo</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Oslo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: NO +5955+01045 Europe/Oslo The reference point is Oslo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Zurich">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Zurich</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Zurich is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CH +4723+00832 Europe/Zurich The reference point is Zurich.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Abidjan">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Abidjan</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Abidjan is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CI +0519-00402 Africa/Abidjan The reference point is Abidjan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Accra">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Accra</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Accra is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GH +0533-00013 Africa/Accra The reference point is Accra.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Addis_Ababa">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Addis Ababa</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Addis_Ababa is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ET +0902+03842 Africa/Addis_Ababa The reference point is Addis Ababa.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Algiers">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Algiers</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Algiers is a time zone identifier from zone file of the IANA time zone database. The data is as follows: DZ +3647+00303 Africa/Algiers The reference point is Algiers.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Asmara">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Asmara</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Asmara is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ER +1520+03853 Africa/Asmara The reference point is Asmara.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Bamako">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Bamako</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Bamako is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ML +1239-00800 Africa/Bamako The reference point is Bamako.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Bangui">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Bangui</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Bangui is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CF +0422+01835 Africa/Bangui The reference point is Bangui.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Banjul">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Banjul</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Banjul is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GM +1328-01639 Africa/Banjul The reference point is Banjul.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Blantyre">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Blantyre</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Blantyre is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MW -1547+03500 Africa/Blantyre The reference point is Blantyre.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Brazzaville">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Brazzaville</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Brazzaville is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CG -0416+01517 Africa/Brazzaville The reference point is Brazzaville.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Cairo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Cairo</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Cairo is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: EG +3003+03115 Africa/Cairo The reference point is Cairo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Casablanca">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Casablanca</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Casablanca is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MA +3339-00735 Africa/Casablanca The reference point is Casablanca.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Conakry">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Conakry</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Conakry is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GN +0931-01343 Africa/Conakry The reference point is Conakry.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Dakar">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Dakar</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Dakar is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SN +1440-01726 Africa/Dakar The reference point is Dakar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Djibouti">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Djibouti</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Djibouti is a time zone identifier from zone file of the IANA time zone database. The data is as follows: DJ +1136+04309 Africa/Djibouti The reference point is Djibouti (city).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Douala">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Douala</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Djibouti is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CM +0403+00942 Africa/Douala The reference point is Douala.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/El_Aaiun">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/El Aaiun</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/El_Aaiun is a time zone identifier from zone file of the IANA time zone database. The data is as follows: EH +2709-01312 Africa/El_Aaiun The reference point is El Aaiún.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Freetown">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Freetown</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Freetown is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SL +0830-01315 Africa/Freetown The reference point is Freetown.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Gaborone">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Gaborone</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Gaborone is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BW -2439+02555 Africa/Gaborone The reference point is Gaborone.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Harare">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Harare</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Harare is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ZW -1750+03103 Africa/Harare The reference point is Harare.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Kampala">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Kampala</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Kampala is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UG +0019+03225 Africa/Kampala The reference point is Kampala.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Khartoum">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Khartoum</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Khartoum is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SD +1536+03232 Africa/Khartoum The reference point is Khartoum.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Kigali">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Kigali</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Kigali is a time zone identifier from zone file of the IANA time zone database. The data is as follows: RW -0157+03004 Africa/Kigali The reference point is Kigali.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Kinshasa">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Kinshasa</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Kinshasa is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CD -0418+01518 Africa/Kinshasa west Dem. Rep. of Congo The reference location is Kinshasa.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Lagos">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Lagos</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Lagos is a time zone identifier from zone file of the IANA time zone database. The data is as follows: NG +0627+00324 Africa/Lagos The reference location is Lagos.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Lome">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Lome</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Lome is a time zone identifier from zone file of the IANA time zone database. The data is as follows: TG +0608+00113 Africa/Lome The reference location is Lomé.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Luanda">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Luanda</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Luanda is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AO -0848+01314 Africa/Luanda The reference point is Luanda.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Lubumbashi">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Lubumbashi</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Lubumbashi is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CD -1140+02728 Africa/Lubumbashi east Dem. Rep. of Congo The reference location is Lubumbashi.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Lusaka">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Lusaka</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Lusaka is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ZM -1525+02817 Africa/Lusaka The reference location is Lusaka.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Malabo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Malabo</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Malabo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GQ +0345+00847 Africa/Malabo The reference location is Malabo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Mogadishu">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Mogadishu</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Mogadishu is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SO +0204+04522 Africa/Mogadishu The reference location is Mogadishu.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Nairobi">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Nairobi</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Nairobi is a time zone identifier from zone file of the IANA time zone database. The data is as follows: KE -0117+03649 Africa/Nairobi The reference point is Nairobi.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Ndjamena">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Ndjamena</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Ndjamena is a time zone identifier from zone file of the IANA time zone database. The data is as follows: TD +1207+01503 Africa/Ndjamena The reference location is N&#39;Djamena.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Windhoek">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Windhoek</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Windhoek, Namibia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Anchorage">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Anchorage</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Anchorage is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +611305-1495401 America/Anchorage Alaska Time The reference point is Anchorage.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Mendoza">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Mendoza</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Mendoza is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -3253-06849 America/Argentina/Mendoza Mendoza (MZ) The reference point is Mendoza, Argentina.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/San_Juan">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/San Juan</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/San_Juan is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -3132-06831 America/Argentina/San_Juan San Juan (SJ) The reference point is San Juan, Argentina.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/San_Luis">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/San Luis</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/San_Luis is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -3319-06621 America/Argentina/San_Luis San Luis (SL) The reference point is San Luis, Argentina.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Ushuaia">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Ushuaia</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Ushuaia is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -5448-06818 America/Argentina/Ushuaia Tierra del Fuego (TF) The reference point is Ushuaia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Bahia">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Bahia</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Bahia is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -1259-03831 America/Bahia Bahia The reference point is Salvador, Bahia also simply called Bahia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Belem">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Belem</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Belem is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0127-04829 America/Belem Amapa, E Para The reference point is Belém.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Campo_Grande">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Campo Grande</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Campo_Grande is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -2027-05437 America/Campo_Grande Mato Grosso do Sul The reference point is Campo Grande.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Cancun">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Cancun</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Cancun is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +2105-08646 America/Cancun Central Time - Quintana Roo The reference point is Cancún.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Chicago">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label>America/Chicago</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Chihuahua">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Chihuahua</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Chihuahua is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +2838-10605 America/Chihuahua Mexican Mountain Time - Chihuahua away from US border The reference point is Chihuahua, Chihuahua.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Curacao">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Curacao</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Curacao is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CW +1211-06900 America/Curacao The reference point is Curaçao.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Denver">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label>America/Denver</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Eirunepe">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Eirunepe</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Eirunepe is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0640-06952 America/Eirunepe W Amazonas The reference point is Eirunepé.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Fortaleza">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Fortaleza</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Fortaleza is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0343-03830 America/Fortaleza NE Brazil (MA, PI, CE, RN, PB) The reference point is Fortaleza.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Halifax">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Halifax</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Halifax is a time zone identifier in the IANA time zone database. The data is as follows: CA +4439-06336 America/Halifax Atlantic Time - Nova Scotia (most places), PEI The reference point is Halifax Regional Municipality.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Indianapolis">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Indianapolis</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Indianapolis is a time zone identifier in the IANA time zone database. The data is as follows: US +394606-0860929 America/Indiana/Indianapolis Eastern Time - Indiana - most locations The reference point is Indianapolis, the capital and largest city of Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Marengo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Marengo</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Marengo is a time zone identifier in the IANA time zone database. The reference point is Marengo, Indiana. The covered area is Crawford County, Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Petersburg">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Petersburg</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Petersburg is a time zone identifier in the IANA time zone database. The reference point is Petersburg, Indiana. The covered area is Pike County, Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Tell_City">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Tell City</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Tell_City is a time zone identifier in the IANA time zone database. The reference point is Tell City, Indiana. The covered area is Perry County, Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Vevay">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Vevay</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Vevay is a time zone identifier in the IANA time zone database. The reference point is Vevay, Indiana. The covered is Switzerland County.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Vincennes">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Vincennes</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Vincennes is a time zone identifier in the IANA time zone database. The reference point is Vincennes, Indiana. The covered area are: Daviess County, Dubois County, Knox County, Martin County.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Indiana/Winamac">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Indiana/Winamac</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Indiana/Winamac is a time zone identifier in the IANA time zone database. The reference point is Winamac, Indiana. The covered area is Pulaski County, Indiana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Juneau">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Juneau</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Juneau is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +581807-1342511 America/Juneau Alaska Time - Alaska panhandle The reference point is Juneau, Alaska.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Maceio">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Maceio</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Maceio is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0940-03543 America/Maceio Alagoas, Sergipe The reference point is Maceió.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Moncton">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Moncton</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Moncton is a time zone identifier in the IANA time zone database. The data is as follows: CA +4606-06447 America/Moncton Atlantic Time - New Brunswick The reference point is Moncton.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Monterrey">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Monterrey</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Monterrey is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MX +2540-10019 America/Monterrey Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from US border It refers to Monterrey, Nuevo Leon. America/Matamoros was split off in 2010. http://article. gmane. org/gmane. comp. time. tz/3062</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Montevideo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Montevideo</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Montevideo is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UY -3453-05611 America/Montevideo The reference point is the city of Montevideo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Montreal">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Montreal</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Montreal is a time zone identifier in the IANA time zone database. The data is as follows: CA +4531-07334 America/Montreal Eastern Time - Quebec - most locations The reference point is Montreal.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/New_York">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label>America/New York</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Noronha">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Noronha</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Noronha is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0351-03225 America/Noronha Atlantic islands The reference point is Fernando de Noronha.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/North_Dakota/New_Salem">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/North Dakota/New Salem</rdfs:label>
+    <rdfs:comment xml:lang="en">America/North_Dakota/New_Salem is a time zone identifier from zone file of the IANA time zone database. The data is as follows: US +465042-1012439 America/North_Dakota/New_Salem Central Time - North Dakota - Morton County (except Mandan area) The reference point is New Salem, North Dakota.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Porto_Velho">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Porto Velho</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Porto_Velho is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0846-06354 America/Porto_Velho Rondonia The reference point is Porto Velho.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Rainy_River">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Rainy River</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Rainy_River is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CA +4843-09434 America/Rainy_River Central Time - Rainy River &amp; Fort Frances, Ontario The reference point is Rainy River, Ontario.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Regina">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Regina</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Regina is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CA +5024-10439 America/Regina Central Standard Time - Saskatchewan - most locations The reference point is Regina, Saskatchewan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Rio_Branco">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Rio Branco</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Rio_Branco is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0958-06748 America/Rio_Branco Acre The reference point is Rio Branco.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Santa_Isabel">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Santa Isabel</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Santa_Isabel is a time zone identifier in the IANA time zone database. The data is as follows: MX +3018-11452 America/Santa_Isabel Mexican Pacific Time - Baja California away from US border The reference point is Santa Isabel, Baja California.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Santarem">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Santarem</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Santarem is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -0226-05452 America/Santarem W Para The reference point is Santarém, Brazil.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/St_Johns">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/St Johns</rdfs:label>
+    <rdfs:comment xml:lang="en">America/St_Johns is a time zone identifier in the IANA time zone database. The data is as follows: CA +4734-05243 America/St_Johns Newfoundland Time, including SE Labrador The reference point is St. John&#39;s, Newfoundland and Labrador.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/St_Thomas">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/St Thomas</rdfs:label>
+    <rdfs:comment xml:lang="en">America/St_Thomas is a time zone identifier from zone file of the IANA time zone database. The data is as follows: VI +1821-06456 America/St_Thomas The reference point is Saint Thomas, U.S. Virgin Islands.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Toronto">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Toronto</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Toronto is a time zone identifier in the IANA time zone database. The data is as follows: CA +4339-07923 America/Toronto Eastern Time - Ontario - most locations The reference point is Toronto.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Casey">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Casey</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Casey is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6617+11031 Antarctica/Casey Casey Station, Bailey Peninsula The reference point is Casey Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Davis">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Davis</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Davis is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6835+07758 Antarctica/Davis Davis Station, Vestfold Hills The reference point is Davis Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/DumontDUrville">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/DumontDUrville</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/DumontDUrville is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6640+14001 Antarctica/DumontDUrville Dumont-d&#39;Urville Station, Terre Adelie The reference point is Dumont d&#39;Urville Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Rothera">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Rothera</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Rothera is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -6734-06808 Antarctica/Rothera Rothera Station, Adelaide Island The reference point is Rothera Research Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Syowa">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Syowa</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Syowa is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -690022+0393524 Antarctica/Syowa Syowa Station, E Ongul I The reference point is Syowa Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Vostok">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Vostok</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctica/Vostok is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AQ -7824+10654 Antarctica/Vostok Vostok Station, Lake Vostok The reference point is Vostok Station.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Almaty">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Almaty</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Almaty is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KZ +4315+07657 Asia/Almaty most locations The reference point is Almaty.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Amman">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Amman</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Amman is a time zone identifier from zone file of the IANA time zone database. The data is as follows: JO +3157+03556 Asia/Amman The reference point is Amman.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Anadyr">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Anadyr</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Anadyr is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +6445+17729 Asia/Anadyr Moscow+08 - Bering Sea The reference point is Anadyr.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Aqtau">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Aqtau</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Aqtau is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KZ +4431+05016 Asia/Aqtau Atyrau (Atirau, Gur&#39;yev), Mangghystau (Mankistau) The reference point is Aktau.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Bangkok">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Bangkok</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Bangkok is a time zone identifier from the file zone. tab of the IANA time zone database. The data is as follows: TH +1345+10031 Asia/Bangkok The reference point is Bangkok.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Choibalsan">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Choibalsan</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Choibalsan is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: MN +4804+11430 Asia/Choibalsan Dornod, Sukhbaatar The reference point is Choibalsan (city).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Chongqing">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Chongqing</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Chongqing is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CN +2934+10635 Asia/Chongqing central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc. The reference point is Chongqing.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Harbin">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Harbin</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Harbin is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CN +4545+12641 Asia/Harbin Heilongjiang (except Mohe), Jilin The reference point is Harbin.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Hovd">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Hovd</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Hovd is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: MN +4801+09139 Asia/Hovd Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan The reference point is Khovd (city).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Kamchatka">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Kamchatka</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Kamchatka is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5301+15839 Asia/Kamchatka Moscow+08 - Kamchatka The reference point is Kamchatka Peninsula</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Kolkata">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Kolkata</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Kolkata is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: IN +2232+08822 Asia/Kolkata The reference point is Kolkata.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Krasnoyarsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Krasnoyarsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Krasnoyarsk is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5601+09250 Asia/Krasnoyarsk Moscow+04 - Yenisei River The reference point is Krasnoyarsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Makassar">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Makassar</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Makassar is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ID -0507+11924 Asia/Makassar east &amp; south Borneo, Sulawesi (Celebes), Bali, Nusa Tengarra, west Timor The reference point is Makassar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Novosibirsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Novosibirsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Novosibirsk is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5502+08255 Asia/Novosibirsk Moscow+03 - Novosibirsk The reference point is Novosibirsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Omsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Omsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Omsk is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5500+07324 Asia/Omsk Moscow+03 - west Siberia The reference point is Omsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Oral">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Oral</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Oral is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KZ +5113+05121 Asia/Oral West Kazakhstan The reference point is Oral, Kazakhstan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Pontianak">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Pontianak</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Jakarta is a time zone identifier from zone file of the IANA time zone database. The data is as follows: ID -0002+10920 Asia/Pontianak west &amp; central Borneo The reference point is Pontianak, Indonesia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Tashkent">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Tashkent</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Tehran is a time zone identifier from the file zone. tab of the IANA time zone database. The data is as follows: UZ +4120+06918 Asia/Tashkent east Uzbekistan The reference point is Tehran.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Tokyo">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Tokyo</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Tokyo is a time zone identifier from the file zone. tab of the IANA time zone database. The data is as follows: JP +353916+1394441 Asia/Tokyo The reference point is Tokyo.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Ulaanbaatar">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Ulaanbaatar</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Ulaanbaatar is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: MN +4755+10653 Asia/Ulaanbaatar most locations The reference point is Ulan Bator.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Vladivostok">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Vladivostok</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Vladivostok is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +4310+13156 Asia/Vladivostok Moscow+07 - Amur River The reference point is Vladivostok.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Yakutsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Yakutsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Yakutsk is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +6200+12940 Asia/Yakutsk Moscow+06 - Lena River The reference point is Yakutsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Yekaterinburg">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Yekaterinburg</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Yekaterinburg is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5651+06036 Asia/Yekaterinburg Moscow+02 - Urals The reference point is Yekaterinburg.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Yerevan">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Yerevan</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Yerevan is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AM +4011+04430 Asia/Yerevan The reference point is Yerevan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Adelaide">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Adelaide</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Adelaide is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3455+13835 Australia/Adelaide South Australia The reference point is Adelaide.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Currie">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Currie</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Currie is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3956+14352 Australia/Currie Tasmania - King Island The reference point is Currie, Tasmania.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Lindeman">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Lindeman</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Lindeman is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -2016+14900 Australia/Lindeman Queensland - Holiday Islands The reference point is Lindeman Island.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Lord_Howe">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Lord Howe</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Lord_Howe is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3133+15905 Australia/Lord_Howe Lord Howe Island The reference point is Lord Howe Island.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Melbourne">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Melbourne</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Melbourne is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3749+14458 Australia/Melbourne Victoria The reference point is Melbourne.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Amsterdam">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Amsterdam</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Amsterdam is a time zone identifier from zone file of the IANA time zone database. The data is as follows: NL +5222+00454 Europe/Amsterdam The reference point is Amsterdam.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Andorra">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Andorra</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Andorra is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AD +4230+00131 Europe/Andorra The reference point is Andorra la Vella.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Athens">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Athens</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Athens is a time zone identifier from zone file of the IANA time zone database. The data is as follows: GR +3758+02343 Europe/Athens The reference point is Athens.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Belgrade">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Belgrade</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Belgrade is a time zone identifier from zone file of the IANA time zone database. The data is as follows: RS +4450+02030 Europe/Belgrade The reference point is Belgrade.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Berlin">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Berlin</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Berlin is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: DE +5230+01322 Europe/Berlin The reference point is Berlin.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Bratislava">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Bratislava</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Bratislava is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: SK +4809+01707 Europe/Bratislava The reference point is Bratislava.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Brussels">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Brussels</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Brussels is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BE +5050+00420 Europe/Brussels The reference point is Brussels.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Bucharest">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Bucharest</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Bucharest is a time zone identifier from zone file of the IANA time zone database. The data is as follows: RO +4426+02606 Europe/Bucharest The reference point is Bucharest.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Budapest">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Budapest</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Budapest is a time zone identifier from zone file of the IANA time zone database. The data is as follows: HU +4730+01905 Europe/Budapest The reference point is Budapest.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Copenhagen">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Copenhagen</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Copenhagen is a time zone identifier from zone file of the IANA time zone database. The data is as follows: DK +5540+01235 Europe/Copenhagen The reference point is Copenhagen.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Kaliningrad">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Kaliningrad</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Kaliningrad is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5443+02030 Europe/Kaliningrad Moscow-01 - Kaliningrad The reference point is Kaliningrad.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Kiev">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Kiev</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Kiev is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UA +5026+03031 Europe/Kiev most locations The reference point is Kiev.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Lisbon">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Lisbon</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Lisbon is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: PT +3843-00908 Europe/Lisbon mainland The reference point is Lisbon.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Ljubljana">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Ljubljana</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Ljubljana is a time zone identifier from zone file of the IANA time zone database. The data is as follows: SI +4603+01431 Europe/Ljubljana The reference point is Ljubljana.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/London">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/London</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/London is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: UK +513030-0000731 Europe/London The reference point is London.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Madrid">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Madrid</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Madrid.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Malta">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Malta</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Malta is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: MT +3554+01431 Europe/Malta The reference point is Malta.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Minsk">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Minsk</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Minsk is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BY +5354+02734 Europe/Minsk The reference point is Minsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Paris">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Paris</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Paris is a time zone identifier from zone file of the IANA time zone database. The data is as follows: FR +4852+00220 Europe/Paris The reference point is Paris.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Rome">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Rome</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Rome is a time zone identifier from zone file of the IANA time zone database. The data is as follows: IT +4154+01229 Europe/Rome The reference point is Rome.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Samara">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Samara</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Samara is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +5312+05009 Europe/Samara Moscow+00 - Samara, Udmurtia The reference point is Samara.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Simferopol">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Simferopol</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Simferopol is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UA +4457+03406 Europe/Simferopol central Crimea The reference point is Simferopol.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Uzhgorod">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Uzhgorod</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Uzhgorod is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UA +4837+02218 Europe/Uzhgorod Ruthenia The reference point is Uzhgorod.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Volgograd">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Volgograd</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Volgograd is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: RU +4844+04425 Europe/Volgograd Moscow+00 - Caspian Sea The reference point is Volgograd.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Warsaw">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Warsaw</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Warsaw is a time zone identifier from zone file of the IANA time zone database. The data is as follows: PL +5215+02100 Europe/Warsaw The reference point is Warsaw.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Zagreb">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Zagreb</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Zagreb is a time zone identifier from zone file of the IANA time zone database. The data is as follows: HR +4548+01558 Europe/Zagreb The reference point is Zagreb.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Zaporozhye">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Zaporozhye</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Zaporozhye is a time zone identifier from zone file of the IANA time zone database. The data is as follows: UA +4750+03510 Europe/Zaporozhye Zaporozh&#39;ye, E Lugansk / Zaporizhia, E Luhansk The reference point is Zaporozhye.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pacific/Easter">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Pacific/Easter</rdfs:label>
+    <rdfs:comment xml:lang="en">Pacific/Easter is a time zone identifier from zone file of the IANA time zone database. The data is as follows: CL -2709-10926 Pacific/Easter Easter Island &amp; Sala y Gomez The reference point is Easter Island.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pacific/Kiritimati">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Pacific/Kiritimati</rdfs:label>
+    <rdfs:comment xml:lang="en">Pacific/Kiritimati is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: KI +0152-15720 Pacific/Kiritimati Line Islands The reference point is Kiritimati.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pacific/Tongatapu">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Pacific/Tongatapu</rdfs:label>
+    <rdfs:comment xml:lang="en">Pacific/Tongatapu is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: TO -2110-17510 Pacific/Tongatapu The reference point is Tongatapu.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Ulan_Ude">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Ulan Ude</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Ulan_Ude was a time zone identifier from the zone file of the IANA time zone database. The reference point was Ulan-Ude. It was added in 2011e. Edition 2011i did not contain it anymore. The area remained at Asia/Irkutsk.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Metlakatla">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Metlakatla</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Annette Island, Alaska.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Sitka">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Sitka</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are near Sitka, Alaska. Note that the following tz identifiers are currently equivalent to America/Sitka – they only exist because of differences in the past: America/Juneau America/Yakutat America/Anchorage America/Nome</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/North_Dakota/Beulah">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/North Dakota/Beulah</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Beulah, North Dakota.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Atlantic/Madeira">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Atlantic/Madeira</rdfs:label>
+    <rdfs:comment xml:lang="en">Atlantic/Madeira is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: PT +3238-01654 Atlantic/Madeira Madeira Islands The reference point is Madeira.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Darwin">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Darwin</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Darwin is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -1228+13050 Australia/Darwin Northern Territory The reference point is Darwin, Northern Territory.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Thimphu">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Thimphu</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Thimphu, Bhutan.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Nouakchott">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Nouakchott</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Nouakchott is a time zone identifier from zone file of the IANA time zone database. The data is as follows: MR +1806-01557 Africa/Nouakchott The reference point is Nouakchott.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Africa/Ouagadougou">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Africa/Ouagadougou</rdfs:label>
+    <rdfs:comment xml:lang="en">Africa/Ouagadougou is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BF +1222-00131 Africa/Ouagadougou The reference point is Ouagadougou.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Argentina/Tucuman">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Argentina/Tucuman</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Argentina/Tucuman is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AR -2649-06513 America/Argentina/Tucuman Tucuman (TM) The reference point is San Miguel de Tucumán.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Glace_Bay">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Glace Bay</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Glace_Bay is a time zone identifier in the IANA time zone database. The data is as follows: CA +4612-05957 America/Glace_Bay Atlantic Time - Nova Scotia - places that did not observe DST 1966-1971 The reference point is Glace Bay, Nova Scotia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Helsinki">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Helsinki</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Helsinki is a time zone identifier from zone file of the IANA time zone database. The data is as follows: FI +6010+02458 Europe/Helsinki The reference point is Helsinki.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Cuiaba">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Cuiaba</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Cuiaba is a time zone identifier from zone file of the IANA time zone database. The data is as follows: BR -1535-05605 America/Cuiaba Mato Grosso The reference point is Cuiabá.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Asia/Shanghai">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Asia/Shanghai</rdfs:label>
+    <rdfs:comment xml:lang="en">Asia/Shanghai is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: CN +3114+12128 Asia/Shanghai east China - Beijing, Guangdong, Shanghai, etc. The reference point is Shanghai.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australia/Perth">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Australia/Perth</rdfs:label>
+    <rdfs:comment xml:lang="en">Australia/Perth is a time zone identifier from zone file of the IANA time zone database. The data is as follows: AU -3157+11551 Australia/Perth Western Australia - most locations The reference point is Perth, Western Australia.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Matamoros">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Matamoros</rdfs:label>
+    <rdfs:comment xml:lang="en">America/Matamoros is a time zone identifier in the IANA time zone database. The data is as follows: MX +2550-09730 America/Matamoros US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border It refers to Matamoros, Tamaulipas, also known as Heroica Matamoros, a city with more than 400 000 inhabitants. It is located near the US border. It was split from America/Monterrey in 2010. http://article. gmane. org/gmane. comp. time.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Creston">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Creston</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Creston, British Columbia, Canada.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Europe/Riga">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Europe/Riga</rdfs:label>
+    <rdfs:comment xml:lang="en">Europe/Riga is a time zone identifier from the zone file of the IANA time zone database. The data is as follows: LV +5657+02406 Europe/Riga The reference point is Riga.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Atlantic/Canary">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Atlantic/Canary</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Gran Canaria.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/America/Havana">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">America/Havana</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Havana, Cuba.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctica/Macquarie">
+    <dcterms:subject rdf:resource="http://dbpedia.org/resource/Category:Tz_database" />
+    <rdfs:label xml:lang="en">Antarctica/Macquarie</rdfs:label>
+    <rdfs:comment xml:lang="en">The coordinates are for Macquarie Island, Tasmania, Australia.</rdfs:comment>
+  </rdf:Description>
+</rdf:RDF>

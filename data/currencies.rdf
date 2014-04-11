@@ -1,0 +1,1441 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:dbpprop="http://dbpedia.org/property/" >
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bolivian_boliviano">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bolivian boliviano</rdfs:label>
+    <rdfs:comment xml:lang="en">The boliviano is the currency of Bolivia. It is divided into 100 cents or centavos in Spanish. Boliviano was also the name of the currency of Bolivia between 1864 and 1963.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BOB</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bolivian_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bolivian peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso boliviano, divided into 100 centavos, was the currency of Bolivia from January 1, 1963 until December 31, 1985. It replaced the boliviano at 1 peso boliviano = 1000 bolivianos. &quot;$b. &quot; was the currency symbol for the peso boliviano.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BOP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bosnia_and_Herzegovina_convertible_mark">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bosnia and Herzegovina convertible mark</rdfs:label>
+    <rdfs:comment xml:lang="en">The Bosnia and Herzegovina convertible mark is the currency of Bosnia and Herzegovina. It is divided into 100 fenings . The names derive from German Mark and Pfennig, hence the occasional local spelling of the subdivision as pfeniga. Its ISO 4217 code is BAM; it is locally abbreviated KM (Latin) or КМ (Cyrillic).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BAM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Botswana_pula">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Botswana pula</rdfs:label>
+    <rdfs:comment xml:lang="en">The pula is the currency of Botswana. It has the ISO 4217 code BWP and is subdivided into 100 thebe. Pula literally means &quot;rain&quot; in Setswana, because rain is very scarce in Botswana - home to much of the Kalahari Desert - and therefore valuable. Pula also means &quot;blessing&quot; as rain is considered a blessing. Thebe means &quot;shield&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BWP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Brazilian_cruzado">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Brazilian cruzado</rdfs:label>
+    <rdfs:comment xml:lang="en">The cruzado was the currency of Brazil from 1986 to 1989. It replaced the second cruzeiro (at first called the &quot;cruzeiro novo&quot;) in 1986, at a rate of 1 cruzado = 1000 cruzeiros (novos) and was replaced in 1989 by the cruzado novo at a rate of 1000 cruzados = 1 cruzado novo. This currency was subdivided in 100 centavos and it had the symbol and the ISO 4217 code BRC.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BRC</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Brunei_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Brunei dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Brunei dollar, has been the currency of the Sultanate of Brunei since 1967. It is normally abbreviated with the dollar sign $, or alternatively B$ to distinguish it from other dollar-dominated currencies, It is divided into 100 sen (Malay) or cents (English). The Brunei dollar is managed together with the Singapore dollar at a 1:1 ratio by the Monetary Authority of Singapore (MAS). (Singapore is one of Brunei&#39;s major trading partners.)</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BND</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/CFP_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">CFP franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The CFP franc (called the franc in everyday use) is the currency used in the French overseas collectivities (collectivités d’outre-mer, or COM) of French Polynesia, New Caledonia and Wallis and Futuna. The initials CFP originally stood for Colonies Françaises du Pacifique (“French colonies of the Pacific”).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XPF363.</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Canadian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Canadian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Canadian dollar is the currency of Canada. As of 2012, the Canadian dollar is the 6th most traded currency in the world. It is abbreviated with the dollar sign $, or C$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CAD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cayman_Islands_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cayman Islands dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Cayman Islands Dollar is the currency of the Cayman Islands. It is abbreviated with the dollar sign $, or alternatively CI$ to distinguish it from other dollar-denominated currencies. It is subdivided into 100 cents. It is the 9th-highest-valued currency unit in the world and the highest-valued dollar unit.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KYD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Chilean_escudo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Chilean escudo</rdfs:label>
+    <rdfs:comment xml:lang="en">The escudo was the currency of Chile between 1960 and 1975, divided into 100 centésimos. It replaced the (old) peso at a rate of 1 escudo = 1000 pesos and was itself replaced by a new peso, at a rate of 1 peso = 1000 escudos. The symbol Eº was used for the escudo. Note also that Chile issued gold escudos, worth 16 reales or 2 pesos until 1851.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CLE</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cuban_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cuban peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso is one of two official currencies in use in Cuba, the other being the convertible peso . It is subdivided into 100 centavos. Cuban state workers receive a portion of their wages in convertible pesos, the rest in national pesos. Shops selling basics, like fruit and vegetables, generally accept only the normal peso, while &quot;dollar shops&quot; sell the rest. The word &quot;pesos&quot; may refer to both non-convertible and convertible money.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CUP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Dutch_guilder">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Dutch guilder</rdfs:label>
+    <rdfs:comment xml:lang="en">The Dutch guilder was the currency of the Netherlands from the 17th century until 2002, when it was replaced by the euro. Between 1999 and 2002, the guilder was officially a &quot;national subunit&quot; of the euro. However, physical payments could only be made in guilder, as no euro coins or banknotes were available. The Netherlands Antillean guilder is still in use in Curaçao and Sint Maarten (two countries in the Kingdom of the Netherlands), but this currency is distinct from the Dutch guilder.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NLG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Equatorial_Guinean_ekwele">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Equatorial Guinean ekwele</rdfs:label>
+    <rdfs:comment xml:lang="en">The ekwele or ekuele was the currency of Equatorial Guinea between 1975 and 1985. Although nominally divided into 100 céntimos, no subdivisions were issued. The name ekuele (plural the same) was used until 1979, whilst ekwele (plural bipkwele) was used after. The ekuele replaced the peseta guineana at par, whilst the ekwele was replaced by the Central African CFA franc (written franco on Equatorial Guinean coins and banknotes) at a rate of 1 franco = 4 bipkwele.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GQE</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Eritrean_nakfa">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Eritrean nakfa</rdfs:label>
+    <rdfs:comment xml:lang="en">The nakfa is the currency of Eritrea. It is divided into 100 cents. The currency was introduced on 8 November 1997 to replace the Ethiopian birr at par, and it was named after the town of Nakfa.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ERN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/European_Currency_Unit">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">European Currency Unit</rdfs:label>
+    <rdfs:comment xml:lang="en">The European Currency Unit was a basket of the currencies of the European Community member states, used as the unit of account of the European Community before being replaced by the euro on 1 January 1999, at parity. The ECU itself replaced the European Unit of Account, also at parity, on 13 March 1979. The European Exchange Rate Mechanism attempted to minimize fluctuations between member state currencies and the ECU.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XEU</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Faroese_kr%C3%B3na">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Faroese króna</rdfs:label>
+    <rdfs:comment xml:lang="en">The króna is the currency of the Faroe Islands. It is issued by the Danish National Bank. It is not an independent currency but a version of the Danish krone. Consequently, it does not have an ISO 4217 currency code. The ISO 4217 code for the Danish krone is DKK. The króna is subdivided into 100 oyru.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Fijian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Fijian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The fijian dollar has been the currency of Fiji since 1969 and was also the currency between 1867 and 1873. It is normally abbreviated with the dollar sign $, or alternatively FJ$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">FJD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ghana_cedi">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ghana cedi</rdfs:label>
+    <rdfs:comment xml:lang="en">The Ghana cedi is the unit of currency of Ghana. The word cedi is derived from the Akan word for cowry shell (cowry shells were once used in Ghana as a form of currency). The new Ghana cedi was introduced on 1 July 2007 at a rate equal to 10,000 old cedis. It was the highest-valued currency unit issued by sovereign countries in Africa in 2007. One Ghana cedi is divided into one hundred Ghana pesewas (Gp). A number of Ghanaian coins have also been issued in &quot;sika&quot; denominations.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GHS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Guatemalan_quetzal">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Guatemalan quetzal</rdfs:label>
+    <rdfs:comment xml:lang="en">The quetzal is the currency of Guatemala. It is named after the national bird of Guatemala, the Resplendent Quetzal. In ancient Mayan culture, the quetzal bird&#39;s tail feathers were used as currency. It is divided into 100 cents, called centavos in standard Spanish or lenes in Guatemalan slang. The plural is quetzales.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GTQ</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Guinean_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Guinean franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The Guinean franc is the currency of Guinea.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GNF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Hong_Kong_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Hong Kong dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Hong Kong dollar is the currency of Hong Kong. It is the eighth most traded currency in the world. The Hong Kong dollar is subdivided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HKD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Israeli_new_shekel">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Israeli new shekel</rdfs:label>
+    <rdfs:comment xml:lang="en">The Israeli new shekel is the currency of the State of Israel. The shekel consists of 100 agorot (אגורות). Denominations made in this currency are marked with the shekel sign, ₪. The Israeli new shekel has been in use since 1 January 1986 when it replaced the Old Israeli shekel that was in usage between 24 February 1980 and 31 December 1985, at a ratio of 1000:1. The spelling on coins and banknotes is new sheqel, pl. new sheqalim.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ILS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Kazakhstani_tenge">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Kazakhstani tenge</rdfs:label>
+    <rdfs:comment xml:lang="en">The tenge is the currency of Kazakhstan. It is divided into 100 tïın (тиын, also transliterated as tiyin or tijin). It was introduced on 15 November 1993 to replace the Soviet ruble at a rate of 1 tenge = 500 rubles. The ISO-4217 code is KZT. The word tenge in the Kazakh and most other Turkic languages means a set of scales (cf the old Uzbek tenga or the Tajik borrowed term tanga). The origin of the word is the Turkic teŋ- which means being equal, balance.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KZT</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Lebanese_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Lebanese pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Lebanese pound is the currency unit of Lebanon. It is divided into 100 piastres but inflation has eliminated the subdivisions. The plural form of lira, as used on the currency, is either lirat (ليرات) or the same, whilst there are four forms for qirsh: the dual qirshan (قرشان), the plural qirush (قروش) used with numbers 3-10, the accusative singular qirsha (قرشا) used with 11-99, or the genitive singular qirshi (قرش) used with multiples of 100.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LBP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Luxembourgish_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Luxembourgish franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The Luxembourgish franc (more commonly Luxembourg Franc or LUF, French: franc Luxembourgeois, Luxembourgish: Lëtzebuerger Frang, German: Luxemburger Franken) was the currency of Luxembourg between 1854 and 1999 (except during the period 1941-44). The franc remained in circulation until 2002, when it was replaced by the euro. During the period 1999–2002, the franc was officially a subdivision of the euro (1 euro = 40.3399 francs) but the euro did not circulate.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LUF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Malian_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Malian franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc was the independent currency of Mali between 1962 and 1984. Although technically subdivided into 100 centimes, no subdivisions were issued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MLF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Maltese_lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Maltese lira</rdfs:label>
+    <rdfs:comment xml:lang="en">Not to be confused with Maltese scudo, the official currency of the Sovereign Military Order of Malta. The pound or lira was the currency of Malta until 31 December 2007. The lira was abbreviated as Lm, although the traditional ₤ sign was often used locally. In English, the Maltese currency was referred to as the pound originally and for many locals this usage continued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MTL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mexican_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mexican peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso is the currency of Mexico. Modern peso and dollar currencies have a common origin in the 15th–19th century Spanish dollar, most continuing to use its sign, &quot;$&quot;. The Mexican peso is the 13th most traded currency in the world, the third most traded in the Americas, and the most traded currency in Latin America. The current ISO 4217 code for the peso is MXN; prior to the 1993 revaluation (see below), the code MXP was used. The peso is subdivided into 100 centavos, represented by &quot;¢&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MXN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Namibian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Namibian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of Namibia since 1993. It is normally abbreviated with the dollar sign $, or alternatively N$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NAD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Nepalese_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Nepalese rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The rupee is the official currency of Nepal. The present rupee has the ISO 4217 code NPR and is normally abbreviated with the sign ₨. It is subdivided into 100 paisa. The issuance of the currency is controlled by the Nepal Rastra Bank. The most commonly used symbol for the Rupee is Rs or ₨.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NPR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/North_Korean_won">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">North Korean won</rdfs:label>
+    <rdfs:comment xml:lang="en">The won, or the &#39;Chosun Won&#39; is the official currency of North Korea. It is subdivided into 100 chon. The won is issued by the Central Bank of the Democratic People&#39;s Republic of Korea.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KPW</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Norwegian_krone">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Norwegian krone</rdfs:label>
+    <rdfs:comment xml:lang="en">The krone is the currency of Norway and its dependent territories. The plural form is kroner. It is subdivided into 100 øre. The ISO 4217 code is NOK, although the common local abbreviation is kr. The name translates into English as &quot;crown&quot;. The Norwegian krone was the thirteenth most traded currency in the world by value in April 2010, down three positions from 2007.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NOK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Qatari_riyal">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Qatari riyal</rdfs:label>
+    <rdfs:comment xml:lang="en">The riyal is the currency of the State of Qatar. It is divided into 100 dirham (درهم) and is abbreviated as either QR or ر. ق (Arabic).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">QAR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Reichsmark">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Reichsmark</rdfs:label>
+    <rdfs:comment xml:lang="en">The  Reichsmark was the currency in Germany from 1924 until June 20, 1948. The Reichsmark was subdivided into 100 Reichspfennig.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DRM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Saudi_riyal">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Saudi riyal</rdfs:label>
+    <rdfs:comment xml:lang="en">The Riyal is the currency of Saudi Arabia. It is abbreviated as ر. س or SR (Saudi Riyal). It is subdivided into 100 Halalas. The Saudi Qirsh is 5 Halalas.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SAR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Seychellois_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Seychellois rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The rupee is the currency of the Seychelles. It is subdivided into 100 cents. In the local Seychellois Creole (Seselwa) language, it is called the roupi. The international currency code is SCR. The abbreviations SR and SRe are sometimes used.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SCR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Singapore_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Singapore dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Singapore dollar or dollar is the official currency of Singapore. It is normally abbreviated with the dollar sign $, or alternatively S$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents. The Monetary Authority of Singapore and the Brunei Currency and Monetary Board still maintain the historic exchangeability of their two currencies, the Singaporean dollar and the Brunei dollar, respectively.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SGD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/South_Korean_won">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">South Korean won</rdfs:label>
+    <rdfs:comment xml:lang="en">The won (원) is the currency of South Korea. A single won is divided into 100 jeon, the monetary subunit. The jeon is no longer used for everyday transactions, and appears only in foreign exchange rates.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KRW</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Soviet_ruble">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Soviet ruble</rdfs:label>
+    <rdfs:comment xml:lang="en">The Soviet ruble or rouble was the currency of the Soviet Union. One ruble is divided into 100 kopeks, (also transliterated as kopecks or copecks Russian: копе́йка, pl. копе́йки - kopeyka, kopeyki). In addition to standard banknotes, the Soviet ruble was available in the form of foreign rubles; also, several forms of virtual rubles were used for inter-enterprise accounting and international settlement in the Comecon zone. Many of the ruble designs were created by Ivan Dubasov.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SUR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Sri_Lankan_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Sri Lankan rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The Rupee is the currency of Sri Lanka, divided into 100 cents. It is issued by the Central Bank of Sri Lanka and is generally written Rs. (though SLRs. may occasionally be used for disambiguation).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LKR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Surinamese_guilder">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Surinamese guilder</rdfs:label>
+    <rdfs:comment xml:lang="en">The guilder was the currency of Suriname until 2004, when it was replaced by the Surinamese dollar. It was divided into 100 cents. Until the 1940s, the plural in Dutch was cents, with centen appearing on some early paper money, but after the 1940s the Dutch plural became cent.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SRG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Swiss_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Swiss franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc is the currency and legal tender of Switzerland and Liechtenstein; it is also legal tender in the Italian exclave Campione d&#39;Italia. Although not formally legal tender in the German exclave Büsingen (the sole legal currency is the euro), it is in wide daily use there. The Swiss National Bank issues banknotes and the federal mint Swissmint issues coins. The Swiss franc is the only version of the franc still issued in Europe.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CHF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Thai_baht">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Thai baht</rdfs:label>
+    <rdfs:comment xml:lang="en">The baht is the currency of Thailand. It is subdivided into 100 satang (สตางค์). The issuance of currency is the responsibility of the Bank of Thailand.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">THB</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Tongan_pa%CA%BBanga">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Tongan paʻanga</rdfs:label>
+    <rdfs:comment xml:lang="en">The paʻanga is the currency of the Tonga. It is controlled by the National Reserve Bank of Tonga (Pangikē Pule Fakafonua o Tonga) in Nukuʻalofa. The paʻanga is not convertible and is pegged to a basket of currencies comprising the Australian, New Zealand, and United States dollars and the Japanese yen. The paʻanga is subdivided into 100 seniti. The ISO code is TOP, and the usual abbreviation is T$ (¢ for seniti).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TOP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Tunisian_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Tunisian dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Tunisia. It is subdivided into 1000 milim or millimes (مليم). The abbreviation DT is often used in Tunisia, although writing &quot;dinar&quot; after the amount is also acceptable (TND is less colloquial, and tends to be used more in financial circles); the abbreviation TD is also mentioned in a few places, but is less frequently used, given the common use of the French language in Tunisia, and the French derivation of DT (i.e. , Dinar tunisien).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TND</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Turkish_lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Turkish lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The Turkish lira is the currency of Turkey and the Turkish Republic of Northern Cyprus (recognised only by Turkey). The Turkish lira is subdivided into 100 kuruş. All obverse sides of current banknotes and reverse sides of current coins have portraits of Mustafa Kemal Atatürk. Historical banknotes from the second, third and fourth issues have portraits of İsmet İnönü on the obverse side.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TRY</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Equatorial_Guinean_peseta">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Equatorial Guinean peseta</rdfs:label>
+    <rdfs:comment xml:lang="en">The peseta (peseta guineana) was the currency of Equatorial Guinea from 1969 to 1975. It replaced the Spanish peseta at par and was replaced, at par, by the ekwele.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GQP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Liberty_Dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Liberty Dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Liberty Dollar (ALD) was a private currency produced in the United States. The currency was issued in minted metal rounds (i.e. coins), gold and silver certificates and electronic currency (eLD). ALD certificates are &quot;warehouse receipts&quot; for real gold and silver owned by the bearer. According to court documents there were about 250,000 holders of Liberty Dollar certificates.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">None</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/New_Zealand_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">New Zealand pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound (symbol £, or NZ£ for distinction) was the currency of New Zealand from 1840 until 1967, when it was replaced by the New Zealand dollar. Like the British pound, it was subdivided into 20 shillings (symbol s) each of 12 pence (symbol d). As a result of the great depression of the early 1930s, the New Zealand agricultural export market to the UK was badly affected.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NZP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Peseta">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Peseta</rdfs:label>
+    <rdfs:comment xml:lang="en">The peseta was the currency of Spain between 1869 and 2002. Along with the French franc, it was also a de facto currency used in Andorra (which had no national currency with legal tender).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ESP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Banknotes_of_the_Hong_Kong_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Banknotes of the Hong Kong dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The issue of banknotes of the Hong Kong dollar is governed in the Special Administrative Region of Hong Kong by the Hong Kong Monetary Authority (HKMA), the governmental currency board of Hong Kong. Under licence from the HKMA, three commercial banks issue their own banknotes for general circulation in the region. Notes are also issued by the HKMA itself. In most countries of the world the issue of banknotes is handled exclusively by a single central bank or government.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HKD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Niue_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Niue dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">Niue, a dependency of New Zealand, uses two official legal tender currencies. While they primarily use the New Zealand dollar, the government also issues legal tender coins using the Niue Dollar. Before the creation of the New Zealand dollar, Niue was a user of the pound sterling and the very early commemorative coins of Niue were in pound or shilling increments. Niue first began issuing coins in 1966, though these have been mostly bullion and non-circulating base metal commemorative issues.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">pending</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pitcairn_Islands_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Pitcairn Islands dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">Pitcairn Islands is a non-sovereign British Overseas Territory and the New Zealand dollar is used as exchange. Pitcairn Islands began issuing its first commemorative coins in 1988. Though the Pitcairn Islands dollar is not a true currency in the strict sense of the word, and isn&#39;t used as a circulation coinage, it can be lawfully exchanged as tender. The Pitcairn Islands dollar exists only because of the coin collecting market, which provides a major staple for the island nation.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/BerkShares">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">BerkShares</rdfs:label>
+    <rdfs:comment xml:lang="en">BerkShares is a local currency that circulates in The Berkshires region of Massachusetts. It was launched September 29, 2006 by BerkShares Inc. , with research and development assistance from the New Economics Institute. The BerkShares website lists over 370 businesses in Berkshire County that accept the currency. In 30 months, 2.2 million BerkShares have been issued from 12 branch offices of five local banks.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">None, it is a local currency</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Samoan_t%C4%81l%C4%81">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Samoan tālā</rdfs:label>
+    <rdfs:comment xml:lang="en">The tālā is the currency of Samoa. It is divided into 100 sene. The terms tālā and sene are the equivalents or transliteration of the English words dollar and cent, in the Samoan language. The tālā was introduced in 1967, following the country&#39;s political independence from New Zealand in 1962. Until that time, Samoa had used the pound, with coins from New Zealand and its own banknotes. The tālā replaced the pound at a rate of 2 tālā = 1 pound, and was therefore equal to the New Zealand dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">WST</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Salt_Spring_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Salt Spring dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Salt Spring Dollar is a local currency issued by the Salt Spring Island Monetary Foundation to promote local history, art and goodwill on Salt Spring Island, British Columbia, Canada.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Armenian_dram">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Armenian dram</rdfs:label>
+    <rdfs:comment xml:lang="en">The dram is the monetary unit of Armenia. It is subdivided into 100 luma. The word &quot;dram&quot; translates into English as &quot;money&quot; and is cognate with the Greek drachma and the Arabic dirham. The Central Bank of Armenia has the exclusive right of issuing the national currency according to Armenian law.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AMD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cypriot_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cypriot pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound, also known as the lira, was the currency of Cyprus, including the Sovereign Base Areas in Akrotiri and Dhekelia, until 31 December 2007, when the Republic of Cyprus (and Malta) adopted the euro. However, the self-proclaimed Turkish Republic of Northern Cyprus used and still uses on the official level the Turkish lira.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CYP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Georgian_lari">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Georgian lari</rdfs:label>
+    <rdfs:comment xml:lang="en">The lari is the currency of Georgia. It is divided into 100 tetri. The name lari is an old Georgian word denoting a hoard, property, while tetri is an old Georgian monetary term used in ancient Colchis from the 6th century BC. Earlier Georgian currencies include the maneti and abazi.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GEL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Afghan_afghani">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Afghan afghani</rdfs:label>
+    <rdfs:comment xml:lang="en">The Afghani is the currency of Afghanistan. It is notionally subdivided into 100 pul (پول), although there are no pul coins in circulation.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AFN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Australian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Australian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Australian dollar is the currency of the Commonwealth of Australia, including Christmas Island, Cocos (Keeling) Islands, and Norfolk Island, as well as the independent Pacific Island states of Kiribati, Nauru and Tuvalu. Within Australia it is almost always abbreviated with the dollar sign ($), with A$ sometimes used to distinguish it from other dollar-denominated currencies. It is subdivided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AUD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Austrian_schilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Austrian schilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The Schilling was the currency of Austria from 1924 to 1938 and from 1945 to 1999, and the circulating currency until 2002. The euro was introduced at a fixed parity of €1 = 13.7603 schilling to replace it. The schilling was divided into 100 Groschen.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ATS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Azerbaijani_manat">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Azerbaijani manat</rdfs:label>
+    <rdfs:comment xml:lang="en">The Manat is the currency of Azerbaijan. It is subdivided into 100 qəpik. The word manat is borrowed from the Russian word &quot;moneta&quot; (coin) which is pronounced as &quot;maneta&quot;. Manat was also the designation of the Soviet ruble in both the Azerbaijani and Turkmen languages. The Azerbaijani manat symbol,, is currently not encoded in Unicode, and m or man. can be used as a substitute for the manat symbol.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AZN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Brazilian_real">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Brazilian real</rdfs:label>
+    <rdfs:comment xml:lang="en">The real is the present-day currency of Brazil. Its sign is R$ and its ISO code is BRL. It is subdivided into 100 centavos (&quot;hundredths&quot;). The modern real was introduced in 1994 as part of the Plano Real, a substantial monetary reform package that aimed to put an end to three decades of rampant inflation. At the time it was meant to have approximately fixed 1:1 exchange rate with the United States dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BRL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Croatian_kuna">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Croatian kuna</rdfs:label>
+    <rdfs:comment xml:lang="en">The kuna is the currency of Croatia since 1994. It is subdivided into 100 lipa. The kuna is issued by the Croatian National Bank and the coins are minted by the Croatian Monetary Institute. The word &quot;kuna&quot; means &quot;marten&quot; in Croatian since it is based on the use of marten pelts as units of value in medieval trading. The word lipa means &quot;linden (lime) tree&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HRK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Czech_koruna">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Czech koruna</rdfs:label>
+    <rdfs:comment xml:lang="en">The Czech koruna or Czech crown has been the currency of the Czech Republic since 8 February 1993 when, together with its Slovak counterpart, it replaced the Czechoslovak koruna at par. The official name in Czech is koruna česká (plural koruny české, though the zero-grade genitive plural form korun českých is used on banknotes and coins of value 5 Kč or higher). The ISO 4217 code is CZK and the local acronym is Kč, which is placed after the numeric value (e.g. , &quot;50 Kč&quot;).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CZK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Deutsche_Mark">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Deutsche Mark</rdfs:label>
+    <rdfs:comment xml:lang="en">The  Deutsche Mark was the official currency of West Germany (1948–1990) and unified Germany (1990–2002) until the adoption of the euro in 2002. It is commonly called the &quot;Deutschmark&quot; in English but not in German. Germans often say  &quot;Mark&quot; or  &quot;D-Mark&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DEM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Finnish_markka">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Finnish markka</rdfs:label>
+    <rdfs:comment xml:lang="en">The Finnish markka was the currency of Finland from 1860 until 28 February 2002, when it ceased to be legal tender. The markka was replaced by the euro (€), which had been introduced, in cash form, on 1 January 2002, after a transitional period of three years when the euro was the official currency but only existed as &#39;book money&#39;. The dual circulation period – when both the Finnish markka and the euro had legal tender status – ended on 28 February 2002.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">FIM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Japanese_yen">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Japanese yen</rdfs:label>
+    <rdfs:comment xml:lang="en">The Japanese yen is the official currency of Japan. It is the third most traded currency in the foreign exchange market after the United States dollar and the euro. It is also widely used as a reserve currency after the U.S. dollar, the euro and the pound sterling.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">JPY</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Kyrgyzstani_som">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Kyrgyzstani som</rdfs:label>
+    <rdfs:comment xml:lang="en">The som is the currency of the Kyrgyz Republic in Central Asia. The ISO 4217 currency code is KGS. The som is sub-divided into 100 tyiyn . The som was introduced on May 10, 1993, replacing the Soviet ruble at a rate of 1 som = 200 rubles.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KGS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Latvian_lats">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Latvian lats</rdfs:label>
+    <rdfs:comment xml:lang="en">Disambiguation: lats redirects here. This may also refer to the latissimus dorsi muscles over the back which extend the shoulder. Latvian lats Latvijas lats The standard version of 1 lats coin bears a salmon The standard version of 1 lats coin bears a salmon ISO 4217 code LVL Central bank Bank of Latvia Website www. bank. lv User(s) 22x20px Latvia Inflation 1,3% Source &#39;, Jan 2011 est.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LVL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Lithuanian_litas">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Lithuanian litas</rdfs:label>
+    <rdfs:comment xml:lang="en">The Lithuanian litas (ISO currency code LTL, symbolized as Lt; plural litai or litų) is the currency of Lithuania. It is divided into 100 centų (genitive case; singular centas, nominative plural centai). The litas was first introduced in 1922 after World War I, when Lithuania declared independence and was reintroduced on June 25, 1993, following a period of currency exchange from the ruble to the litas with the temporary talonas then in place. The name was modeled after the name of the country.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LTL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Malawian_kwacha">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Malawian kwacha</rdfs:label>
+    <rdfs:comment xml:lang="en">The kwacha is the currency of Malawi as of 1971, replacing the Malawian pound. It is divided into 100 tambala. The kwacha replaced other types of currency, namely the UK pound sterling, the South African rand and the Rhodesian dollar, that had previously circulated through the Malawian economy. The exchange rate of the kwacha undergoes fixed periodical adjustments, but since 1994 the exchange rate has floated.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MWK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Malaysian_ringgit">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Malaysian ringgit</rdfs:label>
+    <rdfs:comment xml:lang="en">The Malaysian ringgit is the currency of Malaysia. It is divided into 100 sen (cents). The ringgit is issued by the Bank Negara Malaysia.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MYR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Moldovan_leu">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Moldovan leu</rdfs:label>
+    <rdfs:comment xml:lang="en">The leu is the currency of Moldova. Like the Romanian leu, the Moldovan leu (pl. lei) is subdivided into 100 bani . The name of the currency originates in Romania and means &quot;lion&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MDL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pound_sterling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Pound sterling</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound sterling, commonly known simply as the pound, is the official currency of the United Kingdom, the British Crown dependencies of Jersey, Guernsey and the Isle of Man, and the British Overseas Territories of South Georgia and the South Sandwich Islands, the British Antarctic Territory and Saint Helena, Ascension and Tristan da Cunha. It is subdivided into 100 pence . A number of nations that do not use sterling also have currencies called the &quot;pound&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GBP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Renminbi">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Renminbi</rdfs:label>
+    <rdfs:comment xml:lang="en">The renminbi is the official currency of China (People&#39;s Republic of China). Renminbi is legal tender in mainland China, but not in Hong Kong, Taiwan, or Macau. It is issued by the People&#39;s Bank of China, the monetary authority of China. Its name means &quot;people&#39;s currency&quot;. The primary unit of renminbi is the yuán (元). One yuan is subdivided into 10 jiǎo (角), which in turn is subdivided into 10 fēn (分).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CNY</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Russian_ruble">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Russian ruble</rdfs:label>
+    <rdfs:comment xml:lang="en">The ruble or rouble is the currency of the Russian Federation and the two partially recognized republics of Abkhazia and South Ossetia. Formerly, the ruble was also the currency of the Russian Empire and the Soviet Union before their dissolution. Belarus and Transnistria use currencies with the same name. The ruble is subdivided into 100 kopeks . The ISO 4217 code is RUB or 643; the former code, RUR or 810, refers to the Russian ruble before the 1998 redenomination (1 RUB = 1000 RUR).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">RUB</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Turkmenistan_manat">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Turkmenistan manat</rdfs:label>
+    <rdfs:comment xml:lang="en">The Manat is the currency of Turkmenistan. It was introduced on 27 October 1993, replacing the Russian ruble at a rate of 1 manat = 500 ruble. The ISO 4217 code was TMM and the manat is subdivided into 100 tenge. The abbreviation m is sometimes used, e.g. , 25 000 m is twenty-five thousand manat. On January 1, 2009 the new manat was introduced with ISO 4217 code TMT at the rate of 5000 old manat to 1 new manat.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TMT</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ukrainian_hryvnia">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ukrainian hryvnia</rdfs:label>
+    <rdfs:comment xml:lang="en">The hryvnia, sometimes hryvnya or grivna; sign: ₴, code: (UAH), has been the national currency of Ukraine since September 2, 1996. The hryvnia is subdivided into 100 kopiyok. In medieval times, it was a currency of Kievan Rus&#39;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">UAH</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ukrainian_karbovanets">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ukrainian karbovanets</rdfs:label>
+    <rdfs:comment xml:lang="en">The karbovanets has been a distinct unit of currency in Ukraine during three separate periods. The name is also used in the Ukrainian language for the Imperial ruble and the Soviet ruble, but not for the modern Russian ruble.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">UAK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/United_States_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">United States dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The United States dollar, also referred to as the U.S. dollar or American dollar, is the official fiat currency of the United States of America and its overseas territories. It is divided into 100 smaller units called cents. The U.S. dollar is the currency most used in international transactions and is one of the world&#39;s dominant reserve currencies. Several countries use it as their official currency, and in many others it is the de facto currency.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">USD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Venezuelan_bol%C3%ADvar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Venezuelan bolívar</rdfs:label>
+    <rdfs:comment xml:lang="en">The bolívar fuerte is the currency of Venezuela since 1 January 2008. It is subdivided into 100 céntimos and replaced the bolívar at the rate of Bs.F. 1 = Bs. 1,000 because of inflation.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">VEF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Zambian_kwacha">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Zambian kwacha</rdfs:label>
+    <rdfs:comment xml:lang="en">The kwacha is the currency of Zambia. It is subdivided into 100 ngwee.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ZMW</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Argentine_peso_ley">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Argentine peso ley</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso ley 18.188, usually known as either peso or, to distinguish it from the earlier peso moneda nacional, informally as peso ley, was the currency of Argentina between January 1, 1970 and May 5, 1983. It was subdivided into 100 centavos. Its symbol was $, sometimes $L. Its name comes from law 18188 which established it, effective April 5, 1969. Its ISO 4217 code was ARL.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ARL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bermudian_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bermudian pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound was the currency of Bermuda until 1970. It was equivalent to the British pound, alongside which it circulated, and was similarly divided into 20 shillings each of 12 pence. Bermuda decimalised in 1970, replacing the pound with the Bermudian dollar at a rate of 1 dollar = 8 shillings 4 pence (i.e. , 100 pence), equal to the U.S. dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BMD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bitcoin">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bitcoin</rdfs:label>
+    <rdfs:comment xml:lang="en">Bitcoin is a decentralized digital currency based on an open-source, peer-to-peer internet protocol. It was introduced by a pseudonymous developer named Satoshi Nakamoto in 2009. Bitcoins can be exchanged through a computer or smartphone locally or internationally without an intermediate financial institution. In trade, one bitcoin is subdivided into 100 million smaller units called satoshis, defined by eight decimal points.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">Not designated. Not recognized as a currency by SIX Interbank Clearing.</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Kiribati_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Kiribati dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of Kiribati. It is not an independent currency but is pegged at 1:1 ratio to the Australian dollar. Coins were issued in 1979 and circulate alongside banknotes and coins of the Australian dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KBD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Argentine_austral">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Argentine austral</rdfs:label>
+    <rdfs:comment xml:lang="en">The austral was the currency of Argentina between June 15, 1985 and December 31, 1991. It was subdivided into 100 centavos. The symbol was an uppercase A with an extra horizontal line (see image). This symbol appeared on all coins issued in this currency (including centavos), to distinguish them from earlier currencies. The ISO 4217 code is ARA.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ARA</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Burundian_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Burundian franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc (ISO 4217 code is BIF) is the currency of Burundi. It is nominally subdivided into 100 centimes, although coins have never been issued in centimes since Burundi began issuing its own currency. Only during the period when Burundi used the Belgian Congo franc were centime coins issued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BIF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Croatian_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Croatian dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar was the currency of Croatia between December 23, 1991, and May 30, 1994. The ISO 4217 code was HRD.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HRD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/East_German_mark">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">East German mark</rdfs:label>
+    <rdfs:comment xml:lang="en">The East German mark commonly called the eastern mark (in West Germany and after the reunification), in East Germany only Mark, was the currency of the German Democratic Republic (East Germany). Its ISO 4217 currency code was DDM. The currency was known officially as the Deutsche Mark from 1948 to 1964, Mark der Deutschen Notenbank from 1964 to 1967, and from 1968 to 1990 as the Mark der DDR (Mark of the GDR); it was referred to colloquially as simply the Mark.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DDM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Guyanese_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Guyanese dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Guyanese dollar has been the unit of account in Guyana since 29 January 1839. Originally it was intended as a transitionary unit to facilitate the changeover from the Dutch guilder system of currency to the British pound sterling system.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GYD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Kenyan_shilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Kenyan shilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The shilling is the currency of Kenya. It is divisible into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KES</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Rwandan_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Rwandan franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The Rwandan franc is the currency of Rwanda. It is subdivided into 100 centimes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">RWF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/S%C3%A3o_Tom%C3%A9_and_Pr%C3%ADncipe_dobra">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">São Tomé and Príncipe dobra</rdfs:label>
+    <rdfs:comment xml:lang="en">The dobra is the currency of São Tomé and Príncipe. It is abbreviated Db and is divided into 100 cêntimos, although inflation has rendered the cêntimo obsolete. The dobra was introduced in 1977, replacing the escudo at par. São Tomé and Príncipe signed a deal with Portugal in 2009, linking the dobra with the euro. The exchange rate was fixed at 1 EUR = 24500 STD on 1 January 2010.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">STD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Somaliland_shilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Somaliland shilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The Somaliland shilling is the official currency of Somaliland, a self-declared republic that is internationally recognized as an autonomous region of Somalia.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Sudanese_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Sudanese dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar was the currency of Sudan between June 8, 1992 and January 10, 2007. Its ISO 4217 code is &quot;SDD&quot;. It is now replaced by the pound.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SDD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Sudanese_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Sudanese pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Sudanese pound is the currency of Sudan and also used in South Sudan until finalization of the introduction of the South Sudanese pound. Both Arabic and English names for the denominations appear on the country&#39;s banknotes and coins.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SDG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Belarusian_ruble">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Belarusian ruble</rdfs:label>
+    <rdfs:comment xml:lang="en">The ruble is the currency of Belarus. The symbol for the ruble is Br and the ISO 4217 code is BYR.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BYR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Belgian_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Belgian franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc was the currency of Belgium until 2002 when the euro was introduced into circulation. It was subdivided into centimes (French), 100 centiem (Dutch) or Centime (German).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BEF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Chilean_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Chilean peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso is the currency of Chile. The current peso has circulated since 1975, with a previous version circulating between 1817 and 1960. The symbol used locally for it is $. The ISO 4217 code for the present peso is CLP. It is subdivided into 100 centavos, although no centavo denominated coins remain in circulation. The average exchange rate of the Chilean peso to the U. S dollar was 1 U.S. dollar to 472.34 Chilean pesos in February 2013.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CLP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Costa_Rican_col%C3%B3n">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Costa Rican colón</rdfs:label>
+    <rdfs:comment xml:lang="en">Colón was also the name of El Salvador&#39;s currency until 2001. For this, see Salvadoran colón. Costa Rican colón colón costarricense 500 Colones coin 500 Colones coin ISO 4217 code CRC Central bank Central Bank of Costa Rica Website www. bccr. fi. cr User(s) 22x20px Costa Rica Inflation 4.74% (Jan. - Dec.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CRC</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cuban_convertible_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cuban convertible peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The convertible peso (sometimes given as CUC$) (informally called a chavito), is one of two official currencies in Cuba, the other being the peso. It has been in limited use since 1994, when it was treated as equivalent to the U.S. dollar: its value was officially US$1.00. On November 8, 2004, the U.S. dollar ceased to be accepted in Cuban retail outlets leaving the convertible peso as the only currency in circulation in many Cuban businesses.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CUC</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ecuadorian_sucre">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ecuadorian sucre</rdfs:label>
+    <rdfs:comment xml:lang="en">The sucre was the currency of Ecuador between 1884 and 2000. Its ISO code was ECS and it was subdivided into 10 decimos or 100 centavos. The sucre was named after Antonio José de Sucre.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ECS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Estonian_kroon">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Estonian kroon</rdfs:label>
+    <rdfs:comment xml:lang="en">The kroon was the official currency of Estonia for two periods in history: 1928–1940 and 1992–2011. Between 1 January and 14 January 2011, the kroon circulated together with the euro, after which the euro became the sole legal tender in Estonia. The kroon was subdivided into 100 cents (senti; singular sent). The word kroon is related to that of the other Nordic currencies and derived from the Latin word corona (&quot;crown&quot;).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">EEK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Euro">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Euro</rdfs:label>
+    <rdfs:comment xml:lang="en">The euro is the currency used by the Institutions of the European Union and is the official currency of the eurozone, which consists of 17 of the 27 member states of the European Union: Austria, Belgium, Cyprus, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Luxembourg, Malta, the Netherlands, Portugal, Slovakia, Slovenia, and Spain. The currency is also used in a further five European countries and consequently used daily by some 332 million Europeans.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">EUR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Falkland_Islands_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Falkland Islands pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound is the currency of the Falkland Islands, a British Overseas Territory in the South Atlantic Ocean. The symbol is the pound sign, £, or alternatively FK£, to distinguish it from other pound-denominated currencies. The ISO 4217 currency code is FKP.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">FKP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Guernsey_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Guernsey pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound is the currency of Guernsey. Since 1921, Guernsey has been in currency union with the United Kingdom and the Guernsey pound is not a separate currency but is a local issue of banknotes and coins denominated in pound sterling, in a similar way to the banknotes issued in Scotland and Northern Ireland. It can be exchanged at par with other sterling coinage and notes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Haitian_gourde">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Haitian gourde</rdfs:label>
+    <rdfs:comment xml:lang="en">The gourde or goud is the currency of Haiti. Its ISO 4217 code is HTG and it is divided into 100 centimes (French) or santim (Creole).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HTG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Hungarian_forint">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Hungarian forint</rdfs:label>
+    <rdfs:comment xml:lang="en">The forint is the currency of Hungary. It is divided into 100 fillér, although fillér coins are no longer in circulation. The introduction of the forint on 1 August 1946 was a crucial step of the post-WWII stabilization of the Hungarian economy, and the currency remained relatively stable until the 1980s. Transition to market economy in the early 1990s deteriorated the value of the forint, inflation peaked at 35% in 1991.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HUF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Indonesian_rupiah">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Indonesian rupiah</rdfs:label>
+    <rdfs:comment xml:lang="en">The rupiah (Rp) is the official currency of Indonesia. Issued and controlled by the Bank of Indonesia, the ISO 4217 currency code for the Indonesian rupiah is IDR. Informally, Indonesians also use the word &quot;perak&quot; in referring to rupiah. The rupiah is subdivided into 100 sen, although inflation has rendered all coins and banknotes denominated in sen obsolete.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">IDR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Iranian_rial">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Iranian rial</rdfs:label>
+    <rdfs:comment xml:lang="en">The rial is the currency of Iran . The name derives from the Spanish Real, which was for several centuries, the currency in Spain (derived from Spanish rey = king). Although the &quot;toman&quot; is no longer an official unit of Iranian currency, Iranians commonly express amounts of money and prices of goods in &quot;tomans. &quot; For this purpose, one &quot;toman&quot; equals 10 rials. Despite this usage, amounts of money and prices of goods are virtually always written in rials.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">IRR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Jersey_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Jersey pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The pound is the currency of Jersey. Jersey is in currency union with the United Kingdom, and the Jersey pound is not a separate currency but is an issue of banknotes and coins by the States of Jersey denominated in pound sterling, in a similar way to the banknotes issued in Scotland and Northern Ireland. It can be exchanged at par with other sterling coinage and notes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Maldivian_rufiyaa">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Maldivian rufiyaa</rdfs:label>
+    <rdfs:comment xml:lang="en">The rufiyaa is the currency of the Maldives. Determining the rate for the US Dollar and the issuance of the currency is controlled by the Maldives Monetary Authority (MMA). The most commonly used symbols for the rufiyaa are MRF and Rf. The ISO 4217 code for Maldivian rufiyaa is MVR. The rufiyaa is subdivided into 100 laari. The name &quot;rufiyaa&quot; is derived from the Hindi word rupiyaa (रुपया), ultimately from Sanskrit rupya (रूप्य; wrought silver).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MVR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Manx_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Manx pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Manx pound is the currency of the Isle of Man, in parity with the pound sterling. The Manx pound is divided into 100 pence. Government notes and coins, denominated in pounds and pence, are issued by the Isle of Man Government.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Monegasque_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Monegasque franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc was the official currency of the Principality of Monaco until 2002 (de facto, 1999 de jure), when it changed to the euro. The franc was subdivided into 100 centimes or 10 decimes. The Monégasque franc circulated alongside the French franc with the same value. Like the French franc, the Monégasque franc was revalued in 1960 at a rate of 100 old francs = 1 new franc. The official euro-to-franc exchange rate was MCF 6.55957 to EUR 1.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MCF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Omani_rial">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Omani rial</rdfs:label>
+    <rdfs:comment xml:lang="en">The rial is the currency of Oman. It is divided into 1000 baisa .</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">OMR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Pakistani_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Pakistani rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The Pakistani rupee is the official currency of Pakistan. The issuance of the currency is controlled by the State Bank of Pakistan, the central bank of the country. The most commonly used symbol for the rupee is Rs, used on receipts when purchasing goods and services. In Pakistan, the rupee is referred to as the &quot;rupees&quot;, &quot;rupaya&quot; or &quot;rupaye&quot;. As standard in Pakistani English, large values of rupees are counted in terms of thousands, lakh (100 thousand) and crore (10 million).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PKR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Sammarinese_lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Sammarinese lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The lira (plural lire) was the currency of San Marino from the 1860s until the introduction of the euro in 2002. It was equivalent to the Italian lira. Italian coins and banknotes and Vatican City coins were legal tender in San Marino, whilst Sammarinese coins, minted in Rome, were legal tender throughout Italy, as well as in the Vatican City.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SML</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Serbian_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Serbian dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Serbia. An earlier dinar was used in Serbia between 1868 and 1918. The earliest use of the dinar dates back to 1214. The ISO 4217 code for the dinar is RSD, the three-digit identifier is 941, currency symbol is the same (RSD or РСД), while the abbreviation din or дин is still in informal use locally.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">RSD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Slovenian_tolar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Slovenian tolar</rdfs:label>
+    <rdfs:comment xml:lang="en">The tolar was the currency of Slovenia from 8 October 1991 until the introduction of the euro on 1 January 2007. It was subdivided into 100 stotins (cents). The ISO 4217 currency code for the Slovenian tolar was SIT. From October 1991 until June 1992, the acronym SLT was in use.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SIT</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/South_Sudanese_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">South Sudanese pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The South Sudanese pound is the official currency of the Republic of South Sudan. It is subdivided into 100 piasters. It was approved by the Southern Sudan Legislative Assembly prior to secession on 9 July 2011 from Sudan. It was introduced on 18 July 2011, and replaced the Sudanese pound at par. The banknotes feature the image of John Garang, the deceased leader of South Sudan&#39;s independence movement.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SSP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/South_Yemeni_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">South Yemeni dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar was the currency of South Arabia and then South Yemen between 1965 and 1990. It was subdivided into 1000 fils (فلس). After Yemen&#39;s monetary unification on 1 July 1990, it was one of the two official currencies used in Yemen Republic until 11 June 1996.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">YDD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/United_Arab_Emirates_dirham">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">United Arab Emirates dirham</rdfs:label>
+    <rdfs:comment xml:lang="en">The dirham is the currency of the United Arab Emirates. The ISO 4217 code (currency abbreviation) for the United Arab Emirates dirham is AED. Unofficial abbreviations include DH or Dhs. The dirham is subdivided into 100 fils (فلس).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AED</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Uruguayan_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Uruguayan peso</rdfs:label>
+    <rdfs:comment xml:lang="en">This article is about the present currency of Uruguay. For Uruguay&#39;s earlier monetary history, see Currency of Uruguay. Uruguayan peso has been a name of the Uruguayan currency since Uruguay&#39;s settlement by Europeans. The present currency, the peso uruguayo was adopted in 1993 and is subdivided into 100 centésimos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">UYU</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bulgarian_lev">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bulgarian lev</rdfs:label>
+    <rdfs:comment xml:lang="en">The lev is the currency of Bulgaria. It is divided in 100 stotinki . In archaic Bulgarian the word &quot;lev&quot; meant &quot;lion&quot;, a word which in the modern language became lav (лъв).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BGN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Czechoslovak_koruna">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Czechoslovak koruna</rdfs:label>
+    <rdfs:comment xml:lang="en">The Czechoslovak koruna was the currency of Czechoslovakia from April 10, 1919 to March 14, 1939 and from November 1, 1945 to February 7, 1993. For a brief time in 1939 and 1993 it was also the currency in separate Czech and Slovak republics. On February 8, 1993 it was replaced by the Czech koruna and the Slovak koruna, both at par. The (last) ISO 4217 code and the local abbreviations for the koruna were CSK and Kčs. One koruna equalled 100 haléřů or halierov .</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CSK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Danish_krone">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Danish krone</rdfs:label>
+    <rdfs:comment xml:lang="en">The krone has been the official currency of Denmark, Greenland and the Faroe Islands, since 1 January 1875. Both the ISO code &quot;DKK&quot; and currency sign &quot;kr. &quot; are in common use; the former precedes the value, the latter usually follows it. The currency is sometimes referred to as the Danish crown in English, since krone literally means crown. One krone is subdivided into 100 øre (singular and plural), the name deriving from the Latin aureus.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DKK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Jordanian_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Jordanian dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Jordan. The dinar is divided into 10 dirham, 100 qirsh or 1000 fils. The Jordanian dinar continued to be used in the West Bank along with Israeli currency after Israel took control of it in 1967. During Israel&#39;s hyperinflation in the 1970s and 1980s, the Jordanian currency provided stability.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">JOD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Macanese_pataca">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Macanese pataca</rdfs:label>
+    <rdfs:comment xml:lang="en">The pataca is the currency of Macau. It is subdivided into 100 avos, with 10 avos called ho (毫) in Cantonese. The abbreviation MOP$ is commonly used. Macau has a currency board system under which the legal tender, Macau pataca (or Macao pataca), is 100 percent backed by foreign exchange reserves, in this case currently the Hong Kong dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MOP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Macedonian_denar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Macedonian denar</rdfs:label>
+    <rdfs:comment xml:lang="en">The denar is the currency of the Republic of Macedonia. It is subdivided into 100 deni. The name denar comes from the name of the ancient Roman monetary unit, the denarius. The currency symbol is ден, the first three letters of its name. The Macedonian denar was introduced on 26 April 1992.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MKD, the three-digit identifier is 807</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mongolian_t%C3%B6gr%C3%B6g">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mongolian tögrög</rdfs:label>
+    <rdfs:comment xml:lang="en">The tögrög or tugrik (Mongolian: ‎‎ᠲᠥᠭᠦᠷᠢᠭ᠌‎, төгрөг, tögrög) is the official currency of Mongolia. It was historically subdivided into 100 möngö (мөнгө). Currently the lowest denomination in regular use is the 10-tögrög note and the highest is the 20,000-tögrög note. In unicode, the currency sign is . In 2010, the tögrög rose 15% against the dollar, due to the growth of the mining industry in Mongolia.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MNT</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Netherlands_Antillean_guilder">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Netherlands Antillean guilder</rdfs:label>
+    <rdfs:comment xml:lang="en">The guilder is the currency of two of the five islands which until 2010 formed the Netherlands Antilles. It is subdivided into 100 cents . The guilder was replaced by the US dollar on 1 January 2011 on the other former islands of the Netherlands Antilles: Bonaire, Saba and Sint Eustatius. On Curaçao and Sint Maarten, the Netherlands Antillean guilder will be replaced by the newly created Caribbean guilder.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ANG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Trinidad_and_Tobago_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Trinidad and Tobago dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of Trinidad and Tobago. It is normally abbreviated with the dollar sign $, or alternatively TT$ to distinguish it from other dollar-denominated currencies. It is subdivided into 100 cents. Its predecessor currencies are the Trinidadian dollar and the Tobagan dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TTD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Banknotes_of_the_pound_sterling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Banknotes of the pound sterling</rdfs:label>
+    <rdfs:comment xml:lang="en">Sterling banknotes are the banknotes in circulation in the British Islands (encompassing the United Kingdom and the British Crown dependencies), denominated in pounds sterling. One pound is equivalent to 100 pence. The pound is the official currency of the United Kingdom and the Crown dependencies of Britain. Three British Overseas Territories also have currencies called pounds which are at par with the pound sterling.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GBP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/East_Caribbean_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">East Caribbean dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The East Caribbean dollar is the currency of eight of the nine members of the Organisation of Eastern Caribbean States (the one exception being the British Virgin Islands). It has existed since 1965, being the successor to the British West Indies dollar, and it is normally abbreviated with the dollar sign $ or, alternatively, EC$ to distinguish it from other dollar-denominated currencies. The EC$ is subdivided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XCD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Gibraltar_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Gibraltar pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Gibraltar pound is the currency of Gibraltar. It is exchangeable with the British pound sterling at par value.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GIP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Saint_Helena_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Saint Helena pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Saint Helena pound (also called simply &quot;pound&quot;) is the currency of the Atlantic islands of Saint Helena and Ascension, which are constituents of the British overseas territory of Saint Helena, Ascension and Tristan da Cunha. It is fixed at parity with the pound sterling and is subdivided into 100 pence. Tristan da Cunha, the third part of the territory, uses Pound sterling rather than the St Helena pound. However there are occasionally commemorative coins minted for the island.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SHP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Andorran_diner">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Andorran diner</rdfs:label>
+    <rdfs:comment xml:lang="en">The Andorran diner (ADD) is a commemorative currency issued in form of coins intended for collectors. A diner is divided into 100 cèntims. The name diner is derived from the Roman currency denarius. The Servei d&#39;Emissions de la Vegueria Episcopal has issued from 1977 onwards various series of diner denominated coins. Previously there were minor privately issued diner coinage (with no legal value). There have been silver, golder and bimetallic issues. The most commemorated topic is Charlemagne.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">--</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bahamian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bahamian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of The Bahamas since 1966. It is normally abbreviated with the dollar sign $, or alternatively B$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BSD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Barbadian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Barbadian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of Barbados since 1935. The present dollar has the ISO 4217 code BBD and is normally abbreviated with the dollar sign &quot;$&quot; or, alternatively, &quot;Bds$&quot; to distinguish it from other dollar-denominated currencies. It is divided into 100 cents. On 22 October 2010 it was reported that the international rating agency Standard &amp; Poor&#39;s (S&amp;P) rated the currency of Barbados as &quot;BBB-/A-3&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BBD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Belize_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Belize dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Belize dollar is the official currency in Belize, formerly known as British Honduras; is normally abbreviated with the dollar sign $, or alternatively BZ$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents. The official value is pegged at 2 BZ$ = 1 US$ since 1978.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BZD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cape_Verdean_escudo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cape Verdean escudo</rdfs:label>
+    <rdfs:comment xml:lang="en">The escudo is the currency of the Republic of Cape Verde. Amounts are generally written by using the cifrão as the decimal separator, such as 2000 for 20 escudos, or 1.00000 for 1000.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CVE</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Comorian_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Comorian franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc (ISO 4217 currency code KMF) is the official currency of Comoros. It is nominally subdivided into 100 centimes, although no centime denominations have ever been issued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KMF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ethiopian_birr">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ethiopian birr</rdfs:label>
+    <rdfs:comment xml:lang="en">The birr is the unit of currency in Ethiopia. Before 1976, dollar was the official English translation of birr. Today, it is officially birr in English as well. In 1931, the Emperor of Ethiopia, Haile Selassie I, formally requested that the international community use the name Ethiopia (as it had already been known internally for at least 1600 years) instead of Abyssinia, and the issuing Bank of Abyssinia also became the Bank of Ethiopia.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ETB</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/French_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">French franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc was a currency of France. Along with the Spanish peseta, it was also a de facto currency used in Andorra (which had no national currency with legal tender). It circulated alongside the Monegasque franc, with which it had equal value. Between 1360 and 1641, it was the name of coins worth 1 livre tournois and it remained in common parlance as a term for this amount of money.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">FRF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Honduran_lempira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Honduran lempira</rdfs:label>
+    <rdfs:comment xml:lang="en">The lempira is the currency of Honduras. It is subdivided into 100 centavos. The lempira was named after the 16th-century cacique Lempira, a ruler of the indigenous Lenca people, who is renowned in Honduran folklore for leading the (ultimately unsuccessful) local native resistance against the Spanish conquistador forces. He is a national hero, and is honoured on both the 1 lempira note and the 20 and 50 centavos coins.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">HNL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Iraqi_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Iraqi dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Iraq. It is issued by the Central Bank of Iraq and is subdivided into 1,000 fils (فلس), although inflation has rendered the fils obsolete.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">IQD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Irish_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Irish pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Irish pound was the currency of Ireland until 2002. Its ISO 4217 code was IEP, and the usual notation was the prefix £ (or IR£ where confusion might have arisen with the pound sterling or other pounds). The Irish pound was superseded by the euro on 1 January 1999. Euro currency did not begin circulation until the beginning of 2002.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">IEP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Lao_kip">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Lao kip</rdfs:label>
+    <rdfs:comment xml:lang="en">The kip is the currency of Laos since 1952. One kip is divided into 100 att (ອັດ).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LAK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mozambican_escudo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mozambican escudo</rdfs:label>
+    <rdfs:comment xml:lang="en">The escudo was the currency of Mozambique from 1914 until 1980. It was subdivided into 100 centavos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MZE</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mozambican_metical">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mozambican metical</rdfs:label>
+    <rdfs:comment xml:lang="en">The metical is the currency of Mozambique, abbreviated with the symbol MZN or MTn. It is nominally divided into 100 centavos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MZN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Peruvian_inti">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Peruvian inti</rdfs:label>
+    <rdfs:comment xml:lang="en">The inti was the currency of Peru between 1985 and 1991. Its ISO 4217 code was PEI and its abbreviation in local use was &quot;I/. &quot; The inti was divided into 100 céntimos. The inti replaced the inflation-stricken sol. The new currency was named after Inti, the Inca sun god.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PEI</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Surinamese_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Surinamese dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of Suriname since 2004. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SRD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Tanzanian_shilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Tanzanian shilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The shilingi is the currency of Tanzania, although widespread use of U.S. dollars is accepted. It is subdivided into 100 senti (cents in English). The Tanzanian shilling replaced the East African shilling on 14 June 1966 at par. For earlier currencies used in Tanzania, see East African florin, East African rupee, Zanzibari rupee, Zanzibari riyal and German East African rupie.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TZS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ugandan_shilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ugandan shilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The shilling is the currency of Uganda. Officially, the shilling is subdivided into 100 cents but no subdivisions have been issued since the revaluation of the shilling in 1987.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">UGX</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Uzbekistani_som">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Uzbekistani som</rdfs:label>
+    <rdfs:comment xml:lang="en">For earlier currencies used in Uzbekistan, see Bukharan tenga, Kokand tenga and Khwarazmi tenga. Uzbekistani som O‘zbek so‘m / Ўзбек сўм 25 som 25 som ISO 4217 code UZS Central bank Central Bank of the Republic of Uzbekistan Website www. cbu. uz User(s) 22x20px Uzbekistan Inflation 16% Source The World Factbook, 2011 est.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">UZS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Yemeni_rial">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Yemeni rial</rdfs:label>
+    <rdfs:comment xml:lang="en">The rial or riyal is the currency of Yemen. It is technically divided into 100 fils, although coins denominated in fils have not been issued since Yemeni unification.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">YER</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Potomac_(currency)">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Potomac (currency)</rdfs:label>
+    <rdfs:comment xml:lang="en">The Potomac is a local currency that circulates in the National Capital region of the United States. It was introduced informally in early 2009 at a series of community swap meets called Potomac Potlatches and launched May 3, 2009 by EcolocityDC at the Forum on Faith, Economy &amp; Ecology organized by the Maryknoll Office for Global Concerns. The Ecolocity website lists eight businesses in the Greater Washington area that accept the currency, as do vendors at the Petworth Community Market.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">None, it is a local currency</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/North_Yemeni_rial">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">North Yemeni rial</rdfs:label>
+    <rdfs:comment xml:lang="en">The rial or riyal was the currency of North Yemen, first the Mutawakkilite Kingdom of Yemen, then the Yemen Arab Republic.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">YER</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Argentine_peso_moneda_nacional">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Argentine peso moneda nacional</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso moneda nacional was the currency of Argentina between November 5, 1881 and December 31, 1969. It was subdivided into 100 centavos, with the argentino worth 5 pesos. Its symbol was m$n or $m/n. Its ISO 4217 code was ARM.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ARM</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bosnia_and_Herzegovina_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bosnia and Herzegovina dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Bosnia and Herzegovina dinar was the independent currency of Bosnia and Herzegovina between 1992 and 1998, used in those areas under Bosniak control. No subdivisions were issued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BAD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ithaca_Hours">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ithaca Hours</rdfs:label>
+    <rdfs:comment xml:lang="en">The Ithaca HOUR is a local currency used in Ithaca, New York and is the oldest and largest local currency system in the United States that is still operating. It has inspired other similar systems in Madison, Wisconsin; Corvallis, Oregon; and a proposed system in the Lehigh Valley, Pennsylvania. One Ithaca HOUR is valued at US$10 and is generally recommended to be used as payment for one hour&#39;s work, although the rate is negotiable.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">local currencies don&#39;t have ISO 4217 codes</dbpprop:isoCode>
+    <dbpprop:isoCode xml:lang="en">N/A,</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Peruvian_sol">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Peruvian sol</rdfs:label>
+    <rdfs:comment xml:lang="en">The sol was the currency of Peru between 1863 and 1985. It had the ISO 4217 currency code PEH. It was subdivided into 10 dineros or 100 centavos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PEH</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Revaluation_of_the_Turkish_Lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Revaluation of the Turkish Lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The new Turkish lira (Turkish: yeni türk lirası) was the currency of Turkey and the de facto independent state of the Turkish Republic of Northern Cyprus between 1 January 2005 and 1 January 2009 which was a transition period for the removal of six zeroes from the currency. The new lira was subdivided into 100 new kurush (yeni kuruş). The symbol was YTL and the ISO 4217 code was TRY.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TRY</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Unidad_de_Fomento">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Unidad de Fomento</rdfs:label>
+    <rdfs:comment xml:lang="en">The Unidad de Fomento (UF) is a Unit of account that is used in Chile. The exchange rate between the UF and the Chilean peso is now (today) constantly adjusted to inflation so that the value of the Unidad de Fomento remains constant on a daily basis during low inflation.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CLF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Syrian_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Syrian pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Syrian pound is the currency of Syria and is issued by the Central Bank of Syria. The pound is subdivided into 100 qirsh, although coins in qirsh are no longer issued. Before 1947, the word qirsh was spelled with the initial Arabic letter غ, after which the word began with ق. Until 1958, banknotes were issued with Arabic on the obverse and French on the reverse. After 1958, English has been used on the reverses, hence the three different names for this currency.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SYP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Transnistrian_ruble">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Transnistrian ruble</rdfs:label>
+    <rdfs:comment xml:lang="en">The ruble is the official currency of Transnistria. It is divided into 100 kopecks. Since Transnistria is a state with limited international recognition, its currency has no ISO 4217 code. However, unofficially some Transnistrian organisations such as Agroprombank and Gazprombank used the code PRB as the ISO 4217. The Trans-Dniester Republican Bank sometimes uses the code RUP.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Congolese_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Congolese franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc is the currency of the Democratic Republic of Congo. It is subdivided into 100 centimes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CDF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Tuvaluan_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Tuvaluan dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of Tuvalu. From 1966 to 1976, Tuvalu officially used the Australian dollar. In 1976, Tuvalu began issuing its own coins for circulation, although these circulate alongside Australian coins and Tuvalu continues to use Australian banknotes. Similar to the Faroese króna&#39;s relationship to the Danish krone, the Tuvaluan dollar is not an independent currency, but a variation of the Australian Dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/West_African_CFA_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">West African CFA franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The West African CFA franc is the currency of eight independent states in West Africa: Benin, Burkina Faso, Côte d&#39;Ivoire, Guinea-Bissau, Mali, Niger, Sénégal and Togo. The acronym CFA stands for Communauté Financière d&#39;Afrique (&quot;Financial Community of Africa&quot;) or Communauté Financière Africaine (&quot;African Financial Community&quot;).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XOF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Kuwaiti_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Kuwaiti dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Kuwait. It is sub-divided into 1,000 fils. It is the highest-valued currency unit in the world.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KWD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Solomon_Islands_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Solomon Islands dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of the Solomon Islands since 1977. It is normally abbreviated with the dollar sign &quot;$&quot; or, alternatively &quot;SI$&quot; to distinguish it from other dollar-denominated currencies. It is subdivided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SBD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Gambian_dalasi">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Gambian dalasi</rdfs:label>
+    <rdfs:comment xml:lang="en">The dalasi is the currency of the Gambia. It is subdivided into 100 bututs. The dalasi was adopted in 1971. It replaced the Gambian pound at a rate of 1 pound = 5 dalasi, i.e. , 1 dalasi = 0.2 pound = 4 shillings.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GMD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Antarctican_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Antarctican dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">Antarctican dollars are collector&#39;s items produced by the Antarctica Overseas Exchange Office in the appearance of a national money for the continent of Antarctica. Although the bills are not legal tender in Antarctica nor any other continent or nation, the issuing company will &quot;honor them for their face value throughout their validity period. &quot; Illustrations of the currency can be viewed at the Antarctica Overseas Exchange Office website.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AQD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Aruban_florin">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Aruban florin</rdfs:label>
+    <rdfs:comment xml:lang="en">The florin is the currency of Aruba. It is subdivided into 100 cents. The florin was introduced in 1986, replacing the Netherlands Antillean guilder at par.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AWG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bahraini_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bahraini dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Bahrain. It is divided into 1000 fils (فلس). The name dinar derives from the Roman denarius. The dinar was introduced in 1965, replacing the Gulf rupee at a rate of 10 rupees = 1 dinar. The Bahraini dinar is abbreviated . د. ب (Arabic) or BD (Latin). It is usually represented with three decimal places denoting the fils.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BHD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Dominican_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Dominican peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The Dominican peso is the currency of the Dominican Republic. Its symbol is &quot;$&quot;, with &quot;RD$&quot; used when distinction from other pesos is required; its ISO 4217 code is &quot;DOP&quot;. Each peso is divided into 100 centavos (&quot;cents&quot;), for which the ¢ symbol is used. It is the only currency which is legal tender for all monetary transactions, whether public or private, in the Dominican Republic.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DOP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Lesotho_loti">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Lesotho loti</rdfs:label>
+    <rdfs:comment xml:lang="en">The loti is the currency of the Kingdom of Lesotho. It is subdivided into 100 lisente (sg. sente). It is pegged to the South African rand on a 1:1 basis through the Common Monetary Area, and both are accepted as legal tender within Lesotho. The loti was first issued in 1966, albeit as a non-circulating currency. In 1980, Lesotho issued its first coins denominated in both loti and lisente to replace the South African rand of Lesotho, though the Rand remains legal tender.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LSL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Malagasy_ariary">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Malagasy ariary</rdfs:label>
+    <rdfs:comment xml:lang="en">The ariary is the currency of Madagascar. It is subdivided into 5 iraimbilanja and is one of only two non-decimal currencies currently circulating (the other is the Mauritanian ouguiya). The names ariary and iraimbilanja derive from the pre-colonial currency, with ariary being the name for a silver dollar. Iraimbilanja means literally &quot;one iron weight&quot; and was the name of an old coin worth ⅕ of an ariary.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MGA</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Moroccan_dirham">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Moroccan dirham</rdfs:label>
+    <rdfs:comment xml:lang="en">The dirham is the currency of Morocco. The plural form is pronounced darahim, although in French and English &quot;dirhams&quot; is commonly used. Its ISO 4217 code is &quot;MAD&quot;. It is subdivided into 100 santimat . The dirham is issued by the Bank Al-Maghrib, the central bank of Morocco. It is also the de facto currency in Western Sahara. While the dirham is a fully convertible currency, export of the local currency is prohibited by law, but seldom controlled.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MAD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Nicaraguan_c%C3%B3rdoba">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Nicaraguan córdoba</rdfs:label>
+    <rdfs:comment xml:lang="en">The córdoba is the currency of Nicaragua. It is divided into 100 centavos</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NIO</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Nigerian_naira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Nigerian naira</rdfs:label>
+    <rdfs:comment xml:lang="en">The naira is the currency of Nigeria. It is subdivided into 100 kobo. The Central Bank of Nigeria (CBN) is the sole issuer of legal tender money throughout the Federation. It controls the volume of money supply in the economy in order to ensure monetary and price stability. The Currency &amp; Branch Operations Department of the CBN is in charge of currency management, through the procurement, distribution/supply, processing, reissue and disposal/disintegration of bank notes and coins.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NGN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Panamanian_balboa">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Panamanian balboa</rdfs:label>
+    <rdfs:comment xml:lang="en">The balboa is, along with the United States dollar, one of the official currencies of Panama. It is named in honor of the Spanish explorer / conquistador Vasco Núñez de Balboa. The balboa is subdivided into 100 centésimos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PAB</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Portuguese_escudo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Portuguese escudo</rdfs:label>
+    <rdfs:comment xml:lang="en">The escudo was the currency of Portugal prior to the introduction of the Euro on 1 January 1999 and its removal from circulation on 28 February 2002. The escudo was subdivided into 100 centavos. Amounts in escudos were written as escudos  centavos with the cifrão as the decimal separator (e.g. 25$00 means 25, 100$50 means 100 and 50 centavos). Because of the conversion rate of 1000 réis = 1, three decimal places were initially used (1 = 1$000).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PTE</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Swazi_lilangeni">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Swazi lilangeni</rdfs:label>
+    <rdfs:comment xml:lang="en">The lilangeni is the currency of Swaziland and is subdivided into 100 cents. The South African rand is also accepted in Swaziland and it is issued by the Central Bank of Swaziland (in swazi Umntsholi Wemaswati). Similar to the Lesotho loti, there are singular and plural abbreviations, namely L and E, so where one might have an amount L1, it would be E2, E3, or E4.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SZL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Tajikistani_somoni">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Tajikistani somoni</rdfs:label>
+    <rdfs:comment xml:lang="en">The somoni is the currency of Tajikistan. It is subdivided into 100 diram. The currency is named after the father of the Tajik nation, Ismail Samani (also spelled Ismoil Somoni).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TJS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Vanuatu_vatu">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Vanuatu vatu</rdfs:label>
+    <rdfs:comment xml:lang="en">The vatu is the currency of Vanuatu. The vatu has no subdivisions.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">VUV</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Vatican_lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Vatican lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The lira (plural lire) was the currency of the Vatican City between 1929 and 2002.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">VAL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cook_Islands_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cook Islands dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of the Cook Islands. The dollar is subdivided into 100 cents, although some 50 cent coins carry the denomination as &quot;50 tene&quot;.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">none</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Newfoundland_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Newfoundland dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar was the currency of the colony and Dominion of Newfoundland from 1865 until 1949, when Newfoundland became a province of Canada. It was subdivided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NFD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Djiboutian_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Djiboutian franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The franc is the currency of Djibouti. The ISO 4217 currency code is DJF. Historically it was subdivided into 100 centimes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DJF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Libyan_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Libyan dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Libya. Its ISO 4217 code is &quot;LYD&quot;. The dinar is subdivided into 1000 dirham (درهم). It was introduced in September 1971 and replaced the pound at par. It is issued by the Central Bank of Libya, which also supervises the banking system and regulates credit. In 1972, the Libyan Arab Foreign Bank was established to deal with overseas investment.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LYD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mauritanian_ouguiya">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mauritanian ouguiya</rdfs:label>
+    <rdfs:comment xml:lang="en">The ouguiya, also spelt &quot;ougiya&quot;, is the currency of Mauritania. It is the only circulating currency other than the Malagasy ariary whose division units are not based on a power of ten, each ouguiya comprising five khoums . The ouguiya was introduced in 1973, replacing the CFA franc at a rate of 1 ouguiya = 5 francs.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MRO</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Angolan_kwanza">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Angolan kwanza</rdfs:label>
+    <rdfs:comment xml:lang="en">The kwanza is the currency of Angola. Four different currencies using the name kwanza have circulated since 1977.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">AOA</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Caribbean_guilder">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Caribbean guilder</rdfs:label>
+    <rdfs:comment xml:lang="en">The Caribbean guilder is the proposed currency of the Caribbean islands of Curaçao and Sint Maarten, which formed after the dissolution of the Netherlands Antilles in October 2010. The Netherlands Antillean guilder is expected to continue to circulate until 2013 as the currency was not finalised in time for the islands&#39; separate autonomous status.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">CMG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Mauritian_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Mauritian rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The rupee is the currency of Mauritius.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MUR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Brazilian_cruzado_novo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Brazilian cruzado novo</rdfs:label>
+    <rdfs:comment xml:lang="en">The Cruzado Novo was the short-lived currency of Brazil between 15 January 1989 and 15 March 1990. It replaced the cruzado in the rate of 1000 cruzados = 1 cruzado novo. It had the symbol and the ISO 4217 code BRN. In 1990, the cruzado novo was renamed the (third) cruzeiro. This currency was subdivided in 100 centavos.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BRN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Liberian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Liberian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of Liberia since 1943. It was also the country&#39;s currency between 1847 and 1907. It is normally abbreviated with the dollar sign $, or alternatively L$ or LD$ to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LRD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Albanian_lek">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Albanian lek</rdfs:label>
+    <rdfs:comment xml:lang="en">The lek (Albanian: Leku Shqiptar; plural lekë) is the official currency of Albania. It is subdivided into 100 qindarka (singular qindarkë), although qindarka are no longer issued.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ALL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Algerian_dinar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Algerian dinar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dinar is the currency of Algeria and it is subdivided into 100 santeem (سنتيم).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">DZD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Argentine_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Argentine peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso (originally established as the peso convertible) is the currency of Argentina, identified by the symbol $ preceding the amount in the same way as many countries using dollar currencies. It is subdivided into 100 centavos. Its ISO 4217 code is ARS. Several earlier currencies of Argentina were also called &quot;peso&quot;; as inflation progressed a new currency with a few zeroes dropped and a different qualifier (peso national currency, peso law 18188, peso argentino... ) was introduced.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ARS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bhutanese_ngultrum">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bhutanese ngultrum</rdfs:label>
+    <rdfs:comment xml:lang="en">The ngultrum has been the currency of Bhutan since 1974. It is subdivided into 100 chhertum (called chetrums on coins until 1979).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BTN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Egyptian_pound">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Egyptian pound</rdfs:label>
+    <rdfs:comment xml:lang="en">The Egyptian pound is the currency of Egypt. It is divided into 100 piastre, or qirsh, or 1,000 milliemes. The ISO 4217 code is EGP. Locally, the abbreviation LE or L.E. , which stands for livre égyptienne (French for Egyptian pound) is frequently used. E£ and £E are rarely used. The name Gineih is derived from the Guinea coin, which had almost the same value of 100 piastres at the end of the 19th century.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">EGP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Greek_drachma">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Greek drachma</rdfs:label>
+    <rdfs:comment xml:lang="en">Drachma, pl. drachmae or drachmas (pl. δραχμαί or δραχμές) was the currency used in Greece during several periods in its history: An ancient Greek currency unit found in many Greek city states from Classical times on, as well as in many of Alexander&#39;s successor states and South-West Asian kingdoms during the Hellenistic era. Three modern Greek currencies, the first introduced in 1832 and the last replaced by the euro in 2001 (at the rate of 340.750 drachma to the euro).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">GRD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Icelandic_kr%C3%B3na">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Icelandic króna</rdfs:label>
+    <rdfs:comment xml:lang="en">The króna (plural krónur) is the currency of Iceland. The króna was historically subdivided into 100 aurar (singular eyrir), but this subdivision is no longer used. The word króna, meaning &quot;crown&quot;, is related to those of other Nordic currencies and to the Latin word corona (&quot;crown&quot;). The name &quot;Icelandic crown&quot; is sometimes used, for example in the financial markets.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ISK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Indian_rupee">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Indian rupee</rdfs:label>
+    <rdfs:comment xml:lang="en">The Indian rupee (₹) is the official currency of the Republic of India. The issuance of the currency is controlled by the Reserve Bank of India. The modern rupee is subdivided into 100 paise (singular paisa), though as of 2011 only 50-paise coins are legal tender. Banknotes are available in nominal values of 5, 10, 20, 50, 100, 500 and 1000 rupees.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">INR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Jamaican_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Jamaican dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar has been the currency of Jamaica since 1969. It is often abbreviated &quot;J$&quot;, the J serving to distinguish it from other dollar-denominated currencies. It is divided into 100 cents.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">JMD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/New_Taiwan_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">New Taiwan dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The New Taiwan dollar or simply Taiwan dollar (臺幣 / 台幣), currency code TWD and common abbreviation NT$, is the official currency of the Taiwan Area of the Republic of China (ROC) since 1949, when it replaced the Old Taiwan dollar. Originally issued by the Bank of Taiwan, it has been issued by the Central Bank of the Republic of China since 2000.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">TWD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/New_Zealand_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">New Zealand dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The New Zealand dollar is the currency of New Zealand. It is divided into 100 cents. It is normally written with the dollar sign $, or NZ$ to distinguish it from other dollar-denominated currencies. In the context of currency trading, it is often informally called the &quot;Kiwi&quot;, since kiwi are commonly associated with New Zealand and the $1 coin depicts a kiwi. It is one of the 10 most-traded currencies in the world being approximately 1.6% of global foreign exchange market daily turnover in 2010.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">NZD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Paraguayan_guaran%C3%AD">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Paraguayan guaraní</rdfs:label>
+    <rdfs:comment xml:lang="en">The guaraní is the national currency unit of Paraguay. The guaraní was divided into 100 céntimos but, because of inflation, céntimos are no longer in use. The currency sign is .</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PYG</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Peruvian_nuevo_sol">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Peruvian nuevo sol</rdfs:label>
+    <rdfs:comment xml:lang="en">The Nuevo Sol is the currency of Peru. It is subdivided into 100 cents, called céntimos in Spanish. The ISO 4217 currency code is PEN. It is most commonly referred to just as Sol The name is a return to that of Peru&#39;s historic currency, the Sol in use from the 19th century to 1985. Although the derivation of Sol is the Latin solidus, the word also happens to mean sun in Spanish. There is a continuity therefore with the old Peruvian inti, which was named after Inti, the Sun God of the Incas.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PEN</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Polish_z%C5%82oty">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Polish złoty</rdfs:label>
+    <rdfs:comment xml:lang="en">The złoty, which literally means &quot;golden&quot;, is the currency of Poland. The modern złoty is subdivided into 100 groszy . The recognized English form of the word is zloty, plural zloty or zlotys. The currency sign zł, is composed of Polish small letters z and ł . As a result of inflation in the early 1990s, the currency underwent redenomination. Thus, on January 1, 1995, 10,000 old złotych (PLZ) became one new złoty (PLN).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PLN.</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Romanian_leu">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Romanian leu</rdfs:label>
+    <rdfs:comment xml:lang="en">The leu is the currency of Romania. It is subdivided into 100 bani . The name of the currency means &quot;lion&quot;. On 1 July 2005, Romania underwent a currency reform, switching from the previous leu (ROL) to a new leu (RON). 1 RON is equal to 10,000 ROL. Romania joined the European Union on 1 January 2007 and it is expected to adopt the euro in 2015. The currency of Moldova is also called the leu, but is independent of the Romanian leu.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">RON</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Slovak_koruna">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Slovak koruna</rdfs:label>
+    <rdfs:comment xml:lang="en">The Slovak koruna or Slovak crown (Slovak: slovenská koruna, literally meaning Slovak crown) was the currency of Slovakia between 8 February 1993 and 31 December 2008, and could be used for cash payment until the 16 January 2009. It is no longer the official Slovak currency. The ISO 4217 code was SKK and the local abbreviation was Sk. The Slovak crown (koruna) was also the currency of the Nazi-era Slovak Republic between 1939 and 1945. Both korunas were subdivided into 100 haliers .</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SKK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/South_African_rand">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">South African rand</rdfs:label>
+    <rdfs:comment xml:lang="en">The rand is the currency of South Africa. It takes its name from the Witwatersrand, the ridge upon which Johannesburg is built and where most of South Africa&#39;s gold deposits were found. The rand has the symbol &quot;R&quot; and is subdivided into 100 cents, symbol &quot;c&quot;. The ISO 4217 code is ZAR, from Dutch Zuid-Afrikaanse rand. (South African rand). Before 1961, the Dutch language was one of the official languages of South Africa.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ZAR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Swedish_krona">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Swedish krona</rdfs:label>
+    <rdfs:comment xml:lang="en">The krona has been the currency of Sweden since 1873. Both the ISO code &quot;SEK&quot; and currency sign &quot;kr&quot; are in common use; the former precedes or follows the value, the latter usually follows it, but especially in the past, it sometimes preceded the value. In English, the currency is sometimes referred to as the Swedish crown, since krona literally means crown in Swedish. The Swedish krona was the 9th most traded currency in the world by value in April 2010.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SEK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Zairean_zaire">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Zairean zaire</rdfs:label>
+    <rdfs:comment xml:lang="en">The zaïre was the unit of currency of the Democratic Republic of the Congo and then of the Republic of Zaire from 1967 until 1997. There were two distinct currencies.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ZRZ</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Italian_lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Italian lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The lira (plural lire) was the currency of Italy between 1861 and 2002 and Albanian Kingdom between 1941 and 1943. Between 1999 and 2002, the Italian lira was officially a national subunit of the euro. However, cash payments could be made in lire only, as euro coins or notes were not yet available. The lira was also the currency of the Napoleonic Kingdom of Italy between 1807 and 1814.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ITL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Montenegrin_perper">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Montenegrin perper</rdfs:label>
+    <rdfs:comment xml:lang="en">The perper was the currency of Montenegro between 1906 and 1918. The name was adopted in accordance to the earlier Serbian perper, the currency of the Serbian Empire, to which the Principality, later Kingdom of Montenegro, consider itself a successor. It was divided into 100 pare and was equivalent to the French franc as part of the Latin Monetary Union. The perper was replaced by the dinar when Montenegro became part of the Kingdom of the Serbs, Croats and Slovenes.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">None</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Cambodian_riel">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Cambodian riel</rdfs:label>
+    <rdfs:comment xml:lang="en">The riel is the currency of Cambodia. There have been two distinct riel, the first issued between 1953 and May 1975. Between 1975 and 1980, the country had no monetary system. A second currency, also named &quot;riel&quot;, has been issued since April 1, 1980. However, this currency has never gained much public acceptance, with most Cambodians preferring foreign currency. The UN peacekeeping operation of 1993 injected a large quantity of U.S. dollars into the local economy.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">KHR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Salvadoran_col%C3%B3n">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Salvadoran colón</rdfs:label>
+    <rdfs:comment xml:lang="en">Colón is also the name of Costa Rica&#39;s currency. For this, see Costa Rican colón. Salvadoran colón colón salvadoreño ISO 4217 code SVC Central bank Central Reserve Bank of El Salvador User(s) 22x20px El Salvador Subunit 1/100 centavo Symbol ₡ Plural colones Coins 5, 10, 25, 50 centavos, 1, 5 colón Rarely used 1, 2, 3 centavos Banknotes 1, 2, 5, 10, 25, 50, 100, 200 colones The colón was the currency of El Salvador between 1892 and 2001, until it was substituted by the U.S. Dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SVC</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Ven_(currency)">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Ven (currency)</rdfs:label>
+    <rdfs:comment xml:lang="en">Ven is a global digital currency used by members of a social network service, Hub Culture, to buy, share, and trade knowledge, goods, and services. It is the first virtual currency to be used in the financial markets and the first used in commodity and carbon credit trading. Ven can be spent at Hub Culture Pavilions or used for micropayments on the Internet at large. The value of Ven is determined on the financial markets from a basket of currencies, commodities and carbon futures.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XXX</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Latvian_rublis">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Latvian rublis</rdfs:label>
+    <rdfs:comment xml:lang="en">The rublis was the name of the currency of Latvia from 1919 to 1922 and from 1992 to 1993.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">LVR</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bangladeshi_taka">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bangladeshi taka</rdfs:label>
+    <rdfs:comment xml:lang="en">The Taka is the currency of Bangladesh. Bangladesh Bank, the central bank of the country, controls the issuance of the currency, except one taka and two taka notes, which are the responsibility of the Ministry of Finance of the government of Bangladesh. The most commonly used symbol for the Taka is Tk and ৳, used on receipts while purchasing goods and services. One taka is subdivided into 100 poisha.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BDT</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bermudian_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Bermudian dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The dollar is the currency of Bermuda. It is normally abbreviated with the dollar sign $ or, alternatively, BD$ to distinguish it from other dollar-denominated currencies. It is subdivided into 100 cents. The Bermudian dollar is not normally traded outside of Bermuda. It is pegged to the US dollar, therefore coins of both currencies circulate in Bermuda on an equal basis.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">BMD</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Somali_shilling">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Somali shilling</rdfs:label>
+    <rdfs:comment xml:lang="en">The Somali shilling is the official currency of Somalia. It is subdivided into 100 senti (Somali, also سنت), cents (English) or centesimi (Italian).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SOS</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Zimbabwean_dollar">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Zimbabwean dollar</rdfs:label>
+    <rdfs:comment xml:lang="en">The Zimbabwean dollar was the official currency of Zimbabwe from 1980 to 12 April 2009.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ZWL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Papua_New_Guinean_kina">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Papua New Guinean kina</rdfs:label>
+    <rdfs:comment xml:lang="en">The kina is the currency of Papua New Guinea. It is divided into 100 toea. The kina was introduced on 19 April 1975, replacing the Australian dollar at par. The name kina is derived from Kuanua of the Tolai region, referring to a callable pearl shell used widely for trading in both the Coastal and Highlands areas of the country. For earlier currencies used in Papua New Guinea, see New Guinea pound and New Guinea mark.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PGK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Burmese_kyat">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Burmese kyat</rdfs:label>
+    <rdfs:comment xml:lang="en">The kyat is the currency of Burma (Myanmar). It is often abbreviated as &quot;K&quot; (singular or plural) or &quot;Ks&quot; (plural), which is placed before or after the numerical value, depending on author preference.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">MMK</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Central_African_CFA_franc">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Central African CFA franc</rdfs:label>
+    <rdfs:comment xml:lang="en">The Central African CFA franc is the currency of six independent states in central Africa, Cameroon, Central African Republic, Chad, Republic of the Congo, Equatorial Guinea and Gabon. CFA stands for Coopération financière en Afrique centrale (&quot;Financial Cooperation in Central Africa&quot;).</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">XAF</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Philippine_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Philippine peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso is the currency of the Philippines. It is subdivided into 100 centavos . Before 1967, the language used on the banknotes and coins was English, and so &quot;peso&quot; was the name used. When the language used was changed to Filipino, this changed to &quot;piso&quot;. The peso is usually denoted by the symbol &quot;₱&quot;. Other ways of writing the Philippine peso sign are &quot;PHP&quot;, &quot;PhP&quot;, &quot;Php&quot;, and/or &quot;P&quot;. The coins and banknotes are made at the Security Plant Complex of the Bangko Sentral ng Pilipinas.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">PHP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Vietnamese_dong">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Vietnamese dong</rdfs:label>
+    <rdfs:comment xml:lang="en">The đồng has been the currency of Vietnam since May 3, 1978. Issued by the State Bank of Vietnam, it is represented by the symbol &quot;₫&quot;. Formerly, it was subdivided into 10 hào, which was further subdivided into 10 xu, neither of which is now used.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">VND</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Colombian_peso">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Colombian peso</rdfs:label>
+    <rdfs:comment xml:lang="en">The peso is the currency of Colombia. Its ISO 4217 code is COP and it is also informally abbreviated as COL$. However, the official peso symbol is $. As 30 November 2012, the exchange rate of the Colombian peso is 1815 Colombian pesos to 1 U.S. dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">COP</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Angolan_escudo">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Angolan escudo</rdfs:label>
+    <rdfs:comment xml:lang="en">The escudo was the currency of Angola between 1914 and 1928 and again between 1958 and 1977. It was subdivided into 100 centavos with the macuta worth 5 centavos and was equivalent to the Portuguese escudo.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">?</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Sierra_Leonean_leone">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Sierra Leonean leone</rdfs:label>
+    <rdfs:comment xml:lang="en">The leone is the currency of Sierra Leone. It is subdivided into 100 cents. The ISO 4217 code is SLL and the leone is abbreviated as Le placed before the amount.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">SLL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/AM-Lira">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">AM-Lira</rdfs:label>
+    <rdfs:comment xml:lang="en">The AM-lira (Allied-Military Currency) was the currency issued in Italy by AMGOT after the invasion of Sicily in 1943. 100 AM-lire were worth 1 US dollar.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">ITL</dbpprop:isoCode>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Vev%C4%8Dani_Republic">
+    <rdf:type rdf:resource="http://dbpedia.org/ontology/Currency" />
+    <rdfs:label xml:lang="en">Vevčani Republic</rdfs:label>
+    <rdfs:comment xml:lang="en">The Republic of Vevčani -also known as the Independent Republic of Vevčani- was a short lived self-proclaimed country on the territory of Macedonia after the fall of Yugoslavia in 1991 and as of 2000 is a micronation.</rdfs:comment>
+    <dbpprop:isoCode xml:lang="en">VEV</dbpprop:isoCode>
+  </rdf:Description>
+</rdf:RDF>
