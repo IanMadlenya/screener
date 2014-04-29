@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "An exponential moving average (EMA), also known as an exponentially weighted moving average (EWMA), is a type of infinite impulse response filter that applies weighting factors which decrease exponentially. The weighting for each older closing price decreases exponentially, and never reaching zero. The graph at right shows an example of the weight decrease." ;
     rdfs:label "12-day Exponential Moving Average" ;
     screener:expression "EMA(12,close)" ;
     calli:administrator </auth/groups/admin> ;

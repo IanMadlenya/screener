@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "The highest price high in the last 5 days" ;
     rdfs:label "5-day High" ;
     screener:expression "MAX(5,high)" ;
     calli:administrator </auth/groups/admin> ;

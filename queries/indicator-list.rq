@@ -9,9 +9,10 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?expression ?hasInterval ?hasUnit {
+SELECT ?iri ?label ?comment ?expression ?hasInterval ?hasUnit {
     ?iri a screener:Indicator;
         rdfs:label ?label;
+        rdfs:comment ?comment;
         screener:expression ?expression;
         screener:hasInterval ?hasInterval;
         screener:hasUnit ?hasUnit .

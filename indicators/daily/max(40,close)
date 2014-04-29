@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "The highest closing price in the last 40 days" ;
     rdfs:label "40-day Max Close" ;
     screener:expression "MAX(40,close)" ;
     calli:administrator </auth/groups/admin> ;

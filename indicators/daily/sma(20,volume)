@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "The mean of the previous 20 days' volume " ;
     rdfs:label "20-day Simple Moving Average of Volume" ;
     screener:expression "SMA(20,volume)" ;
     calli:administrator </auth/groups/admin> ;

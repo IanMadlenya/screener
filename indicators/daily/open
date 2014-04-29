@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "Yesterday's opening price" ;
     rdfs:label "Daily Open" ;
     screener:expression "open" ;
     calli:administrator </auth/groups/admin> ;

@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "The lowest price low in the last 14 days" ;
     rdfs:label "14-day Low" ;
     screener:expression "MIN(14,low)" ;
     calli:administrator </auth/groups/admin> ;

@@ -4,6 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "Yesterday's closing price as a percentage of the lowest price low in the last 250 days" ;
     rdfs:label "250-day Percentage Low" ;
     screener:expression "PLO(250)" ;
     calli:administrator </auth/groups/admin> ;
