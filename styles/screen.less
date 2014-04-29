@@ -8,3 +8,24 @@
 
 //typeahead
 @import "../assets/typeahead.js-bootstrap3.less/typeahead.less";
+
+.has-feedback .form-control-feedback {
+    top: 0; /* no label */
+    z-index: 3; /* above typeahead */
+    height: 33px; /* input-sm */
+    line-height: 33px;
+    width: 33px;
+}
+.has-success .glyphicon-info-sign {
+  color: #3498db;
+}
+.has-warning .form-control-feedback {
+  color: #8a6d3b;
+}
+.has-error .form-control-feedback {
+  color: #a94442;
+}
+
+.popover {
+    width: 276px;
+}

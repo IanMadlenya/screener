@@ -84,6 +84,18 @@
                 localStorage.removeItem(key);
             },
 
+            pceil: function(x, precision) {
+                if (x === 0 || !_.isNumber(x))
+                    return x;
+                var ex = Math.floor(Math.log(Math.abs(x))/Math.log(10)) - precision + 1;
+                var div = Math.pow(10, Math.abs(ex));
+                if (ex > 0) return Math.ceil(x / div) * div;
+                if (ex < 0) return Math.ceil(x * div) / div;
+                return Math.ceil(x);
+            },
+
+            formatNumber: suffixScale.bind(this, _.memoize(getScaleSuffix)),
+
             validate: function(expression, interval) {
                 var int = interval && interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
                 return postDispatchMessage({
@@ -389,6 +401,52 @@
             }, [worker]);
         });
         return port;
+    }
+
+    function suffixScale(getScaleSuffix, number) {
+        var num = parseFloat(number);
+        if (num === 0.0)
+            return '' + num;
+        var abs = Math.abs(num);
+        var sign = num == abs ? '' : '-';
+        var scale = Math.floor(Math.log(abs)/Math.log(10) / 3) * 3;
+        var suffix = getScaleSuffix(scale);
+        var pow = Math.pow(10, Math.abs(scale));
+        if (scale >= 3) return sign + (abs / pow) + suffix;
+        if (scale <= -6) return sign + (abs * pow) + suffix;
+        return '' + num;
+    }
+
+    function getScaleSuffix (scale) {
+        var metric = {
+            'sept':24,
+            'sext':21,
+            'quint':18,
+            'quadr':15,
+            'tri':12,
+            'bi':9,
+            'M':6,
+            'k':3,
+            'h':2,
+            'da':1,
+            '':0,
+            'd':-1,
+            'c':-2,
+            'm':-3,
+            'µ':-6,
+            'n':-9,
+            'p':-12,
+            'f':-15,
+            'a':-18,
+            'z':-21,
+            'y':-24
+        };
+        var idx = _.indexOf(_.values(metric), scale);
+        if (idx >= 0) {
+            return _.keys(metric)[idx];
+        } else {
+            return 'e' + scale;
+        }
     }
 
 })(jQuery);

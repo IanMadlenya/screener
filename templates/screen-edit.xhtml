@@ -46,19 +46,26 @@
                     onclick="return calli.addResource(event,'#filters')" class="glyphicon glyphicon-plus" /></label>
                 <div id="filters">
                     <div class="row" rel="screener:hasFilter" resource="?filter">
-                        <div class="col-sm-6 form-group">
-                            <input class="indicator typeahead form-control input-sm" type="text" placeholder="indicator" />
-                        </div>
-                        <div class="col-sm-3 form-group">
-                            <div class="input-group">
-                                <label class="input-group-addon input-sm">Min</label>
-                                <input class="min-input form-control input-sm" type="number" value="{screener:min}" datatype="xsd:integer" />
+                        <div class="col-sm-6">
+                            <div class="form-group has-feedback has-warning">
+                                <input class="indicator typeahead form-control input-sm" type="text" placeholder="indicator" />
+                                <span class="glyphicon glyphicon-warning-sign form-control-feedback" />
                             </div>
                         </div>
-                        <div class="col-sm-3 form-group">
-                            <div class="input-group">
-                                <label class="input-group-addon input-sm">Max</label>
-                                <input class="max-input form-control input-sm" type="number" value="{screener:max}" datatype="xsd:integer" />
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="input-group-addon input-sm">Min</label>
+                                    <input class="min-input form-control input-sm" type="number" value="{screener:min}" datatype="xsd:integer" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="input-group-addon input-sm">Max</label>
+                                    <input class="max-input form-control input-sm" type="number" value="{screener:max}" datatype="xsd:integer" />
+                                </div>
                             </div>
                         </div>
                         <div rel="screener:forIndicator" resource="?indicator" />
