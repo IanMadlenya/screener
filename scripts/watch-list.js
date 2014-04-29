@@ -74,6 +74,71 @@ jQuery(function($){
             }).catch(calli.error);
         });
 
+        var mincap = $('[property="screener:mincap"]').attr("content");
+        if (mincap) {
+            $('#marketcap-min').val(Math.log(mincap / 1000000) * 100);
+        }
+        var maxcap = $('[property="screener:maxcap"]').attr("content");
+        if (maxcap) {
+            $('#marketcap-max').val(Math.log(maxcap / 1000000) * 100);
+        }
+        $('#marketcap-min').add('#marketcap-max').change(function(event){
+            var M = 1000000;
+            var range = _.sortBy([parseInt($('#marketcap-min').val(),10), parseInt($('#marketcap-max').val(),10)], null);
+            var a = range[0];
+            var b = range[1] > range[0] ? range[1] : 1381;
+            var min = screener.pceil(a < 1 ? 0 : Math.exp(range[0] / 100) * 1000000, 2);
+            var max = screener.pceil(Math.exp(b / 100) * 1000000, 2);
+            var group = $(event.target).closest('.form-group');
+            group.find('[property="screener:mincap"]').remove();
+            group.find('[property="screener:maxcap"]').remove();
+            group.append($('<span></span>', {
+                property: "screener:mincap",
+                datatype: "xsd:integer",
+                content: min
+            })).append($('<span></span>', {
+                property: "screener:maxcap",
+                datatype: "xsd:integer",
+                content: max
+            }));
+            var from = (function(min){
+                if (min == 0)
+                    return 'Nano-cap';
+                if (min == 50*M)
+                    return 'Micro-cap';
+                if (min == 250*M)
+                    return 'Small-cap';
+                if (min == 2000*M)
+                    return 'Mid-cap';
+                if (min == 10000*M)
+                    return 'Large-cap';
+                if (min == 200000*M)
+                    return 'Mega-cap';
+                return screener.formatNumber(min);
+            })(min);
+            var to = (function(max){
+                if (max == 50*M)
+                    return 'Nano-cap';
+                if (max == 250*M)
+                    return 'Micro-cap';
+                if (max == 2000*M)
+                    return 'Small-cap';
+                if (max == 10000*M)
+                    return 'Mid-cap';
+                if (max === 200000*M)
+                    return 'Large-cap';
+                if (max >= 1000000*M)
+                    return 'Mega-cap';
+                return screener.formatNumber(max);
+            })(max);
+            var text = (function(from, to){
+                if (from == to)
+                    return from;
+                return from + ' - ' + to;
+            })(from, to);
+            $(event.target).closest('.form-group').find('.help-block').text(text);
+        }).change();
+
         var exchange = $('[rel="screener:ofExchange"] [about]').attr('about');
         $("#include-tickers").val(_.map($('[rel="screener:include"]').find("[resource]").toArray(), function(elem){
             var security = elem.getAttribute("resource");
