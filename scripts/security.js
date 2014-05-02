@@ -52,7 +52,12 @@ jQuery(function($){
         var now = new Date();
         var columns = ['date(asof)', 'low', 'open', 'close', 'high'];
         return screener.load(security, columns, 65, 'd1', now);
-    }).then(function(rows) {
+    }).then(function(rows){
+        $(window).resize(draw.bind(this, rows));
+        draw(rows);
+    }).catch(calli.error);
+
+    function draw(rows) {
         var table = new google.visualization.DataTable();
         table.addColumn('date', 'Day');
         table.addColumn('number', 'Price');
@@ -86,5 +91,5 @@ jQuery(function($){
                 width: window.innerWidth
             }
         });
-    }).catch(calli.error);
+    }
 });
