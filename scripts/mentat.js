@@ -145,9 +145,9 @@ function evaluateExpressions(calculations, open, security, interval, after, befo
         var start = earlier(interval, n - 1, after);
         return collectRange(fields, interval, start, before, store);
     }).then(function(results) {
-        var startIndex = Math.max(n - 1, after ? findIndex(results, function(result){
+        var startIndex = after ? findIndex(results, function(result){
             return result.asof >= after;
-        }) : 0);
+        }) : n - 1;
         return _.map(_.range(startIndex, results.length), function(i) {
             return _.map(calcs, function(calc){
                 var points = preceding(results, calc.getDataLength(), i);
@@ -173,7 +173,6 @@ function collectRange(fields, interval, start, end, store) {
                 var sorted = [earliest.asof, start || earliest.asof, end, latest.asof].sort(function(a, b){
                     return a.getTime() - b.getTime();
                 });
-                var present = _.keys(latest);// FIXME value from latest
                 var first = _.first(sorted);
                 var last = _.last(sorted);
                 if (first == earliest.asof && last == latest.asof) {
@@ -186,7 +185,7 @@ function collectRange(fields, interval, start, end, store) {
                         message: 'Need more data points',
                         from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
                         to: last != latest.asof ? last : earliest.asof,
-                        fields: _.union(present, fields),
+                        fields: fields,
                         earliest: earliest.asof,
                         latest: latest.asof
                     });
@@ -243,7 +242,11 @@ function preceding(array, len, endIndex) {
 function earlier(interval, n, first) {
     if (!first) return null;
     var unit;
-    if (interval.indexOf('d') === 0) {
+    if (interval == 'm12') {
+        var clone = new Date(first.valueOf());
+        clone.setFullYear(clone.getFullYear() - 1);
+        return clone;
+    } else if (interval.indexOf('d') === 0) {
         unit = parseInt(interval.substring(1), 10) * 2 * 24 * 60 * 60 * 1000;
     } else if (interval.indexOf('w')) {
         unit = parseInt(interval.substring(1), 10) * 7 * 24 * 60 * 60 * 1000;
