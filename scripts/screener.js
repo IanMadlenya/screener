@@ -84,6 +84,32 @@
                 localStorage.removeItem(key);
             },
 
+            debouncePromise: function(func, wait) {
+                var end = Promise.resolve();
+                return function(/* arguments */) {
+                    var context = this;
+                    var args = arguments;
+                    var current = end = end.catch(function() {
+                        // ignore previous error
+                    }).then(function(){
+                        if (current === end) return new Promise(function(resolve){
+                            _.delay(resolve, wait); // wait for another call
+                        });
+                    }).then(function() {
+                        if (current === end) // no other calls
+                            return func.apply(context, args);
+                    });
+                    return theEnd(current);
+                };
+                function theEnd(current){
+                    return end.then(function(resolved){
+                        if (resolved !== undefined || current === end)
+                            return Promise.resolve(resolved);
+                        return theEnd(end); // return the very last one
+                    });
+                }
+            },
+
             pceil: function(x, precision) {
                 if (x === 0 || !_.isNumber(x))
                     return x;
@@ -118,13 +144,15 @@
                 });
             }),
 
-            listSecurities: function(exchange, sectors) {
+            listSecurities: function(exchange, sectors, mincap, maxcap) {
                 return getExchange(exchange).then(function(exchange){
                     return Promise.all((_.isString(sectors) ? [sectors] : sectors).map(function(sector){
                         return postDispatchMessage({
                             cmd: 'security-list',
                             exchange: exchange,
-                            sector: sector
+                            sector: sector,
+                            mincap: mincap,
+                            maxcap: maxcap
                         });
                     })).then(_.flatten);
                 });
@@ -223,7 +251,7 @@
             }
 
         });
-    })(_.partial(postMessage, _.once(createDispatchPort)));
+    })(synchronized(postMessage.bind(this, _.once(createDispatchPort))));
 
     function getExchange(iri) {
         return screener.exchangeLookup()(iri).then(onlyOne);
@@ -447,6 +475,19 @@
         } else {
             return 'e' + scale;
         }
+    }
+
+    function synchronized(func) {
+        var promise = Promise.resolve();
+        return function(/* arguments */) {
+            var context = this;
+            var args = arguments;
+            return promise = promise.catch(function() {
+                // ignore previous error
+            }).then(function() {
+                return func.apply(context, args);
+            });
+        };
     }
 
 })(jQuery);

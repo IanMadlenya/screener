@@ -79,6 +79,13 @@ describe("Screener", function(){
     });
 
     describe("security list", function(){
+        these("NASDAQ market cap should include", [
+            ["XNGS", "Technology", 200000000000, Infinity, "AAPL"],
+            ["XNGS", "Technology",  30000000000, 200000000000, "ADBE"]
+        ], checkCompanyMarketCap);
+        these("XTSE market cap should include", [
+            ["XTSE", "Diversified Industries",  30000000000, 200000000000, "BCE"]
+        ], checkCompanyMarketCap);
         xthese("NASDAQ should include", [
             ["XNCM", "Basic Industries", "RTK"],
             ["XNCM", "Capital Goods", "USCR"],
@@ -390,6 +397,7 @@ describe("Screener", function(){
                 }]
             }],new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
+                expect(result[0]['SMA(60,volume)']).not.toBeUndefined();
             }).then(done, unexpected(done));
         });
         it("should have non-empty values for BB F-Score", function(done){
@@ -406,6 +414,7 @@ describe("Screener", function(){
                 }]
             }],new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
+                expect(result[0]['F-Score()']).not.toBeUndefined();
             }).then(done, unexpected(done));
         });
         it("should return all securities w/o filtering", function(done){

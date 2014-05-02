@@ -122,6 +122,34 @@ function checkCompanyListing(mic, sector, ticker) {
     };
 }
 
+function checkCompanyMarketCap(mic, sector, mincap, maxcap, ticker) {
+    return function(done) {
+        screener.listExchanges().then(_.values).then(function(result){
+            expect(result.length).not.toBe(0);
+            return result.filter(function(exchange){
+                return mic == exchange.mic;
+            });
+        }).then(_.partial(_.pluck, _, 'iri')).then(_.first).then(function(exchange) {
+            return screener.listSecurities(exchange, sector, mincap, maxcap).then(function(result){
+                expect(result).toContain(exchange + '/' + ticker);
+                return exchange;
+            });
+        }).then(function(exchange) {
+            if (!mincap) return exchange;
+            return screener.listSecurities(exchange, sector, 0, mincap).then(function(result){
+                expect(result).not.toContain(exchange + '/' + ticker);
+                return exchange;
+            });
+        }).then(function(exchange) {
+            if (!maxcap) return exchange;
+            return screener.listSecurities(exchange, sector, maxcap).then(function(result){
+                expect(result).not.toContain(exchange + '/' + ticker);
+                return exchange;
+            });
+        }).then(done, unexpected(done));
+    };
+}
+
 function loadQuotesWithError(errorMessage) {
     return function(mic, ticker, expressions, length, interval, asof) {
         return function(done) {

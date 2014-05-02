@@ -12,6 +12,7 @@ PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 SELECT ?iri ?label
         (group_concat(?of) AS ?ofExchange)
         (group_concat(?includeSector; separator = "\t") AS ?includeSectors)
+        (min(?min) AS ?mincap) (max(?max) AS ?maxcap)
         (group_concat(?exclude) AS ?excludes)
         (group_concat(?include) AS ?includes) {
     ?iri a screener:WatchList;
@@ -21,8 +22,12 @@ SELECT ?iri ?label
     } UNION {
         ?iri screener:includeSector ?includeSector
     } UNION {
-        ?iri screener:include ?include
+        ?iri screener:mincap ?min
+    } UNION {
+        ?iri screener:maxcap ?max
     } UNION {
         ?iri screener:exclude ?exclude
+    } UNION {
+        ?iri screener:include ?include
     }
 } GROUP BY ?iri ?label

@@ -30,7 +30,7 @@
  */
 
 jQuery(function($){
-    (function(){
+    (function(populate_list){
         screener.listExchanges().then(function(result){
             var exchange = $('[rel="screener:ofExchange"] [about]').attr('about');
             $('#exchange-select').append(result.map(function(exchange){
@@ -75,11 +75,11 @@ jQuery(function($){
         });
 
         var mincap = $('[property="screener:mincap"]').attr("content");
-        if (mincap) {
+        if (mincap && parseInt(mincap,10) > 1000000) {
             $('#marketcap-min').val(Math.log(mincap / 1000000) * 100);
         }
         var maxcap = $('[property="screener:maxcap"]').attr("content");
-        if (maxcap) {
+        if (maxcap && parseInt(maxcap,10) > 1000000) {
             $('#marketcap-max').val(Math.log(maxcap / 1000000) * 100);
         }
         $('#marketcap-min').add('#marketcap-max').change(function(event){
@@ -92,15 +92,20 @@ jQuery(function($){
             var group = $(event.target).closest('.form-group');
             group.find('[property="screener:mincap"]').remove();
             group.find('[property="screener:maxcap"]').remove();
-            group.append($('<span></span>', {
-                property: "screener:mincap",
-                datatype: "xsd:integer",
-                content: min
-            })).append($('<span></span>', {
-                property: "screener:maxcap",
-                datatype: "xsd:integer",
-                content: max
-            }));
+            if ($('#marketcap-min').attr("min") != a) {
+                group.append($('<span></span>', {
+                    property: "screener:mincap",
+                    datatype: "xsd:integer",
+                    content: min
+                }));
+            }
+            if ($('#marketcap-max').attr("max") != b) {
+                group.append($('<span></span>', {
+                    property: "screener:maxcap",
+                    datatype: "xsd:integer",
+                    content: max
+                }));
+            }
             var from = (function(min){
                 if (min == 0)
                     return 'Nano-cap';
@@ -137,6 +142,7 @@ jQuery(function($){
                 return from + ' - ' + to;
             })(from, to);
             $(event.target).closest('.form-group').find('.help-block').text(text);
+            populate_list();
         }).change();
 
         var exchange = $('[rel="screener:ofExchange"] [about]').attr('about');
@@ -156,31 +162,33 @@ jQuery(function($){
                 return security;
             }
         }).join(' '));
+        $('#include-tickers').change(whenEnabled(function(event){
+            if (event.target.value) {
+                appendSecurities($('[rel="screener:include"]'), event.target.value.split(/[\s,]+/));
+            } else {
+                $('[rel="screener:include"]').empty();
+            }
+            populate_list();
+        }));
+        $('#exclude-tickers').change(whenEnabled(function(event){
+            if (event.target.value) {
+                appendSecurities($('[rel="screener:exclude"]'), event.target.value.split(/[\s,]+/));
+            } else {
+                $('[rel="screener:exclude"]').empty();
+            }
+            populate_list();
+        }));
         populate_list();
-    })();
-    $('#include-tickers').change(whenEnabled(function(event){
-        if (event.target.value) {
-            appendSecurities($('[rel="screener:include"]'), event.target.value.split(/[\s,]+/));
-        } else {
-            $('[rel="screener:include"]').empty();
-        }
-        populate_list();
-    }));
-    $('#exclude-tickers').change(whenEnabled(function(event){
-        if (event.target.value) {
-            appendSecurities($('[rel="screener:exclude"]'), event.target.value.split(/[\s,]+/));
-        } else {
-            $('[rel="screener:exclude"]').empty();
-        }
-        populate_list();
-    }));
+    })(screener.debouncePromise(populate_list, 100));
 
     function populate_list(){
         var exchange = $('[rel="screener:ofExchange"] [about]').attr('about');
         var sectors = $('[property="screener:includeSector"]').toArray().map(function(span){
             return span.getAttribute("content");
         });
-        screener.listSecurities(exchange, sectors).then(function(result){
+        var mincap = $('[property="screener:mincap"]').attr("content");
+        var maxcap = $('[property="screener:maxcap"]').attr("content");
+        return screener.listSecurities(exchange, sectors, mincap, maxcap).then(function(result){
             var includes = $('[rel="screener:include"]').find("[resource]").toArray().map(function(incl){
                 return incl.getAttribute('resource');
             });

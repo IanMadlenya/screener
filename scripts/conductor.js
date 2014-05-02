@@ -179,7 +179,9 @@ function listSecurities(services, watchLists) {
                     data: {
                         cmd: 'security-list',
                         exchange: watchList.exchange,
-                        sector: sector
+                        sector: sector,
+                        mincap: watchList.mincap,
+                        maxcap: watchList.maxcap
                     }
                 }).then(_.property('result'));
             }));

@@ -164,6 +164,18 @@ screener:includeSector a owl:DatatypeProperty;
     rdfs:domain screener:WatchList;
     rdfs:range xsd:string.
 
+screener:mincap a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "min cap";
+    rdfs:comment "Minimum market capitalization of companies in the sectors if this watch list";
+    rdfs:domain screener:WatchList;
+    rdfs:range xsd:integer.
+
+screener:maxcap a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "max cap";
+    rdfs:comment "Maximum market capitalization of companies in the sectors if this watch list";
+    rdfs:domain screener:WatchList;
+    rdfs:range xsd:integer.
+
 screener:exclude a owl:ObjectProperty;
     rdfs:label "exclude";
     rdfs:comment "This security is not part of this watch list";
