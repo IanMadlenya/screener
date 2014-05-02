@@ -340,6 +340,7 @@ function getCalculations() {
                     return 2;
                 },
                 getValue: function(points) {
+                    if (points.length < 2) return undefined;
                     var past = points[points.length - 1];
                     var previous = points[points.length - 2];
                     return (past.return_on_assets > 0 ? 1 : 0) +
