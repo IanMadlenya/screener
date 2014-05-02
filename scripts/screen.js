@@ -86,7 +86,7 @@ jQuery(function($){
     function backtest(list) {
         var asof = screener.getBacktestAsOf();
         if (_.isEmpty(list)) return;
-        screener.listExchanges().then(function(exchanges){
+        return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
                 return screener.screen([list], [{filters: filters}], asof).then(function(result){
                     $('#results').empty().append(
@@ -104,7 +104,7 @@ jQuery(function($){
                             var exchange = exchanges.filter(function(exchange){
                                 return point.security.indexOf(exchange.iri) === 0;
                             })[0];
-                            var symbol = exchange.mic + ':' + point.security.substring(exchange.iri.length + 1);
+                            var symbol = point.security.substring(exchange.iri.length + 1);
                             return $('<tr></tr>')
                                 .append($('<td></td>').append($('<a></a>',{
                                     href: point.security,
