@@ -51,7 +51,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
         },
 
         register: (function(services, event) {
-            console.log("Registered service", event.data.service);
+            console.log("Registering service", event.data.service);
             if (!services[event.data.service]) {
                 services[event.data.service] = [];
             }
@@ -96,10 +96,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseJSON('../queries/exchange-list.rq?tqx=out:table')
                 .then(tableToObjectArray)
                 .then(function(result){
-                    return {
-                        status: 'success',
-                        result: result
-                    };
+                    return result;
                 });
         }),
 
@@ -111,10 +108,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseJSON('../queries/indicator-list.rq?tqx=out:table')
                 .then(tableToObjectArray)
                 .then(function(result){
-                    return {
-                        status: 'success',
-                        result: result
-                    };
+                    return result;
             });
         }),
 
@@ -129,10 +123,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseJSON(params ? (url + '&' + params) : url)
                 .then(tableToObjectArray)
                 .then(function(result){
-                    return {
-                        status: 'success',
-                        result: result
-                    };
+                    return result;
                 });
         },
 
@@ -141,16 +132,13 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseJSON(params ? (url + '&' + params) : url)
                 .then(tableToObjectArray)
                 .then(function(result){
-                    return {
-                        status: 'success',
-                        result: result
-                    };
+                    return result;
                 });
         },
 
         screen: screenSecurities.bind(this, services)
     });
-}, {}), false);
+}, {quote: [], mentat: []}), false);
 
 function screenSecurities(services, event) {
     var data = event.data;
@@ -162,10 +150,7 @@ function screenSecurities(services, event) {
             return Promise.all(securities.map(filter));
         }).then(_.compact);
     })).then(_.flatten).then(function(result) {
-        return {
-            status: 'success',
-            result: result
-        };
+        return result;
     });
 }
 
@@ -222,12 +207,12 @@ function filterSecurity(services, screens, asof, exchange, security){
 
 function loadFilteredPoint(services, asof, exchange, security, filters, interval) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadRange(services, asof, exchange, security, expressions, 1, interval).then(function(data){
-        if (data.result.length < 1) return Promise.reject(_.extend({}, data, {
+    return loadRange(services, asof, exchange, security, expressions, 1, interval).then(function(result){
+        if (result.length < 1) return Promise.reject({
             status: 'error',
             message: "No results for interval: " + interval
-        }));
-        return _.object(expressions, data.result[data.result.length - 1]);
+        });
+        return _.object(expressions, result[result.length - 1]);
     }).then(function(point){
         var pass = _.reduce(filters, function(pass, filter) {
             if (!pass)
@@ -332,13 +317,11 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
         } else {
             return Promise.reject(error);
         }
-    }).then(function(data){
-        if (data.result.length > length) {
-            return _.extend({}, data, {
-                result: data.result.slice(data.result.length - length, data.result.length)
-            });
+    }).then(function(result){
+        if (result.length > length) {
+            return result.slice(result.length - length, result.length);
         } else {
-            return data;
+            return result;
         }
     });
 }
@@ -431,7 +414,7 @@ function promiseMessage(port, data) {
     return new Promise(function(resolve, reject){
         var channel = new MessageChannel();
         channel.port2.onmessage = function(event) {
-            if (event.data.status == 'success') {
+            if (event.data.status === undefined || event.data.status == 'success') {
                 resolve(event.data);
             } else {
                 reject(event.data);
@@ -482,7 +465,7 @@ function promiseJSON(url) {
             if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 203)) {
                 resolve(JSON.parse(xhr.responseText));
             } else if (xhr.readyState == 4) {
-                reject({status: xhr.statusText, message: xhr.responseText});
+                reject({status: xhr.statusText, statusCode: xhr.status, message: xhr.responseText});
             }
         };
         xhr.open("GET", url, true);
@@ -494,7 +477,7 @@ function dispatch(handler, event){
     var cmd = event.data.cmd || event.data;
     if (typeof cmd == 'string' && typeof handler[cmd] == 'function') {
         Promise.resolve(event).then(handler[cmd]).then(function(result){
-            if (_.isObject(result) && _.isObject(event.data)) {
+            if (_.isObject(result) && result.status && _.isObject(event.data)) {
                 event.ports[0].postMessage(_.extend(_.omit(event.data, 'points', 'result'), result));
             } else if (result !== undefined) {
                 event.ports[0].postMessage(result);

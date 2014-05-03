@@ -49,10 +49,7 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
             var calcs = asCalculation(calculations, event.data.expressions);
             var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
             if (!errorMessage) {
-                return {
-                    status: 'success',
-                    result: _.uniq(_.flatten(_.invoke(calcs, 'getFields')))
-                };
+                return _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
             } else {
                 throw new Error(errorMessage);
             }
@@ -105,10 +102,7 @@ function loadData(calculations, open, data) {
     return evaluateExpressions(calculations, open,
             data.security, data.interval, data.after, data.before, data.expressions
     ).then(function(result) {
-        return {
-            status: 'success',
-            result: result
-        };
+        return result;
     });
 }
 
@@ -294,7 +288,7 @@ function dispatch(handler, event){
     var cmd = event.data.cmd || event.data;
     if (typeof cmd == 'string' && typeof handler[cmd] == 'function') {
         Promise.resolve(event).then(handler[cmd]).then(function(result){
-            if (_.isObject(result) && _.isObject(event.data)) {
+            if (_.isObject(result) && result.status && _.isObject(event.data)) {
                 event.ports[0].postMessage(_.extend(_.omit(event.data, 'points', 'result'), result));
             } else if (result !== undefined) {
                 event.ports[0].postMessage(result);

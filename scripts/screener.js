@@ -410,7 +410,9 @@
             channel.port2.start();
             port().postMessage(message, [channel.port1]);
         }).then(function(event){
-            if (event.data.status == 'success') {
+            if (event.data.status === undefined) {
+                return event.data;
+            } else if (event.data.status == 'success') {
                 return event.data.result;
             } else {
                 return Promise.reject(event.data);
