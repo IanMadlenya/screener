@@ -60,16 +60,16 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
         validate: (function(services, event){
             var worker = getWorkerPort(services.mentat, event.data.expression);
-            return promiseMessage(worker, {
+            return promiseMessage({
                 cmd: 'fields',
                 expressions: [event.data.expression]
-            }).then(_.property('result')).then(function(fields){
+            }, worker).then(_.property('result')).then(function(fields){
                 return Promise.all(_.map(services.quote, function(quote){
-                    return promiseMessage(quote, {
+                    return promiseMessage({
                         cmd: 'validate',
                         interval: event.data.interval,
                         fields: _.without(fields, 'asof')
-                    }).catch(Promise.resolve);
+                    }, quote).catch(Promise.resolve);
                 }));
             }).then(function(results){
                 return results.filter(function(result){
@@ -244,31 +244,31 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
         after: after,
         before: asof
     };
-    return promiseMessage(worker, data).catch(function(error){
+    return promiseMessage(data, worker).catch(function(error){
         var now = Date.now();
         if (error.latest && error.from && now < inc(error.from, 1).valueOf()) {
             // nothing is expected yet, use what we have
-            return promiseMessage(worker, {
+            return promiseMessage({
                 cmd: 'load',
                 security: security,
                 interval: interval,
                 expressions: expressions,
                 after: dec(error.latest, length).toDate(),
                 before: error.latest
-            });
+            }, worker);
         } else if (error.from && error.to) {
             // try to load more
             var end = error.latest && now < inc(error.latest, 1).valueOf() ? moment(error.earliest) : inc(error.to, 100);
             var ticker = decodeURI(security.substring(exchange.iri.length + 1));
             return Promise.all(_.map(services.quote, function(quote){
-                return promiseMessage(quote, {
+                return promiseMessage({
                     cmd: 'quote',
                     exchange: exchange,
                     ticker: ticker,
                     interval: interval,
                     start: floor(error.from).format(),
                     end: end.format()
-                }).then(function(data){
+                }, quote).then(function(data){
                     return data.result.map(function(point){
                         var obj = {};
                         var tz = point.tz || exchange.tz;
@@ -288,24 +288,24 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
                         return point.asof.valueOf() <= now;
                     });
                 }).then(function(points){
-                    return promiseMessage(worker, {
+                    return promiseMessage({
                         cmd: 'import',
                         security: security,
                         interval: interval,
                         points: points
-                    });
+                    }, worker);
                 });
-            })).then(promiseMessage.bind(this, worker, data)).catch(function(error){
+            })).then(promiseMessage.bind(this, data, worker)).catch(function(error){
                 if (error.earliest && error.latest) {
                     // just use what we have
-                    return promiseMessage(worker, {
+                    return promiseMessage({
                         cmd: 'load',
                         security: security,
                         interval: interval,
                         expressions: expressions,
                         after: after.valueOf() <= error.earliest.valueOf() ? null : after,
                         before: error.latest
-                    });
+                    }, worker);
                 } else {
                     return Promise.reject(error);
                 }
@@ -406,7 +406,7 @@ function tableToObjectArray(table){
     });
 }
 
-function promiseMessage(port, data) {
+function promiseMessage(data, port) {
     return new Promise(function(resolve, reject){
         var channel = new MessageChannel();
         var timeout = setTimeout(function(){
@@ -432,7 +432,7 @@ function serviceMessage(services, name, event) {
     if (!services[name] || !_.keys(services[name]).length)
         throw new Error('No ' + name + ' service registered');
     return Promise.all(_.map(services[name], function(service) {
-        return promiseMessage(service, event.data);
+        return promiseMessage(event.data, service);
     })).then(combineResult);
 }
 
