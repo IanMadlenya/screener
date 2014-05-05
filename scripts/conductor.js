@@ -110,8 +110,9 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
         load: (function(services, event) {
             var data = event.data;
+            var worker = getWorkerPort(services.mentat, data.security);
             return loadRange(services, data.asof, data.exchange, data.security,
-                data.expressions, data.length, data.interval);
+                data.expressions, data.length, data.interval, worker);
         }).bind(this, services),
 
         'watch-list': function(params) {
@@ -175,11 +176,12 @@ function listSecurities(services, watchLists) {
 }
 
 function filterSecurity(services, screens, asof, exchange, security){
+    var worker = getWorkerPort(services.mentat, security);
     return Promise.all(screens.map(function(screen) {
         var getInterval = _.compose(_.property('interval'), _.property('indicator'));
         return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
             return Promise.all(_.map(byInterval,
-                loadFilteredPoint.bind(this, services, asof, exchange, security)
+                loadFilteredPoint.bind(this, services, asof, exchange, security, worker)
             )).then(_.compact).then(function(intervalPoints) {
                 var pass = intervalPoints.length == _.size(byInterval);
                 if (pass) {
@@ -201,9 +203,9 @@ function filterSecurity(services, screens, asof, exchange, security){
     })
 }
 
-function loadFilteredPoint(services, asof, exchange, security, filters, interval) {
+function loadFilteredPoint(services, asof, exchange, security, filters, interval, worker) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadRange(services, asof, exchange, security, expressions, 1, interval).then(function(result){
+    return loadRange(services, asof, exchange, security, expressions, 1, interval, worker).then(function(result){
         if (result.length < 1) return Promise.reject({
             status: 'error',
             message: "No results for interval: " + interval
@@ -230,45 +232,57 @@ function loadFilteredPoint(services, asof, exchange, security, filters, interval
     });
 }
 
-function loadRange(services, asof, exchange, security, expressions, length, interval) {
-    var worker = getWorkerPort(services.mentat, security);
-    var floor = startOfInterval.bind(this, exchange.tz, interval);
-    var inc = addInterval.bind(this, exchange.tz, interval);
+function loadRange(services, asof, exchange, security, expressions, length, interval, worker) {
     var dec = subtractInterval.bind(this, exchange.tz, interval);
     var after = dec(asof, length).toDate();
     var data = {
         cmd: 'load',
         security: security,
+        exchange: exchange,
         interval: interval,
         expressions: expressions,
         after: after,
         before: asof
     };
-    return promiseMessage(data, worker).catch(function(error){
+    return retryAfterImport(services, promiseMessage.bind(this, data), worker).then(function(data){
+        return data.result;
+    }).then(function(result){
+        if (result.length > length) {
+            return result.slice(result.length - length, result.length);
+        } else {
+            return result;
+        }
+    });
+}
+
+function retryAfterImport(services, func, worker) {
+    return func(worker).catch(function(error){
         var now = Date.now();
+        var inc = addInterval.bind(this, error.exchange.tz, error.interval);
         if (error.status == 'warning' && error.from && now < inc(error.from, 1).valueOf()) {
             // nothing is expected yet, use what we have
             return Promise.resolve(error);
         } else if (error.from && error.to) {
             // try to load more
+            var floor = startOfInterval.bind(this, error.exchange.tz, error.interval);
             var end = error.latest && now < inc(error.latest, 1).valueOf() ? moment(error.earliest) : inc(error.to, 100);
-            var ticker = decodeURI(security.substring(exchange.iri.length + 1));
+            var ticker = decodeURI(error.security.substring(error.exchange.iri.length + 1));
             return Promise.all(_.map(services.quote, function(quote){
                 return promiseMessage({
                     cmd: 'quote',
-                    exchange: exchange,
+                    exchange: error.exchange,
                     ticker: ticker,
-                    interval: interval,
+                    interval: error.interval,
                     start: floor(error.from).format(),
                     end: end.format()
                 }, quote).then(function(data){
                     return data.result.map(function(point){
                         var obj = {};
-                        var tz = point.tz || exchange.tz;
+                        var tz = point.tz || error.exchange.tz;
                         if (point.dateTime) {
                             obj.asof = moment.tz(point.dateTime, tz).toDate();
                         } else if (point.date) {
-                            var time = point.date + ' ' + exchange.marketClosesAt;
+                            var time = point.date + ' ' + error.exchange.marketClosesAt;
                             obj.asof = moment.tz(time, tz).toDate();
                         }
                         for (var prop in point) {
@@ -283,12 +297,12 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
                 }).then(function(points){
                     return promiseMessage({
                         cmd: 'import',
-                        security: security,
-                        interval: interval,
+                        security: error.security,
+                        interval: error.interval,
                         points: points
                     }, worker);
                 });
-            })).then(promiseMessage.bind(this, data, worker)).catch(function(error){
+            })).then(func.bind(this, worker)).catch(function(error){
                 if (error.status == 'warning') {
                     // just use what we have
                     return Promise.resolve(error);
@@ -298,14 +312,6 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
             });
         } else {
             return Promise.reject(error);
-        }
-    }).then(function(data){
-        return data.result;
-    }).then(function(result){
-        if (result.length > length) {
-            return result.slice(result.length - length, result.length);
-        } else {
-            return result;
         }
     });
 }
