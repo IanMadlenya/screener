@@ -178,70 +178,12 @@ function listSecurities(services, watchLists) {
 
 function filterSecurity(services, screens, asof, exchange, security){
     var worker = getWorkerPort(services.mentat, security);
-    return Promise.all(screens.map(function(screen) {
-        var getInterval = _.compose(_.property('interval'), _.property('indicator'));
-        return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
-            return Promise.all(_.map(byInterval,
-                loadFilteredPoint.bind(this, services, asof, exchange, security, worker)
-            )).then(_.compact).then(function(intervalPoints) {
-                var pass = intervalPoints.length == _.size(byInterval);
-                if (pass) {
-                    return _.reduce(intervalPoints, function(memo, value){
-                        return _.extend(memo, value);
-                    }, {security: security});
-                } else {
-                    return null;
-                }
-            });
-        });
-    })).then(function(orResults) {
-        return orResults.reduce(function(memo, point) {
-            return memo || point;
-        }, null);
-    }).then(function(point){
-        // if no screens are provide, just return the security
-        return point || screens.length === 0 && {security: security};
-    })
-}
-
-function loadFilteredPoint(services, asof, exchange, security, worker, filters, interval) {
-    var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadRange(services, asof, exchange, security, expressions, 1, interval, worker).then(function(result){
-        if (result.length < 1) return Promise.reject({
-            status: 'error',
-            message: "No results for interval: " + interval
-        });
-        return _.object(expressions, result[result.length - 1]);
-    }).then(function(point){
-        var pass = _.reduce(filters, function(pass, filter) {
-            if (!pass)
-                return false;
-            var value = point[filter.indicator.expression];
-            if (filter.min && value < filter.min)
-                return false;
-            if (filter.max && filter.max < value)
-                return false;
-            return pass;
-        }, true);
-        if (pass) {
-            return point;
-        } else {
-            return null;
-        }
-    }).catch(function(error){
-        console.log('Could not load ' + security, error);
-    });
-}
-
-function loadRange(services, asof, exchange, security, expressions, length, interval, worker) {
     return retryAfterImport(services, promiseMessage.bind(this, {
-        cmd: 'load',
-        security: security,
+        cmd: 'screen',
+        asof: asof,
+        screens: screens,
         exchange: exchange,
-        interval: interval,
-        expressions: expressions,
-        length: length,
-        asof: asof
+        security: security
     }), worker).then(function(data){
         return data.result;
     });

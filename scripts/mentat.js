@@ -67,20 +67,15 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
         },
         load: function(event) {
             var data = event.data;
-            var length = data.length;
-            var dec = subtractInterval.bind(this, data.exchange.tz, data.interval);
-            var after = dec(data.asof, length).toDate();
-            return evaluateExpressions(calculations, open.bind(this, intervals),
-                data.security, data.interval, after, data.asof, data.expressions
-            ).then(function(data){
-                if (data.result.length > length) {
-                    return _.extend(data, {
-                        result: data.result.slice(data.result.length - length, data.result.length)
-                    });
-                } else {
-                    return data;
-                }
-            });
+            return loadData(calculations, open.bind(this, intervals),
+                data.asof, data.exchange, data.security, data.expressions, data.length, data.interval
+            );
+        },
+        screen: function(event){
+            var data = event.data;
+            return filterSecurity(calculations, open.bind(this, intervals),
+                data.screens, data.asof, data.exchange, data.security
+            );
         }
     });
 }, getCalculations(), _.partial(openSymbolDatabase, indexedDB)), false);
@@ -116,20 +111,87 @@ function importData(open, data) {
     });
 }
 
-function openSymbolDatabase(indexedDB, intervals, security) {
-    return new Promise(function(resolve, reject) {
-        var request = indexedDB.open(security);
-        request.onsuccess = resolve;
-        request.onerror = reject;
-        request.onupgradeneeded = function(event) {
-            var db = event.target.result;
-            // Create an objectStore for this database
-            intervals.forEach(function(interval){
-                db.createObjectStore(interval, { keyPath: "asof" });
+function loadData(calculations, open, asof, exchange, security, expressions, length, interval) {
+    var dec = subtractInterval.bind(this, exchange.tz, interval);
+    var after = dec(asof, length).toDate();
+    return evaluateExpressions(calculations, open,
+        security, interval, after, asof, expressions
+    ).then(function(data){
+        if (data.result.length > length) {
+            return _.extend(data, {
+                result: data.result.slice(data.result.length - length, data.result.length)
             });
+        } else {
+            return data;
+        }
+    });
+}
+
+function filterSecurity(calculations, open, screens, asof, exchange, security){
+    return Promise.all(screens.map(function(screen) {
+        var getInterval = _.compose(_.property('interval'), _.property('indicator'));
+        return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
+            return Promise.all(_.map(byInterval,
+                loadFilteredPoint.bind(this, calculations, open, asof, exchange, security)
+            )).then(_.compact).then(function(intervalPoints) {
+                var pass = intervalPoints.length == _.size(byInterval);
+                if (pass) {
+                    var status = _.reduce(intervalPoints, function(memo, data){
+                        if (memo.status != 'success') return memo;
+                        return data; // TODO need a better way to merge warnings
+                    }, intervalPoints[0]);
+                    return _.extend(status, {
+                        result: _.reduce(intervalPoints, function(memo, data){
+                            return _.extend(memo, data.result);
+                        }, {security: security})
+                    });
+                } else {
+                    return null;
+                }
+            });
+        });
+    })).then(function(orResults) {
+        return orResults.reduce(function(memo, point) {
+            return memo || point;
+        }, null);
+    }).then(function(point){
+        // if no screens are provide, just return the security
+        return point || screens.length === 0 && {
+            status: 'success',
+            result: {security: security}
         };
-    }).then(function(event){
-        return event.target.result;
+    });
+}
+
+function loadFilteredPoint(calculations, open, asof, exchange, security, filters, interval) {
+    var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
+    return loadData(calculations, open, asof, exchange, security, expressions, 1, interval).then(function(data){
+        if (data.result.length < 1) return Promise.reject(_.extend(data, {
+            status: 'error',
+            message: "No results for interval: " + interval,
+            interval: interval
+        }));
+        return _.extend(data, {
+            result: _.object(expressions, data.result[data.result.length - 1])
+        });
+    }).then(function(data){
+        var pass = _.reduce(filters, function(pass, filter) {
+            if (!pass)
+                return false;
+            var value = data.result[filter.indicator.expression];
+            if (filter.min && value < filter.min)
+                return false;
+            if (filter.max && filter.max < value)
+                return false;
+            return pass;
+        }, true);
+        if (pass) {
+            return data;
+        } else {
+            return null;
+        }
+    }).catch(function(error){
+        console.log('Could not load ' + security, error);
     });
 }
 
@@ -163,6 +225,23 @@ function evaluateExpressions(calculations, open, security, interval, after, befo
     });
 }
 
+function openSymbolDatabase(indexedDB, intervals, security) {
+    return new Promise(function(resolve, reject) {
+        var request = indexedDB.open(security);
+        request.onsuccess = resolve;
+        request.onerror = reject;
+        request.onupgradeneeded = function(event) {
+            var db = event.target.result;
+            // Create an objectStore for this database
+            intervals.forEach(function(interval){
+                db.createObjectStore(interval, { keyPath: "asof" });
+            });
+        };
+    }).then(function(event){
+        return event.target.result;
+    });
+}
+
 function collectRange(fields, interval, start, end, store) {
     return new Promise(function(resolve, reject){
         var earliest, latest;
@@ -193,6 +272,7 @@ function collectRange(fields, interval, start, end, store) {
                         resolve({
                             status: 'warning',
                             message: 'Need more data points',
+                            interval: interval,
                             from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
                             to: last != latest.asof ? last : earliest.asof,
                             fields: fields,
@@ -206,6 +286,7 @@ function collectRange(fields, interval, start, end, store) {
                 reject({
                     status: 'error',
                     message: 'No data points available',
+                    interval: interval,
                     from: earlier(interval, 4, start || end),
                     to: end,
                     fields: fields
