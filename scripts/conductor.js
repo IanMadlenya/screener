@@ -246,16 +246,9 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
     };
     return promiseMessage(data, worker).catch(function(error){
         var now = Date.now();
-        if (error.latest && error.from && now < inc(error.from, 1).valueOf()) {
+        if (error.status == 'warning' && error.from && now < inc(error.from, 1).valueOf()) {
             // nothing is expected yet, use what we have
-            return promiseMessage({
-                cmd: 'load',
-                security: security,
-                interval: interval,
-                expressions: expressions,
-                after: dec(error.latest, length).toDate(),
-                before: error.latest
-            }, worker);
+            return Promise.resolve(error);
         } else if (error.from && error.to) {
             // try to load more
             var end = error.latest && now < inc(error.latest, 1).valueOf() ? moment(error.earliest) : inc(error.to, 100);
@@ -296,16 +289,9 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
                     }, worker);
                 });
             })).then(promiseMessage.bind(this, data, worker)).catch(function(error){
-                if (error.earliest && error.latest) {
+                if (error.status == 'warning') {
                     // just use what we have
-                    return promiseMessage({
-                        cmd: 'load',
-                        security: security,
-                        interval: interval,
-                        expressions: expressions,
-                        after: after.valueOf() <= error.earliest.valueOf() ? null : after,
-                        before: error.latest
-                    }, worker);
+                    return Promise.resolve(error);
                 } else {
                     return Promise.reject(error);
                 }
@@ -313,6 +299,8 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
         } else {
             return Promise.reject(error);
         }
+    }).then(function(data){
+        return data.result;
     }).then(function(result){
         if (result.length > length) {
             return result.slice(result.length - length, result.length);

@@ -62,7 +62,10 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
             return importData(open.bind(this, intervals), event.data);
         },
         load: function(event) {
-            return loadData(calculations, open.bind(this, intervals), event.data);
+            var data = event.data;
+            return evaluateExpressions(calculations, open.bind(this, intervals),
+                data.security, data.interval, data.after, data.before, data.expressions
+            );
         }
     });
 }, getCalculations(), _.partial(openSymbolDatabase, indexedDB)), false);
@@ -98,14 +101,6 @@ function importData(open, data) {
     });
 }
 
-function loadData(calculations, open, data) {
-    return evaluateExpressions(calculations, open,
-            data.security, data.interval, data.after, data.before, data.expressions
-    ).then(function(result) {
-        return result;
-    });
-}
-
 function openSymbolDatabase(indexedDB, intervals, security) {
     return new Promise(function(resolve, reject) {
         var request = indexedDB.open(security);
@@ -138,15 +133,17 @@ function evaluateExpressions(calculations, open, security, interval, after, befo
         var fields = _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
         var start = earlier(interval, n - 1, after);
         return collectRange(fields, interval, start, before, store);
-    }).then(function(results) {
-        var startIndex = after ? findIndex(results, function(result){
+    }).then(function(data) {
+        var startIndex = after ? findIndex(data.result, function(result){
             return result.asof >= after;
         }) : n - 1;
-        return _.map(_.range(startIndex, results.length), function(i) {
-            return _.map(calcs, function(calc){
-                var points = preceding(results, calc.getDataLength(), i);
-                return calc.getValue(points);
-            });
+        return _.extend(data, {
+            result: _.map(_.range(startIndex, data.result.length), function(i) {
+                return _.map(calcs, function(calc){
+                    var points = preceding(data.result, calc.getDataLength(), i);
+                    return calc.getValue(points);
+                });
+            })
         });
     });
 }
@@ -169,21 +166,27 @@ function collectRange(fields, interval, start, end, store) {
                 });
                 var first = _.first(sorted);
                 var last = _.last(sorted);
-                if (first == earliest.asof && last == latest.asof) {
-                    // range already present
-                    store.openCursor(IDBKeyRange.bound(start || earliest.asof, end)).onsuccess = collect(resolve);
-                } else {
-                    // need more points
-                    reject({
-                        status: 'error',
-                        message: 'Need more data points',
-                        from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
-                        to: last != latest.asof ? last : earliest.asof,
-                        fields: fields,
-                        earliest: earliest.asof,
-                        latest: latest.asof
-                    });
-                }
+                store.openCursor(IDBKeyRange.bound(start || earliest.asof, end)).onsuccess = collect(function(result){
+                    if (first == earliest.asof && last == latest.asof) {
+                        // range already present
+                        resolve({
+                            status: 'success',
+                            result: result
+                        });
+                    } else {
+                        // need more points
+                        resolve({
+                            status: 'warning',
+                            message: 'Need more data points',
+                            from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
+                            to: last != latest.asof ? last : earliest.asof,
+                            fields: fields,
+                            earliest: earliest.asof,
+                            latest: latest.asof,
+                            result: result
+                        });
+                    }
+                });
             } else { // store is empty
                 reject({
                     status: 'error',
