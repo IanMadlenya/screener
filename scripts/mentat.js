@@ -29,7 +29,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-importScripts('../assets/underscore/underscore.js'); // _
+importScripts('../assets/underscore/underscore.js');
+importScripts('../assets/moment/moment-with-langs.js');
+var window = { moment: moment };
+importScripts('../assets/moment/moment-timezone.js');
+importScripts('../assets/moment/moment-timezone-data.js');
 
 importScripts('calculations.js'); // getCalculations
 
@@ -63,9 +67,20 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
         },
         load: function(event) {
             var data = event.data;
+            var length = data.length;
+            var dec = subtractInterval.bind(this, data.exchange.tz, data.interval);
+            var after = dec(data.asof, length).toDate();
             return evaluateExpressions(calculations, open.bind(this, intervals),
-                data.security, data.interval, data.after, data.before, data.expressions
-            );
+                data.security, data.interval, after, data.asof, data.expressions
+            ).then(function(data){
+                if (data.result.length > length) {
+                    return _.extend(data, {
+                        result: data.result.slice(data.result.length - length, data.result.length)
+                    });
+                } else {
+                    return data;
+                }
+            });
         }
     });
 }, getCalculations(), _.partial(openSymbolDatabase, indexedDB)), false);
@@ -285,6 +300,34 @@ function asCalculation(calculations, expressions) {
         }, []);
         return calculations[func].apply(calculations[func], args);
     });
+}
+
+function subtractInterval(tz, interval, latest, amount) {
+    var offset = parseInt(interval.substring(1), 10);
+    var local = moment(latest).tz(tz);
+    var unit;
+    if (interval.indexOf('d') === 0) {
+        var units = offset * (amount || 1);
+        var holidays = Math.ceil(units / 5 * 0.25);
+        var w = Math.floor(units / 5);
+        var d = units - w * 5 + holidays;
+        var day = local.subtract('weeks', w);
+        if (day.isoWeekday() - d > 0) {
+            return day.subtract('days', d);
+        } else {
+            // skip over weekend
+            return day.subtract('days', d + 2);
+        }
+    } else if (interval.indexOf('w') === 0) {
+        unit = 'weeks';
+    } else if (interval.indexOf('m') === 0) {
+        unit = 'months';
+    } else if (interval.indexOf('s') === 0) {
+        unit = 'seconds';
+    } else if (interval.indexOf('t') === 0) {
+        return latest;
+    }
+    return local.subtract(unit, offset * (amount || 1));
 }
 
 function dispatch(handler, event){

@@ -111,8 +111,9 @@ self.addEventListener("connect", _.partial(function(services, event) {
         load: (function(services, event) {
             var data = event.data;
             var worker = getWorkerPort(services.mentat, data.security);
-            return loadRange(services, data.asof, data.exchange, data.security,
-                data.expressions, data.length, data.interval, worker);
+            return retryAfterImport(services, promiseMessage.bind(this, data), worker).then(function(data){
+                return data.result;
+            });
         }).bind(this, services),
 
         'watch-list': function(params) {
@@ -203,7 +204,7 @@ function filterSecurity(services, screens, asof, exchange, security){
     })
 }
 
-function loadFilteredPoint(services, asof, exchange, security, filters, interval, worker) {
+function loadFilteredPoint(services, asof, exchange, security, worker, filters, interval) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
     return loadRange(services, asof, exchange, security, expressions, 1, interval, worker).then(function(result){
         if (result.length < 1) return Promise.reject({
@@ -233,25 +234,16 @@ function loadFilteredPoint(services, asof, exchange, security, filters, interval
 }
 
 function loadRange(services, asof, exchange, security, expressions, length, interval, worker) {
-    var dec = subtractInterval.bind(this, exchange.tz, interval);
-    var after = dec(asof, length).toDate();
-    var data = {
+    return retryAfterImport(services, promiseMessage.bind(this, {
         cmd: 'load',
         security: security,
         exchange: exchange,
         interval: interval,
         expressions: expressions,
-        after: after,
-        before: asof
-    };
-    return retryAfterImport(services, promiseMessage.bind(this, data), worker).then(function(data){
+        length: length,
+        asof: asof
+    }), worker).then(function(data){
         return data.result;
-    }).then(function(result){
-        if (result.length > length) {
-            return result.slice(result.length - length, result.length);
-        } else {
-            return result;
-        }
     });
 }
 
@@ -314,34 +306,6 @@ function retryAfterImport(services, func, worker) {
             return Promise.reject(error);
         }
     });
-}
-
-function subtractInterval(tz, interval, latest, amount) {
-    var offset = parseInt(interval.substring(1), 10);
-    var local = moment(latest).tz(tz);
-    var unit;
-    if (interval.indexOf('d') === 0) {
-        var units = offset * (amount || 1);
-        var holidays = Math.ceil(units / 5 * 0.25);
-        var w = Math.floor(units / 5);
-        var d = units - w * 5 + holidays;
-        var day = local.subtract('weeks', w);
-        if (day.isoWeekday() - d > 0) {
-            return day.subtract('days', d);
-        } else {
-            // skip over weekend
-            return day.subtract('days', d + 2);
-        }
-    } else if (interval.indexOf('w') === 0) {
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return latest;
-    }
-    return local.subtract(unit, offset * (amount || 1));
 }
 
 function addInterval(tz, interval, latest, amount) {
