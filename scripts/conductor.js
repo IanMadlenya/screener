@@ -51,15 +51,11 @@ self.addEventListener("connect", _.partial(function(services, event) {
         },
 
         register: (function(services, event) {
-            console.log("Registering service", event.data.service);
+            console.log("Registering service", event.data.name);
             if (!services[event.data.service]) {
-                services[event.data.service] = [];
+                services[event.data.service] = {};
             }
-            if (_.isNumber(event.data.index)) {
-                services[event.data.service][event.data.index] = event.ports[0];
-            } else {
-                services[event.data.service].push(event.ports[0]);
-            }
+            services[event.data.service][event.data.name] = event.ports[0];
         }).bind(this, services),
 
         validate: (function(services, event){
@@ -68,7 +64,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
                 cmd: 'fields',
                 expressions: [event.data.expression]
             }).then(_.property('result')).then(function(fields){
-                return Promise.all(services.quote.map(function(quote){
+                return Promise.all(_.map(services.quote, function(quote){
                     return promiseMessage(quote, {
                         cmd: 'validate',
                         interval: event.data.interval,
@@ -138,7 +134,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
         screen: screenSecurities.bind(this, services)
     });
-}, {quote: [], mentat: []}), false);
+}, {list: {}, quote: {}, mentat: {}}), false);
 
 function screenSecurities(services, event) {
     var data = event.data;
@@ -202,7 +198,7 @@ function filterSecurity(services, screens, asof, exchange, security){
     }).then(function(point){
         // if no screens are provide, just return the security
         return point || screens.length === 0 && {security: security};
-    });
+    })
 }
 
 function loadFilteredPoint(services, asof, exchange, security, filters, interval) {
@@ -264,7 +260,7 @@ function loadRange(services, asof, exchange, security, expressions, length, inte
             // try to load more
             var end = error.latest && now < inc(error.latest, 1).valueOf() ? moment(error.earliest) : inc(error.to, 100);
             var ticker = decodeURI(security.substring(exchange.iri.length + 1));
-            return Promise.all(services.quote.map(function(quote){
+            return Promise.all(_.map(services.quote, function(quote){
                 return promiseMessage(quote, {
                     cmd: 'quote',
                     exchange: exchange,
@@ -413,7 +409,15 @@ function tableToObjectArray(table){
 function promiseMessage(port, data) {
     return new Promise(function(resolve, reject){
         var channel = new MessageChannel();
+        var timeout = setTimeout(function(){
+            console.log("Still waiting for a response for", data);
+            timeout = setTimeout(function(){
+                console.log("Aborting", data);
+                reject(_.extend({}, data, {status: 'error', message: "Service took too long to respond"}));
+            }, 30000);
+        }, 30000);
         channel.port2.onmessage = function(event) {
+            clearTimeout(timeout);
             if (event.data.status === undefined || event.data.status == 'success') {
                 resolve(event.data);
             } else {
@@ -425,9 +429,9 @@ function promiseMessage(port, data) {
 }
 
 function serviceMessage(services, name, event) {
-    if (!services[name] || !services[name].length)
+    if (!services[name] || !_.keys(services[name]).length)
         throw new Error('No ' + name + ' service registered');
-    return Promise.all(services[name].map(function(service) {
+    return Promise.all(_.map(services[name], function(service) {
         return promiseMessage(service, event.data);
     })).then(combineResult);
 }
@@ -441,10 +445,12 @@ function combineResult(results){
 
 var throttledLog = _.throttle(console.log.bind(console), 1000);
 function getWorkerPort(workers, string) {
-    var mod = workers.length;
+    var keys = _.keys(workers);
+    var mod = keys.length;
     var w = (hashCode(string) % mod + mod) % mod;
-    throttledLog("Called worker ", w);
-    return workers[w];
+    var key = keys[w];
+    throttledLog("Called worker ", key);
+    return workers[key];
 }
 
 function hashCode(str){

@@ -423,11 +423,12 @@
     function createDispatchPort() {
         var port = new SharedWorker('/screener/2014/scripts/conductor.js').port;
         _.range(11).forEach(function(index){
-            var worker = new SharedWorker('/screener/2014/scripts/mentat.js', 'mentat' + index).port;
+            var name = 'mentat' + index;
+            var worker = new SharedWorker('/screener/2014/scripts/mentat.js', name).port;
             port.postMessage({
                 cmd: "register",
                 service: 'mentat',
-                index: index
+                name: name
             }, [worker]);
         });
         return port;
