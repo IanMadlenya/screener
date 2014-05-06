@@ -186,37 +186,44 @@ function filterSecurity(services, screens, asof, exchange, security){
         security: security
     }), worker).then(function(data){
         return data.result;
+    }).catch(function(error){
+        console.log("Could not load", security, error);
     });
 }
 
 function retryAfterImport(services, func, worker) {
     return func(worker).catch(function(error){
+        if (!error.quote) // not an import error
+            return Promise.reject(error);
         var now = Date.now();
-        var inc = addInterval.bind(this, error.exchange.tz, error.interval);
-        if (error.status == 'warning' && error.from && now < inc(error.from, 1).valueOf()) {
+        if (error.status == 'warning' && _.every(error.quote, function(request){
+            return now < addInterval(request.exchange.tz, request.interval, request.from, 1).valueOf();
+        })) {
             // nothing is expected yet, use what we have
             return Promise.resolve(error);
-        } else if (error.from && error.to) {
-            // try to load more
-            var floor = startOfInterval.bind(this, error.exchange.tz, error.interval);
-            var end = error.latest && now < inc(error.latest, 1).valueOf() ? moment(error.earliest) : inc(error.to, 100);
-            var ticker = decodeURI(error.security.substring(error.exchange.iri.length + 1));
+        }
+        // try to load more
+        return Promise.all(error.quote.map(function(request){
+            var inc = addInterval.bind(this, request.exchange.tz, request.interval);
+            var floor = startOfInterval.bind(this, request.exchange.tz, request.interval);
+            var end = request.latest && now < inc(request.latest, 1).valueOf() ? moment(request.earliest) : inc(request.to, 100);
+            var ticker = decodeURI(request.security.substring(request.exchange.iri.length + 1));
             return Promise.all(_.map(services.quote, function(quote){
                 return promiseMessage({
                     cmd: 'quote',
-                    exchange: error.exchange,
+                    exchange: request.exchange,
                     ticker: ticker,
-                    interval: error.interval,
-                    start: floor(error.from).format(),
+                    interval: request.interval,
+                    start: floor(request.from).format(),
                     end: end.format()
                 }, quote).then(function(data){
                     return data.result.map(function(point){
                         var obj = {};
-                        var tz = point.tz || error.exchange.tz;
+                        var tz = point.tz || request.exchange.tz;
                         if (point.dateTime) {
                             obj.asof = moment.tz(point.dateTime, tz).toDate();
                         } else if (point.date) {
-                            var time = point.date + ' ' + error.exchange.marketClosesAt;
+                            var time = point.date + ' ' + request.exchange.marketClosesAt;
                             obj.asof = moment.tz(time, tz).toDate();
                         }
                         for (var prop in point) {
@@ -231,22 +238,20 @@ function retryAfterImport(services, func, worker) {
                 }).then(function(points){
                     return promiseMessage({
                         cmd: 'import',
-                        security: error.security,
-                        interval: error.interval,
+                        security: request.security,
+                        interval: request.interval,
                         points: points
                     }, worker);
                 });
-            })).then(func.bind(this, worker)).catch(function(error){
-                if (error.status == 'warning') {
-                    // just use what we have
-                    return Promise.resolve(error);
-                } else {
-                    return Promise.reject(error);
-                }
-            });
-        } else {
-            return Promise.reject(error);
-        }
+            }));
+        })).then(func.bind(this, worker)).catch(function(error){
+            if (error.status == 'warning') {
+                // just use what we have
+                return Promise.resolve(error);
+            } else {
+                return Promise.reject(error);
+            }
+        });
     });
 }
 
@@ -318,7 +323,7 @@ function promiseMessage(data, port) {
         }, 30000);
         channel.port2.onmessage = function(event) {
             clearTimeout(timeout);
-            if (event.data.status === undefined || event.data.status == 'success') {
+            if (!event.data || event.data.status === undefined || event.data.status == 'success') {
                 resolve(event.data);
             } else {
                 reject(event.data);

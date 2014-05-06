@@ -381,7 +381,7 @@ describe("Screener", function(){
                 [{symbol: 'XNGS:YHOO', volume: 16047200}]
             ]
         ], screenCheck);
-        it("should have non-empty values", function(done){
+        it("should have non-empty values for TSX", function(done){
             screener.screen([{
                 ofExchange: "Toronto Stock Exchange",
                 includeSectors:"Technology",

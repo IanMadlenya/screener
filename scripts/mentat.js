@@ -115,7 +115,7 @@ function loadData(calculations, open, asof, exchange, security, expressions, len
     var dec = subtractInterval.bind(this, exchange.tz, interval);
     var after = dec(asof, length).toDate();
     return evaluateExpressions(calculations, open,
-        security, interval, after, asof, expressions
+        security, exchange, interval, after, asof, expressions
     ).then(function(data){
         if (data.result.length > length) {
             return _.extend(data, {
@@ -136,14 +136,15 @@ function filterSecurity(calculations, open, screens, asof, exchange, security){
             )).then(_.compact).then(function(intervalPoints) {
                 var pass = intervalPoints.length == _.size(byInterval);
                 if (pass) {
-                    var status = _.reduce(intervalPoints, function(memo, data){
-                        if (memo.status != 'success') return memo;
-                        return data; // TODO need a better way to merge warnings
-                    }, intervalPoints[0]);
+                    var status = _.uniq(_.pluck(intervalPoints, 'status'));
                     return _.extend(status, {
-                        result: _.reduce(intervalPoints, function(memo, data){
-                            return _.extend(memo, data.result);
-                        }, {security: security})
+                        status: status.length == 1 ? status[0] : 'warning',
+                        quote: _.flatten(_.pluck(intervalPoints, "quote")),
+                        result: _.reduce(_.pluck(intervalPoints, "result"), function(memo, value){
+                            return _.extend(memo, value);
+                        }, {
+                            security: security
+                        })
                     });
                 } else {
                     return null;
@@ -159,7 +160,7 @@ function filterSecurity(calculations, open, screens, asof, exchange, security){
         return point || screens.length === 0 && {
             status: 'success',
             result: {security: security}
-        };
+        } || {status: 'success'};
     });
 }
 
@@ -190,12 +191,10 @@ function loadFilteredPoint(calculations, open, asof, exchange, security, filters
         } else {
             return null;
         }
-    }).catch(function(error){
-        console.log('Could not load ' + security, error);
     });
 }
 
-function evaluateExpressions(calculations, open, security, interval, after, before, expressions) {
+function evaluateExpressions(calculations, open, security, exchange, interval, after, before, expressions) {
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     return new Promise(function(resolve, reject){
@@ -207,9 +206,8 @@ function evaluateExpressions(calculations, open, security, interval, after, befo
         }
     }).then(open).then(function(db){
         var store = db.transaction([interval]).objectStore(interval);
-        var fields = _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
         var start = earlier(interval, n - 1, after);
-        return collectRange(fields, interval, start, before, store);
+        return collectRange(security, exchange, interval, start, before, store);
     }).then(function(data) {
         var startIndex = after ? findIndex(data.result, function(result){
             return result.asof >= after;
@@ -242,7 +240,7 @@ function openSymbolDatabase(indexedDB, intervals, security) {
     });
 }
 
-function collectRange(fields, interval, start, end, store) {
+function collectRange(security, exchange, interval, start, end, store) {
     return new Promise(function(resolve, reject){
         var earliest, latest;
         store.openCursor().onsuccess = collect(1, function(arrayOfOne){
@@ -272,13 +270,16 @@ function collectRange(fields, interval, start, end, store) {
                         resolve({
                             status: 'warning',
                             message: 'Need more data points',
-                            interval: interval,
-                            from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
-                            to: last != latest.asof ? last : earliest.asof,
-                            fields: fields,
-                            earliest: earliest.asof,
-                            latest: latest.asof,
-                            result: result
+                            result: result,
+                            quote: [{
+                                security: security,
+                                exchange: exchange,
+                                interval: interval,
+                                from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
+                                to: last != latest.asof ? last : earliest.asof,
+                                earliest: earliest.asof,
+                                latest: latest.asof
+                            }]
                         });
                     }
                 });
@@ -286,10 +287,13 @@ function collectRange(fields, interval, start, end, store) {
                 reject({
                     status: 'error',
                     message: 'No data points available',
-                    interval: interval,
-                    from: earlier(interval, 4, start || end),
-                    to: end,
-                    fields: fields
+                    quote: [{
+                        security: security,
+                        exchange: exchange,
+                        interval: interval,
+                        from: earlier(interval, 4, start || end),
+                        to: end
+                    }]
                 });
             }
         });
