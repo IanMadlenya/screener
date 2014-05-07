@@ -63,17 +63,19 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
             return validateExpressions(calculations, intervals, event.data);
         },
         'import': function(event) {
-            return importData(open.bind(this, intervals), event.data);
+            return importData(open.bind(this, intervals), Date.now(), event.data);
         },
         load: function(event) {
             var data = event.data;
-            return loadData(calculations, open.bind(this, intervals),
+            var now = Date.now();
+            return loadData(calculations, open.bind(this, intervals), now,
                 data.asof, data.exchange, data.security, data.expressions, data.length, data.interval
             );
         },
         screen: function(event){
             var data = event.data;
-            return filterSecurity(calculations, open.bind(this, intervals),
+            var now = Date.now();
+            return filterSecurity(calculations, open.bind(this, intervals), now,
                 data.screens, data.asof, data.exchange, data.security
             );
         }
@@ -94,10 +96,28 @@ function validateExpressions(calculations, intervals, data) {
     }
 }
 
-function importData(open, data) {
+function importData(open, now, data) {
+    var points = data.points.map(function(point){
+        var obj = {};
+        var tz = point.tz || data.exchange.tz;
+        if (point.dateTime) {
+            obj.asof = moment.tz(point.dateTime, tz).toDate();
+        } else if (point.date) {
+            var time = point.date + ' ' + data.exchange.marketClosesAt;
+            obj.asof = moment.tz(time, tz).toDate();
+        }
+        for (var prop in point) {
+            if (_.isNumber(point[prop]))
+                obj[prop] = point[prop];
+        }
+        return obj;
+    }).filter(function(point){
+        // Yahoo provides weekly/month-to-date data
+        return point.asof.valueOf() <= now;
+    });
     return open(data.security).then(function(db) {
         var store = db.transaction([data.interval], "readwrite").objectStore(data.interval);
-        return Promise.all(data.points.map(function(point){
+        return Promise.all(points.map(function(point){
             return new Promise(function(resolve, reject){
                 var op = store.put(point);
                 op.onerror = reject;
@@ -111,11 +131,11 @@ function importData(open, data) {
     });
 }
 
-function loadData(calculations, open, asof, exchange, security, expressions, length, interval) {
+function loadData(calculations, open, now, asof, exchange, security, expressions, length, interval) {
     var dec = subtractInterval.bind(this, exchange.tz, interval);
     var after = dec(asof, length).toDate();
     return evaluateExpressions(calculations, open,
-        security, exchange, interval, after, asof, expressions
+        security, exchange, interval, after, asof, now, expressions
     ).then(function(data){
         if (data.result.length > length) {
             return _.extend(data, {
@@ -127,12 +147,12 @@ function loadData(calculations, open, asof, exchange, security, expressions, len
     });
 }
 
-function filterSecurity(calculations, open, screens, asof, exchange, security){
+function filterSecurity(calculations, open, now, screens, asof, exchange, security){
     return Promise.all(screens.map(function(screen) {
         var getInterval = _.compose(_.property('interval'), _.property('indicator'));
         return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
             return Promise.all(_.map(byInterval,
-                loadFilteredPoint.bind(this, calculations, open, asof, exchange, security)
+                loadFilteredPoint.bind(this, calculations, open, now, asof, exchange, security)
             )).then(_.compact).then(function(intervalPoints) {
                 var pass = intervalPoints.length == _.size(byInterval);
                 if (pass) {
@@ -164,9 +184,9 @@ function filterSecurity(calculations, open, screens, asof, exchange, security){
     });
 }
 
-function loadFilteredPoint(calculations, open, asof, exchange, security, filters, interval) {
+function loadFilteredPoint(calculations, open, now, asof, exchange, security, filters, interval) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadData(calculations, open, asof, exchange, security, expressions, 1, interval).then(function(data){
+    return loadData(calculations, open, now, asof, exchange, security, expressions, 1, interval).then(function(data){
         if (data.result.length < 1) return Promise.reject(_.extend(data, {
             status: 'error',
             message: "No results for interval: " + interval,
@@ -194,7 +214,7 @@ function loadFilteredPoint(calculations, open, asof, exchange, security, filters
     });
 }
 
-function evaluateExpressions(calculations, open, security, exchange, interval, after, before, expressions) {
+function evaluateExpressions(calculations, open, security, exchange, interval, after, before, now, expressions) {
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     return new Promise(function(resolve, reject){
@@ -207,7 +227,7 @@ function evaluateExpressions(calculations, open, security, exchange, interval, a
     }).then(open).then(function(db){
         var store = db.transaction([interval]).objectStore(interval);
         var start = earlier(interval, n - 1, after);
-        return collectRange(security, exchange, interval, start, before, store);
+        return collectRange(security, exchange, interval, start, before, now, store);
     }).then(function(data) {
         var startIndex = after ? findIndex(data.result, function(result){
             return result.asof >= after;
@@ -240,7 +260,7 @@ function openSymbolDatabase(indexedDB, intervals, security) {
     });
 }
 
-function collectRange(security, exchange, interval, start, end, store) {
+function collectRange(security, exchange, interval, start, end, now, store) {
     return new Promise(function(resolve, reject){
         var earliest, latest;
         store.openCursor().onsuccess = collect(1, function(arrayOfOne){
@@ -252,6 +272,9 @@ function collectRange(security, exchange, interval, start, end, store) {
             then();
         });
         var then = _.after(2, function(){
+            var inc = addInterval.bind(this, exchange.tz, interval);
+            var floor = startOfInterval.bind(this, exchange.tz, interval);
+            var ticker = decodeURI(security.substring(exchange.iri.length + 1));
             if (earliest && latest) {
                 var sorted = [earliest.asof, start || earliest.asof, end, latest.asof].sort(function(a, b){
                     return a.getTime() - b.getTime();
@@ -259,8 +282,9 @@ function collectRange(security, exchange, interval, start, end, store) {
                 var first = _.first(sorted);
                 var last = _.last(sorted);
                 store.openCursor(IDBKeyRange.bound(start || earliest.asof, end)).onsuccess = collect(function(result){
-                    if (first == earliest.asof && last == latest.asof) {
-                        // range already present
+                    if (first == earliest.asof && last == latest.asof ||
+                            now < inc(first != earliest.asof ? earlier(interval, 4, first) : latest.asof, 1).valueOf()) {
+                        // range already present or not yet expected
                         resolve({
                             status: 'success',
                             result: result
@@ -274,11 +298,10 @@ function collectRange(security, exchange, interval, start, end, store) {
                             quote: [{
                                 security: security,
                                 exchange: exchange,
+                                ticker: ticker,
                                 interval: interval,
-                                from: first != earliest.asof ? earlier(interval, 4, first) : latest.asof,
-                                to: last != latest.asof ? last : earliest.asof,
-                                earliest: earliest.asof,
-                                latest: latest.asof
+                                start: floor(first != earliest.asof ? earlier(interval, 4, first) : latest.asof).format(),
+                                end: (latest.asof && now < inc(latest.asof, 1).valueOf() ? moment(earliest.asof) : inc(last != latest.asof ? last : earliest.asof, 100)).format()
                             }]
                         });
                     }
@@ -290,9 +313,10 @@ function collectRange(security, exchange, interval, start, end, store) {
                     quote: [{
                         security: security,
                         exchange: exchange,
+                        ticker: ticker,
                         interval: interval,
-                        from: earlier(interval, 4, start || end),
-                        to: end
+                        start: floor(earlier(interval, 4, start || end)).format(),
+                        end: inc(end, 100).format()
                     }]
                 });
             }
@@ -358,6 +382,56 @@ function earlier(interval, n, first) {
         throw new Error("Unknown interval: " + interval);
     }
     return new Date(first.valueOf() - n * unit);
+}
+
+function addInterval(tz, interval, latest, amount) {
+    var offset = parseInt(interval.substring(1), 10);
+    var local = moment(latest).tz(tz);
+    var unit;
+    if (interval.indexOf('d') === 0) {
+        var units = offset * (amount || 1);
+        var w = Math.floor(units / 5);
+        var d = units - w * 5;
+        var day = local.add('weeks', w);
+        if (day.isoWeekday() + d < 6) {
+            return day.add('days', d);
+        } else {
+            // skip over weekend
+            return day.add('days', d + 2);
+        }
+    } else if (interval.indexOf('w') === 0) {
+        unit = 'weeks';
+    } else if (interval.indexOf('m') === 0) {
+        unit = 'months';
+    } else if (interval.indexOf('s') === 0) {
+        unit = 'seconds';
+    } else if (interval.indexOf('t') === 0) {
+        return latest;
+    }
+    return local.add(unit, offset * (amount || 1));
+}
+
+function startOfInterval(tz, interval, asof) {
+    var mod = parseInt(interval.substring(1), 10);
+    var local = moment(asof).tz(tz);
+    var base, unit;
+    if (interval.indexOf('d') === 0) {
+        base = moment(local).startOf('isoWeek').isoWeek(1);
+        unit = 'days';
+    } else if (interval.indexOf('w') === 0) {
+        base = moment(local).startOf('isoWeek').isoWeek(1);
+        unit = 'weeks';
+    } else if (interval.indexOf('m') === 0) {
+        base = moment(local).startOf('year');
+        unit = 'months';
+    } else if (interval.indexOf('s') === 0) {
+        base = moment(local).startOf('day');
+        unit = 'seconds';
+    } else if (interval.indexOf('t') === 0) {
+        return local.format();
+    }
+    var offset = Math.floor(local.diff(base, unit) / mod) * mod;
+    return base.add(unit, offset);
 }
 
 function asCalculation(calculations, expressions) {

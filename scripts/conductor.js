@@ -34,10 +34,6 @@
  */
 
 importScripts('../assets/underscore/underscore.js');
-importScripts('../assets/moment/moment-with-langs.js');
-var window = { moment: moment };
-importScripts('../assets/moment/moment-timezone.js');
-importScripts('../assets/moment/moment-timezone-data.js');
 
 self.addEventListener("connect", _.partial(function(services, event) {
     event.ports[0].onmessage = _.partial(dispatch, {
@@ -195,52 +191,18 @@ function retryAfterImport(services, func, worker) {
     return func(worker).catch(function(error){
         if (!error.quote) // not an import error
             return Promise.reject(error);
-        var now = Date.now();
-        if (error.status == 'warning' && _.every(error.quote, function(request){
-            return now < addInterval(request.exchange.tz, request.interval, request.from, 1).valueOf();
-        })) {
-            // nothing is expected yet, use what we have
-            return Promise.resolve(error);
-        }
         // try to load more
         return Promise.all(error.quote.map(function(request){
-            var inc = addInterval.bind(this, request.exchange.tz, request.interval);
-            var floor = startOfInterval.bind(this, request.exchange.tz, request.interval);
-            var end = request.latest && now < inc(request.latest, 1).valueOf() ? moment(request.earliest) : inc(request.to, 100);
-            var ticker = decodeURI(request.security.substring(request.exchange.iri.length + 1));
             return Promise.all(_.map(services.quote, function(quote){
-                return promiseMessage({
-                    cmd: 'quote',
-                    exchange: request.exchange,
-                    ticker: ticker,
-                    interval: request.interval,
-                    start: floor(request.from).format(),
-                    end: end.format()
-                }, quote).then(function(data){
-                    return data.result.map(function(point){
-                        var obj = {};
-                        var tz = point.tz || request.exchange.tz;
-                        if (point.dateTime) {
-                            obj.asof = moment.tz(point.dateTime, tz).toDate();
-                        } else if (point.date) {
-                            var time = point.date + ' ' + request.exchange.marketClosesAt;
-                            obj.asof = moment.tz(time, tz).toDate();
-                        }
-                        for (var prop in point) {
-                            if (_.isNumber(point[prop]))
-                                obj[prop] = point[prop];
-                        }
-                        return obj;
-                    }).filter(function(point){
-                        // Yahoo provides weekly/month-to-date data
-                        return point.asof.valueOf() <= now;
-                    });
-                }).then(function(points){
+                return promiseMessage(_.extend({
+                    cmd: 'quote'
+                }, request), quote).then(function(data){
                     return promiseMessage({
                         cmd: 'import',
                         security: request.security,
                         interval: request.interval,
-                        points: points
+                        exchange: request.exchange,
+                        points: data.result
                     }, worker);
                 });
             }));
@@ -253,56 +215,6 @@ function retryAfterImport(services, func, worker) {
             }
         });
     });
-}
-
-function addInterval(tz, interval, latest, amount) {
-    var offset = parseInt(interval.substring(1), 10);
-    var local = moment(latest).tz(tz);
-    var unit;
-    if (interval.indexOf('d') === 0) {
-        var units = offset * (amount || 1);
-        var w = Math.floor(units / 5);
-        var d = units - w * 5;
-        var day = local.add('weeks', w);
-        if (day.isoWeekday() + d < 6) {
-            return day.add('days', d);
-        } else {
-            // skip over weekend
-            return day.add('days', d + 2);
-        }
-    } else if (interval.indexOf('w') === 0) {
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return latest;
-    }
-    return local.add(unit, offset * (amount || 1));
-}
-
-function startOfInterval(tz, interval, asof) {
-    var mod = parseInt(interval.substring(1), 10);
-    var local = moment(asof).tz(tz);
-    var base, unit;
-    if (interval.indexOf('d') === 0) {
-        base = moment(local).startOf('isoWeek').isoWeek(1);
-        unit = 'days';
-    } else if (interval.indexOf('w') === 0) {
-        base = moment(local).startOf('isoWeek').isoWeek(1);
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        base = moment(local).startOf('year');
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        base = moment(local).startOf('day');
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return local.format();
-    }
-    var offset = Math.floor(local.diff(base, unit) / mod) * mod;
-    return base.add(unit, offset);
 }
 
 function tableToObjectArray(table){
