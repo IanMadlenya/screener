@@ -69,14 +69,15 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
             var data = event.data;
             var now = Date.now();
             return loadData(calculations, open.bind(this, intervals), now,
-                data.asof, data.exchange, data.security, data.expressions, data.length, data.interval
+                data.asof, data.exchange, data.security, data.failfast,
+                data.expressions, data.length, data.interval
             );
         },
         screen: function(event){
             var data = event.data;
             var now = Date.now();
             return filterSecurity(calculations, open.bind(this, intervals), now,
-                data.screens, data.asof, data.exchange, data.security
+                data.screens, data.asof, data.exchange, data.security, data.failfast
             );
         }
     });
@@ -131,11 +132,9 @@ function importData(open, now, data) {
     });
 }
 
-function loadData(calculations, open, now, asof, exchange, security, expressions, length, interval) {
-    var dec = subtractInterval.bind(this, exchange.tz, interval);
-    var after = dec(asof, length).toDate();
-    return evaluateExpressions(calculations, open,
-        security, exchange, interval, after, asof, now, expressions
+function loadData(calculations, open, now, asof, exchange, security, failfast, expressions, length, interval) {
+    return evaluateExpressions(calculations, open, failfast,
+        security, exchange, interval, length, asof, now, expressions
     ).then(function(data){
         if (data.result.length > length) {
             return _.extend(data, {
@@ -147,12 +146,12 @@ function loadData(calculations, open, now, asof, exchange, security, expressions
     });
 }
 
-function filterSecurity(calculations, open, now, screens, asof, exchange, security){
+function filterSecurity(calculations, open, now, screens, asof, exchange, security, failfast){
     return Promise.all(screens.map(function(screen) {
         var getInterval = _.compose(_.property('interval'), _.property('indicator'));
         return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
             return Promise.all(_.map(byInterval,
-                loadFilteredPoint.bind(this, calculations, open, now, asof, exchange, security)
+                loadFilteredPoint.bind(this, calculations, open, now, asof, exchange, security, failfast)
             )).then(_.compact).then(function(intervalPoints) {
                 var pass = intervalPoints.length == _.size(byInterval);
                 if (pass) {
@@ -184,9 +183,9 @@ function filterSecurity(calculations, open, now, screens, asof, exchange, securi
     });
 }
 
-function loadFilteredPoint(calculations, open, now, asof, exchange, security, filters, interval) {
+function loadFilteredPoint(calculations, open, now, asof, exchange, security, failfast, filters, interval) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadData(calculations, open, now, asof, exchange, security, expressions, 1, interval).then(function(data){
+    return loadData(calculations, open, now, asof, exchange, security, failfast, expressions, 1, interval).then(function(data){
         if (data.result.length < 1) return Promise.reject(_.extend(data, {
             status: 'error',
             message: "No results for interval: " + interval,
@@ -214,7 +213,9 @@ function loadFilteredPoint(calculations, open, now, asof, exchange, security, fi
     });
 }
 
-function evaluateExpressions(calculations, open, security, exchange, interval, after, before, now, expressions) {
+function evaluateExpressions(calculations, open, failfast, security, exchange, interval, length, asof, now, expressions) {
+    var dec = subtractInterval.bind(this, exchange.tz, interval);
+    var after = dec(asof, length).toDate();
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     return new Promise(function(resolve, reject){
@@ -226,12 +227,11 @@ function evaluateExpressions(calculations, open, security, exchange, interval, a
         }
     }).then(open).then(function(db){
         var store = db.transaction([interval]).objectStore(interval);
-        var start = earlier(interval, n - 1, after);
-        return collectRange(security, exchange, interval, start, before, now, store);
+        return collectRange(failfast, security, exchange, interval, length + n - 1, asof, now, store);
     }).then(function(data) {
         var startIndex = after ? findIndex(data.result, function(result){
             return result.asof >= after;
-        }) : n - 1;
+        }) || 0 : n - 1;
         return _.extend(data, {
             result: _.map(_.range(startIndex, data.result.length), function(i) {
                 return _.map(calcs, function(calc){
@@ -260,71 +260,82 @@ function openSymbolDatabase(indexedDB, intervals, security) {
     });
 }
 
-function collectRange(security, exchange, interval, start, end, now, store) {
+function collectRange(failfast, security, exchange, interval, length, asof, now, store) {
     return new Promise(function(resolve, reject){
-        var earliest, latest;
-        store.openCursor().onsuccess = collect(1, function(arrayOfOne){
-            earliest = arrayOfOne.length ? arrayOfOne[0] : null;
-            then();
-        });
-        store.openCursor(null, "prev").onsuccess = collect(1, function(arrayOfOne){
-            latest = arrayOfOne.length ? arrayOfOne[0] : null;
-            then();
-        });
-        var then = _.after(2, function(){
+        var conclude = failfast ? reject : resolve;
+        var cursor = store.openCursor(IDBKeyRange.upperBound(asof), "prev");
+        cursor.onerror = reject;
+        cursor.onsuccess = collect(length, function(result){
+            result = result.reverse();
+            var dec = subtractInterval.bind(this, exchange.tz, interval);
             var inc = addInterval.bind(this, exchange.tz, interval);
-            var floor = startOfInterval.bind(this, exchange.tz, interval);
+            var next = result.length ? inc(result[result.length - 1].asof, 1) : null;
             var ticker = decodeURI(security.substring(exchange.iri.length + 1));
-            if (earliest && latest) {
-                var sorted = [earliest.asof, start || earliest.asof, end, latest.asof].sort(function(a, b){
-                    return a.getTime() - b.getTime();
+            if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
+                // result complete
+                return resolve({
+                    status: 'success',
+                    result: result
                 });
-                var first = _.first(sorted);
-                var last = _.last(sorted);
-                store.openCursor(IDBKeyRange.bound(start || earliest.asof, end)).onsuccess = collect(function(result){
-                    if (first == earliest.asof && last == latest.asof ||
-                            now < inc(first != earliest.asof ? earlier(interval, 4, first) : latest.asof, 1).valueOf()) {
-                        // range already present or not yet expected
-                        resolve({
-                            status: 'success',
-                            result: result
-                        });
-                    } else {
-                        // need more points
-                        resolve({
-                            status: 'warning',
-                            message: 'Need more data points',
-                            result: result,
-                            quote: [{
-                                security: security,
-                                exchange: exchange,
-                                ticker: ticker,
-                                interval: interval,
-                                start: floor(first != earliest.asof ? earlier(interval, 4, first) : latest.asof).format(),
-                                end: (latest.asof && now < inc(latest.asof, 1).valueOf() ? moment(earliest.asof) : inc(last != latest.asof ? last : earliest.asof, 100)).format()
-                            }]
-                        });
-                    }
-                });
-            } else { // store is empty
-                reject({
-                    status: 'error',
-                    message: 'No data points available',
+            } else if (result.length >= length) {
+                // need to update with newer data
+                return conclude({
+                    status: failfast ? 'error' : 'warning',
+                    message: 'Need more data points',
+                    result: result,
                     quote: [{
                         security: security,
                         exchange: exchange,
                         ticker: ticker,
                         interval: interval,
-                        start: floor(earlier(interval, 4, start || end)).format(),
-                        end: inc(end, 100).format()
+                        result: result,
+                        start: next.format(),
+                        end: moment(now).tz(exchange.tz).format()
                     }]
                 });
+            } else if (result.length && result.length <= length) {
+                // need more historic data
+                return conclude({
+                    status: failfast ? 'error' : 'warning',
+                    message: 'Need more data points',
+                    result: result,
+                    quote: [{
+                        security: security,
+                        exchange: exchange,
+                        ticker: ticker,
+                        interval: interval,
+                        result: result,
+                        start: dec(asof, length).format(),
+                        end: dec(result[0].asof, 1).format()
+                    }]
+                });
+            } else {
+                // no data available
+                var cursor = store.openCursor();
+                cursor.onerror = reject;
+                cursor.onsuccess = collect(1, function(arrayOfOne){
+                    var earliest = arrayOfOne.length ? arrayOfOne[0] : null;
+                    var thismoment = moment(now).tz(exchange.tz);
+                    var end = earliest ? dec(earliest.asof, 1) : thismoment;
+                    return reject({
+                        status: 'error',
+                        message: 'No data points available',
+                        quote: [{
+                            security: security,
+                            exchange: exchange,
+                            ticker: ticker,
+                            interval: interval,
+                            start: dec(asof, length).format(),
+                            end: end.format()
+                        }]
+                    });
+                }, reject);
             }
-        });
+        }, reject);
     });
 }
 
-function collect(n, callback) {
+function collect(n, callback, catcher) {
     return _.partial(function(results, event) {
         var cursor = event.target.result;
         if (cursor) {
@@ -334,10 +345,10 @@ function collect(n, callback) {
                 return;
             }
         }
-        if (_.isFunction(callback)) {
+        try {
             callback(results);
-        } else if (_.isFunction(n)) {
-            n(results);
+        } catch (e) {
+            catcher(e);
         }
     }, []);
 }
@@ -358,30 +369,6 @@ function preceding(array, len, endIndex) {
         list.push(array[i]);
     }
     return list;
-}
-
-function earlier(interval, n, first) {
-    if (!first) return null;
-    var unit;
-    if (interval == 'm12') {
-        var clone = new Date(first.valueOf());
-        clone.setFullYear(clone.getFullYear() - 1);
-        return clone;
-    } else if (interval.indexOf('d') === 0) {
-        unit = parseInt(interval.substring(1), 10) * 2 * 24 * 60 * 60 * 1000;
-    } else if (interval.indexOf('w')) {
-        unit = parseInt(interval.substring(1), 10) * 7 * 24 * 60 * 60 * 1000;
-    } else if (interval.indexOf('m')) {
-        unit = parseInt(interval.substring(1), 10) * 31 * 24 * 60 * 60 * 1000;
-    } else if (interval.indexOf('s')) {
-        unit = parseInt(interval.substring(1), 10) * 1000;
-    } else if (interval.indexOf('t')) {
-        // assume any number of ticks is within a days
-        unit = 24 * 60 * 60 * 1000;
-    } else {
-        throw new Error("Unknown interval: " + interval);
-    }
-    return new Date(first.valueOf() - n * unit);
 }
 
 function addInterval(tz, interval, latest, amount) {
@@ -517,28 +504,31 @@ function rejectNormalizedError(error) {
     if (error.status != 'error' || error.message) {
         console.log(error);
     }
-    if (error && error.status == 'error') {
-        return Promise.reject(error);
+    return Promise.reject(normalizedError(error));
+}
+
+function normalizedError(error) {
+    if (error && error.status && error.status != 'success') {
+        return error;
     } else if (error.target && error.target.errorCode){
-        return Promise.reject({
+        return {
             status: 'error',
             errorCode: error.target.errorCode
-        });
+        };
     } else if (error.message && error.stack) {
-        return Promise.reject({
+        return _.extend({
             status: 'error',
             message: error.message,
             stack: error.stack
-        });
+        }, _.omit(error, 'prototype', _.functions(error)));
     } else if (error.message) {
-        return Promise.reject({
-            status: 'error',
-            message: error.message
-        });
+        return _.extend({
+            status: 'error'
+        }, _.omit(error, 'prototype', _.functions(error)));
     } else {
-        return Promise.reject({
+        return {
             status: 'error',
             message: error
-        });
+        };
     }
 }
