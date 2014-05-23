@@ -67,7 +67,7 @@ jQuery(function($){
         screener.watchListLookup()($('#backtesting-list').val()).then(function(suggestions) {
             if (suggestions.length != 1)
                 return;
-            backtest(suggestions[0]);
+            return backtest(suggestions[0]);
         }).catch(calli.error);
     }).submit();
 
@@ -83,13 +83,24 @@ jQuery(function($){
         });
     });
 
-    function backtest(list) {
-        var asof = screener.getBacktestAsOf();
+    function backtest(list, complete) {
         if (_.isEmpty(list)) return;
+        var asof = screener.getBacktestAsOf();
+        var queue = [];
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof).then(function(result){
-                    $('#results').empty().append(
+                return screener.screen([list], [{filters: filters}], asof, !complete).catch(function(error){
+                    if (error.status == 'warning' && !complete) {
+                        queue.push(backtest(list, true));
+                        return error.result;
+                    } else if (!complete) {
+                        queue.push(backtest(list, true));
+                        return [];
+                    } else {
+                        return Promise.reject(error);
+                    }
+                }).then(function(result){
+                    return $('#results').empty().append(
                         $('<thead></thead>').append(
                             $('<tr></tr>').append(
                                 $('<th></th>').text('Symbol')
@@ -112,14 +123,19 @@ jQuery(function($){
                                 }).text(symbol)))
                                 .append(_.map(filters, function(filter) {
                                     return $('<td></td>').append($('<a></a>',{
-                                        href: filter.indicator.iri + '#!' + point.security
+                                        href: filter.indicator.iri + '#!' + point.security,
+                                        "data-value": point[filter.indicator.expression]
                                     }).text(screener.formatNumber(screener.pceil(point[filter.indicator.expression], 3))));
                                 }));
                         }))
                     );
                 });
             });
-        }).catch(calli.error);
+        }).then(function(result){
+            if (complete) return result;
+            queue.unshift(result);
+            return Promise.all(queue);
+        });
     }
 
     function readFilters(filterElements) {
@@ -219,7 +235,7 @@ jQuery(function($){
         var key = {filters: filters, indicator: indicator, list: list, asof: asof};
         if (_.isEqual(key, $('#' + id).data())) return Promise.resolve();
         $('#' + id).data(key);
-        return evaluateDistribution(filters, indicator, list, asof).then(function(chartOptions){
+        return evaluateDistribution(filters, indicator, list, asof, function(chartOptions){
             if (_.isEqual(key, $('#' + id).data())) {
                 google.visualization.drawChart(_.extend({
                     "containerId": id
@@ -228,7 +244,8 @@ jQuery(function($){
         });
     }
 
-    function evaluateDistribution(filters, indicator, list, asof, callback) {
+    function evaluateDistribution(filters, indicator, list, asof, callback, complete) {
+        var queue = [];
         return new Promise(function(callback){
             google.load('visualization', '1.0', {
                 packages: ['corechart'],
@@ -242,7 +259,17 @@ jQuery(function($){
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof);
+            return screener.screen([list], [{filters: excludedFilters}], asof, !complete);
+        }).catch(function(error){
+            if (error.status == 'warning' && !complete) {
+                queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
+                return error.result;
+            } else if (!complete) {
+                queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
+                return [];
+            } else {
+                return Promise.reject(error);
+            }
         }).then(function(points){
             var data = new google.visualization.DataTable();
             data.addColumn('string', indicator.expression);
@@ -281,7 +308,11 @@ jQuery(function($){
                     height: 200
                 }
             };
-        }).catch(calli.error);
+        }).then(callback).then(function(result){
+            if (complete) return result;
+            queue.unshift(result);
+            return Promise.all(queue);
+        });
     }
 
     function localPart(uri) {
