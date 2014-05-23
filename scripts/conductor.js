@@ -55,17 +55,17 @@ self.addEventListener("connect", _.partial(function(services, event) {
         }).bind(this, services),
 
         validate: (function(services, event){
-            var worker = getWorkerPort(services.mentat, event.data.expression);
+            var key = getWorker(services.mentat, event.data.expression);
             return promiseMessage({
                 cmd: 'fields',
                 expressions: [event.data.expression]
-            }, worker).then(_.property('result')).then(function(fields){
-                return Promise.all(_.map(services.quote, function(quote){
+            }, services.mentat[key], key).then(_.property('result')).then(function(fields){
+                return Promise.all(_.map(services.quote, function(quote, key){
                     return promiseMessage({
                         cmd: 'validate',
                         interval: event.data.interval,
                         fields: _.without(fields, 'asof')
-                    }, quote).catch(Promise.resolve);
+                    }, quote, key).catch(Promise.resolve);
                 }));
             }).then(function(results){
                 return results.filter(function(result){
@@ -106,8 +106,8 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
         load: (function(services, event) {
             var data = event.data;
-            var worker = getWorkerPort(services.mentat, data.security);
-            return retryAfterImport(services, promiseMessage.bind(this, data), worker).then(function(data){
+            var worker = getWorker(services.mentat, data.security);
+            return retryAfterImport(services, data, false, services.mentat[worker], worker).then(function(data){
                 return data.result;
             });
         }).bind(this, services),
@@ -136,15 +136,23 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
 function screenSecurities(services, event) {
     var data = event.data;
+    var warn = data.warn;
     var byExchange = _.groupBy(data.watchLists, _.compose(_.property('iri'), _.property('exchange')));
     return Promise.all(_.map(byExchange, function(watchLists) {
         var exchange = watchLists[0].exchange;
-        var filter = filterSecurity.bind(this, services, data.screens, data.asof, exchange);
+        var filter = filterSecurity.bind(this, services, data.screens, data.asof, warn, exchange);
         return listSecurities(services, watchLists).then(function(securities) {
             return Promise.all(securities.map(filter));
-        }).then(_.compact);
+        });
     })).then(_.flatten).then(function(result) {
-        return result;
+        var groups = _.groupBy(_.compact(result), function(obj){
+            return obj.status && obj.status != 'success' ? 'error' : 'result';
+        });
+        var success = _.isEqual(['result'], _.keys(groups));
+        var warning =  groups.error && result.length > groups.error.length;
+        return _.extend({
+            status: success ? 'success' : warning ? 'warning' : 'error'
+        }, groups);
     });
 }
 
@@ -172,24 +180,31 @@ function listSecurities(services, watchLists) {
     })).then(_.flatten).then(_.uniq);
 }
 
-function filterSecurity(services, screens, asof, exchange, security){
-    var worker = getWorkerPort(services.mentat, security);
-    return retryAfterImport(services, promiseMessage.bind(this, {
+function filterSecurity(services, screens, asof, warn, exchange, security){
+    var worker = getWorker(services.mentat, security);
+    return retryAfterImport(services, {
         cmd: 'screen',
         asof: asof,
         screens: screens,
         exchange: exchange,
         security: security
-    }), worker).then(function(data){
+    }, warn, services.mentat[worker], worker).then(function(data){
         return data.result;
     }).catch(function(error){
-        console.log("Could not load", security, error);
+        if (!warn) {
+            console.log("Could not load", security, error.status, error);
+        }
+        return normalizedError(error);
     });
 }
 
-function retryAfterImport(services, func, worker) {
-    return func(worker).catch(function(error){
-        if (!error.quote) // not an import error
+function retryAfterImport(services, data, warn, port, worker) {
+    return promiseMessage(_.extend({
+        failfast: !warn
+    }, data), port, worker).catch(function(error){
+        if (warn && error.quote && error.status == 'warning')
+            return error; // just use what we have
+        if (!error.quote || warn)
             return Promise.reject(error);
         // try to load more
         return Promise.all(error.quote.map(function(request){
@@ -197,16 +212,19 @@ function retryAfterImport(services, func, worker) {
                 return promiseMessage(_.extend({
                     cmd: 'quote'
                 }, request), quote).then(function(data){
+                    if (data.result.length == 0) return {
+                        status: 'success'
+                    };
                     return promiseMessage({
                         cmd: 'import',
                         security: request.security,
                         interval: request.interval,
                         exchange: request.exchange,
                         points: data.result
-                    }, worker);
+                    }, port, worker);
                 });
             }));
-        })).then(func.bind(this, worker)).catch(function(error){
+        })).then(promiseMessage.bind(this, data, port, worker)).catch(function(error){
             if (error.status == 'warning') {
                 // just use what we have
                 return Promise.resolve(error);
@@ -223,13 +241,13 @@ function tableToObjectArray(table){
     });
 }
 
-function promiseMessage(data, port) {
+function promiseMessage(data, port, worker) {
     return new Promise(function(resolve, reject){
         var channel = new MessageChannel();
         var timeout = setTimeout(function(){
-            console.log("Still waiting for a response for", data);
+            console.log("Still waiting on " + worker + " for a response to", data);
             timeout = setTimeout(function(){
-                console.log("Aborting", data);
+                console.log("Aborting " + worker + " response to", data);
                 reject(_.extend({}, data, {status: 'error', message: "Service took too long to respond"}));
             }, 30000);
         }, 30000);
@@ -248,8 +266,8 @@ function promiseMessage(data, port) {
 function serviceMessage(services, name, event) {
     if (!services[name] || !_.keys(services[name]).length)
         throw new Error('No ' + name + ' service registered');
-    return Promise.all(_.map(services[name], function(service) {
-        return promiseMessage(event.data, service);
+    return Promise.all(_.map(services[name], function(service, key) {
+        return promiseMessage(event.data, service, key);
     })).then(combineResult);
 }
 
@@ -261,13 +279,13 @@ function combineResult(results){
 }
 
 var throttledLog = _.throttle(console.log.bind(console), 1000);
-function getWorkerPort(workers, string) {
+function getWorker(workers, string) {
     var keys = _.keys(workers);
     var mod = keys.length;
     var w = (hashCode(string) % mod + mod) % mod;
     var key = keys[w];
     throttledLog("Called worker ", key);
-    return workers[key];
+    return key;
 }
 
 function hashCode(str){
@@ -324,28 +342,31 @@ function rejectNormalizedError(error) {
     if (error.status != 'error' || error.message) {
         console.log(error);
     }
-    if (error && error.status == 'error') {
-        return Promise.reject(error);
+    return Promise.reject(normalizedError(error));
+}
+
+function normalizedError(error) {
+    if (error && error.status && error.status != 'success') {
+        return error;
     } else if (error.target && error.target.errorCode){
-        return Promise.reject({
+        return {
             status: 'error',
             errorCode: error.target.errorCode
-        });
+        };
     } else if (error.message && error.stack) {
-        return Promise.reject({
+        return _.extend({
             status: 'error',
             message: error.message,
             stack: error.stack
-        });
+        }, _.omit(error, 'prototype', _.functions(error)));
     } else if (error.message) {
-        return Promise.reject({
-            status: 'error',
-            message: error.message
-        });
+        return _.extend({
+            status: 'error'
+        }, _.omit(error, 'prototype', _.functions(error)));
     } else {
-        return Promise.reject({
+        return {
             status: 'error',
             message: error
-        });
+        };
     }
 }
