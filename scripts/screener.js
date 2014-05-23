@@ -233,7 +233,7 @@
                 });
             },
 
-            screen: function(watchLists, screens, asof) {
+            screen: function(watchLists, screens, asof, warn) {
                 return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
                     return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
                 }).then(function(watchLists) {
@@ -244,7 +244,12 @@
                             cmd: 'screen',
                             watchLists: watchLists,
                             screens: screens,
-                            asof: asof
+                            asof: asof,
+                            warn: warn
+                        }).catch(function(error){
+                            if (error.status == 'warning' && !warn)
+                                return error.result;
+                            return Promise.reject(error);
                         });
                     });
                 });
