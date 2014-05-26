@@ -149,9 +149,10 @@ function screenSecurities(services, event) {
             return obj.status && obj.status != 'success' ? 'error' : 'result';
         });
         var success = _.isEqual(['result'], _.keys(groups));
-        var warning =  groups.error && result.length > groups.error.length;
+        var warning =  groups.result && groups.error;
         return _.extend({
-            status: success ? 'success' : warning ? 'warning' : 'error'
+            status: success ? 'success' : warning ? 'warning' : 'error',
+            message: groups.error && _.uniq(_.pluck(groups.error, 'message').sort(), true).join('\n')
         }, groups);
     });
 }
@@ -191,20 +192,18 @@ function filterSecurity(services, screens, asof, load, exchange, security){
     }, load, services.mentat[worker], worker).then(function(data){
         return data.result;
     }).catch(function(error){
-        if (load) {
-            console.log("Could not load", security, error.status, error);
-        }
+        console.log("Could not load", security, error.status, error);
         return normalizedError(error);
     });
 }
 
 function retryAfterImport(services, data, load, port, worker) {
     return promiseMessage(_.extend({
-        failfast: load
+        failfast: load !== false
     }, data), port, worker).catch(function(error){
-        if (!load && error.quote && error.status == 'warning')
+        if (load === false && error.quote && error.status == 'warning')
             return error; // just use what we have
-        if (!error.quote || !load)
+        if (!error.quote || load === false)
             return Promise.reject(error);
         // try to load more
         return Promise.all(error.quote.map(function(request){
@@ -212,9 +211,7 @@ function retryAfterImport(services, data, load, port, worker) {
                 return promiseMessage(_.extend({
                     cmd: 'quote'
                 }, request), quote).then(function(data){
-                    if (data.result.length == 0) return {
-                        status: 'success'
-                    };
+                    if (data.result.length == 0) return null;
                     return promiseMessage({
                         cmd: 'import',
                         security: request.security,
@@ -224,13 +221,17 @@ function retryAfterImport(services, data, load, port, worker) {
                     }, port, worker);
                 });
             }));
-        })).then(promiseMessage.bind(this, data, port, worker)).catch(function(error){
-            if (error.status == 'warning') {
-                // just use what we have
-                return Promise.resolve(error);
-            } else {
-                return Promise.reject(error);
-            }
+        })).then(_.flatten).then(_.compact).then(function(imported){
+            if (load && imported.length == 0)
+                return Promise.reject(error); // didn't load anything, but asked
+            return promiseMessage(data, port, worker).catch(function(error){
+                if (error.status == 'warning') {
+                    // just use what we have
+                    return Promise.resolve(error);
+                } else {
+                    return Promise.reject(error);
+                }
+            });
         });
     });
 }

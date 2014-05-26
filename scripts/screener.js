@@ -233,6 +233,12 @@
                 });
             },
 
+            /*
+             * load:
+             * * When false, don't load anything and reject on any error, but include result (if available) as warning
+             * * When undefined, load if needed and treat warning as success
+             * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
+            */
             screen: function(watchLists, screens, asof, load) {
                 return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
                     return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
@@ -247,8 +253,9 @@
                             asof: asof,
                             load: load
                         }).catch(function(error){
-                            if (error.status == 'warning' && load)
+                            if (error.status == 'warning' && load !== false)
                                 return error.result;
+                            // tell caller to try again with load = true
                             return Promise.reject(error);
                         });
                     });

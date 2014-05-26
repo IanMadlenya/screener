@@ -67,7 +67,10 @@ jQuery(function($){
         screener.watchListLookup()($('#backtesting-list').val()).then(function(suggestions) {
             if (suggestions.length != 1)
                 return;
-            return backtest(suggestions[0]);
+            $('#backtesting-form button[type="submit"]').addClass('active');
+            return backtest(suggestions[0]).then(function(){
+                $('#backtesting-form button[type="submit"]').removeClass('active');
+            });
         }).catch(calli.error);
     }).submit();
 
@@ -89,7 +92,7 @@ jQuery(function($){
         var queue = [];
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, load).catch(function(error){
+                return screener.screen([list], [{filters: filters}], asof, !!load).catch(function(error){
                     if (error.status == 'warning' && !load) {
                         queue.push(backtest(list, true));
                         return error.result;
@@ -259,7 +262,7 @@ jQuery(function($){
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof, load);
+            return screener.screen([list], [{filters: excludedFilters}], asof, !!load);
         }).catch(function(error){
             if (error.status == 'warning' && !load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
