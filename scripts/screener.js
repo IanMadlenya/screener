@@ -233,7 +233,7 @@
                 });
             },
 
-            screen: function(watchLists, screens, asof, warn) {
+            screen: function(watchLists, screens, asof, load) {
                 return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
                     return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
                 }).then(function(watchLists) {
@@ -245,9 +245,9 @@
                             watchLists: watchLists,
                             screens: screens,
                             asof: asof,
-                            warn: warn
+                            load: load
                         }).catch(function(error){
-                            if (error.status == 'warning' && !warn)
+                            if (error.status == 'warning' && load)
                                 return error.result;
                             return Promise.reject(error);
                         });
@@ -422,6 +422,12 @@
             } else {
                 return Promise.reject(event.data);
             }
+        }).catch(function(error){
+            if (error.toString == Object.prototype.toString)
+                return Promise.reject(_.extend(error, {
+                    toString: _.property('message').bind(this, error)
+                }));
+            return Promise.reject(error);
         });
     }
 

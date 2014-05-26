@@ -107,7 +107,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
         load: (function(services, event) {
             var data = event.data;
             var worker = getWorker(services.mentat, data.security);
-            return retryAfterImport(services, data, false, services.mentat[worker], worker).then(function(data){
+            return retryAfterImport(services, data, true, services.mentat[worker], worker).then(function(data){
                 return data.result;
             });
         }).bind(this, services),
@@ -136,11 +136,11 @@ self.addEventListener("connect", _.partial(function(services, event) {
 
 function screenSecurities(services, event) {
     var data = event.data;
-    var warn = data.warn;
+    var load = data.load;
     var byExchange = _.groupBy(data.watchLists, _.compose(_.property('iri'), _.property('exchange')));
     return Promise.all(_.map(byExchange, function(watchLists) {
         var exchange = watchLists[0].exchange;
-        var filter = filterSecurity.bind(this, services, data.screens, data.asof, warn, exchange);
+        var filter = filterSecurity.bind(this, services, data.screens, data.asof, load, exchange);
         return listSecurities(services, watchLists).then(function(securities) {
             return Promise.all(securities.map(filter));
         });
@@ -180,7 +180,7 @@ function listSecurities(services, watchLists) {
     })).then(_.flatten).then(_.uniq);
 }
 
-function filterSecurity(services, screens, asof, warn, exchange, security){
+function filterSecurity(services, screens, asof, load, exchange, security){
     var worker = getWorker(services.mentat, security);
     return retryAfterImport(services, {
         cmd: 'screen',
@@ -188,23 +188,23 @@ function filterSecurity(services, screens, asof, warn, exchange, security){
         screens: screens,
         exchange: exchange,
         security: security
-    }, warn, services.mentat[worker], worker).then(function(data){
+    }, load, services.mentat[worker], worker).then(function(data){
         return data.result;
     }).catch(function(error){
-        if (!warn) {
+        if (load) {
             console.log("Could not load", security, error.status, error);
         }
         return normalizedError(error);
     });
 }
 
-function retryAfterImport(services, data, warn, port, worker) {
+function retryAfterImport(services, data, load, port, worker) {
     return promiseMessage(_.extend({
-        failfast: !warn
+        failfast: load
     }, data), port, worker).catch(function(error){
-        if (warn && error.quote && error.status == 'warning')
+        if (!load && error.quote && error.status == 'warning')
             return error; // just use what we have
-        if (!error.quote || warn)
+        if (!error.quote || !load)
             return Promise.reject(error);
         // try to load more
         return Promise.all(error.quote.map(function(request){

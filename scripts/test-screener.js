@@ -395,7 +395,7 @@ describe("Screener", function(){
                     },
                     min:"500000"
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4), true).then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['SMA(60,volume)']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -412,7 +412,7 @@ describe("Screener", function(){
                         interval: "m12"
                     },
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4), true).then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['F-Score()']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -425,7 +425,7 @@ describe("Screener", function(){
                 includes:""
             }],
             [],
-            new Date(2014, 3, 4)).then(function(result){
+            new Date(2014, 3, 4), true).then(function(result){
                 expect(result).not.toEqual([]);
             }).then(done, unexpected(done));
         });

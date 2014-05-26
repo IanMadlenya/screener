@@ -205,7 +205,7 @@ function screenCheck(watchLists, screens, asof, points) {
                     })
                 });
             });
-            return screener.screen(lists, screens, asof).then(function(result){
+            return screener.screen(lists, screens, asof, true).then(function(result){
                 var expected = points.map(function(point){
                     var symbol = point.symbol;
                     var mic = symbol.substring(0, symbol.indexOf(':'));

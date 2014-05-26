@@ -83,17 +83,17 @@ jQuery(function($){
         });
     });
 
-    function backtest(list, complete) {
+    function backtest(list, load) {
         if (_.isEmpty(list)) return;
         var asof = screener.getBacktestAsOf();
         var queue = [];
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, !complete).catch(function(error){
-                    if (error.status == 'warning' && !complete) {
+                return screener.screen([list], [{filters: filters}], asof, load).catch(function(error){
+                    if (error.status == 'warning' && !load) {
                         queue.push(backtest(list, true));
                         return error.result;
-                    } else if (!complete) {
+                    } else if (!load) {
                         queue.push(backtest(list, true));
                         return [];
                     } else {
@@ -132,7 +132,7 @@ jQuery(function($){
                 });
             });
         }).then(function(result){
-            if (complete) return result;
+            if (load) return result;
             queue.unshift(result);
             return Promise.all(queue);
         });
@@ -244,7 +244,7 @@ jQuery(function($){
         });
     }
 
-    function evaluateDistribution(filters, indicator, list, asof, callback, complete) {
+    function evaluateDistribution(filters, indicator, list, asof, callback, load) {
         var queue = [];
         return new Promise(function(callback){
             google.load('visualization', '1.0', {
@@ -259,12 +259,12 @@ jQuery(function($){
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof, !complete);
+            return screener.screen([list], [{filters: excludedFilters}], asof, load);
         }).catch(function(error){
-            if (error.status == 'warning' && !complete) {
+            if (error.status == 'warning' && !load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
                 return error.result;
-            } else if (!complete) {
+            } else if (!load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
                 return [];
             } else {
@@ -309,7 +309,7 @@ jQuery(function($){
                 }
             };
         }).then(callback).then(function(result){
-            if (complete) return result;
+            if (load) return result;
             queue.unshift(result);
             return Promise.all(queue);
         });
