@@ -68,12 +68,12 @@
                     </div>
                     <div class="form-group">
                         <label for="exclude-tickers">Excluded ticker symbols</label>
-                        <textarea id="exclude-tickers" class="form-control"></textarea>
+                        <textarea id="exclude-tickers" class="form-control" pattern="[A-Za-z\.\/\-\^\$\s,]*"></textarea>
                         <p class="help-block">Space separated list of ticker symbols to exclude</p>
                     </div>
                     <div class="form-group">
                         <label for="include-tickers">Addional ticker symbols</label>
-                        <textarea id="include-tickers" class="form-control"></textarea>
+                        <textarea id="include-tickers" class="form-control" pattern="[A-Za-z\.\/\-\^\$\s,]*"></textarea>
                         <p class="help-block">Space separated list of ticker symbols to include</p>
                     </div>
                 </fieldset>
