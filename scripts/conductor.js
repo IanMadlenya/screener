@@ -107,7 +107,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
         load: (function(services, event) {
             var data = event.data;
             var worker = getWorker(services.mentat, data.security);
-            return retryAfterImport(services, data, true, services.mentat[worker], worker).then(function(data){
+            return retryAfterImport(services, data, services.mentat[worker], worker).then(function(data){
                 return data.result;
             });
         }).bind(this, services),
@@ -189,7 +189,7 @@ function filterSecurity(services, screens, asof, load, exchange, security){
         screens: screens,
         exchange: exchange,
         security: security
-    }, load, services.mentat[worker], worker).then(function(data){
+    }, services.mentat[worker], worker, load).then(function(data){
         return data.result;
     }).catch(function(error){
         console.log("Could not load", security, error.status, error);
@@ -197,7 +197,7 @@ function filterSecurity(services, screens, asof, load, exchange, security){
     });
 }
 
-function retryAfterImport(services, data, load, port, worker) {
+function retryAfterImport(services, data, port, worker, load) {
     return promiseMessage(_.extend({
         failfast: load !== false
     }, data), port, worker).catch(function(error){
