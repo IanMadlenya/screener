@@ -90,6 +90,7 @@ jQuery(function($){
         if (_.isEmpty(list)) return;
         var asof = screener.getBacktestAsOf();
         var queue = [];
+        $('#results').data({list: list});
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
                 return screener.screen([list], [{filters: filters}], asof, !!load).catch(function(error){
@@ -103,6 +104,7 @@ jQuery(function($){
                         return Promise.reject(error);
                     }
                 }).then(function(result){
+                    if (!_.isEqual({list: list}, $('#results').data())) return undefined;
                     return $('#results').empty().append(
                         $('<thead></thead>').append(
                             $('<tr></tr>').append(

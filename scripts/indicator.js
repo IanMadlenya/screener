@@ -103,39 +103,60 @@ jQuery(function($){
     }
 
     function backtest() {
-        $('#relative-div').empty();
-        $('#price-div').empty();
-        $('#volume-div').empty();
         var security = getSecurity();
         var asof = screener.getBacktestAsOf();
         var interval = getInterval();
-        var expr = getExpression();
-        var unit = getUnit();
-        var promises = [];
-        if (asof && security && interval) {
-            var derivedFromRelative = getDerivedFrom('discrete').concat(getDerivedFrom('relative'));
-            var derivedFromPrice = getDerivedFrom('price');
-            var derivedFromVolume = getDerivedFrom('volume');
-            if (unit == 'relative' || unit == 'discrete') {
-                promises.push(chartRelative(asof, security, interval, [expr]));
+        var key = {asof: asof, security: security, interval: interval};
+        $('#relative-div').data(key);
+        return new Promise(function(callback){
+            google.load('visualization', '1.0', {
+                packages: ['corechart'],
+                callback: callback
+            });
+        }).then(function(){
+            var expr = getExpression();
+            var unit = getUnit();
+            var promises = [];
+            if (asof && security && interval) {
+                var derivedFromRelative = getDerivedFrom('discrete').concat(getDerivedFrom('relative'));
+                var derivedFromPrice = getDerivedFrom('price');
+                var derivedFromVolume = getDerivedFrom('volume');
+                if (unit == 'relative' || unit == 'discrete') {
+                    promises.push(chartRelative(asof, security, interval, [expr], 0));
+                }
+                if (derivedFromRelative.length) {
+                    derivedFromRelative.forEach(function(derivedFrom, index){
+                        promises.push(chartRelative(asof, security, interval, [derivedFrom], index+1));
+                    });
+                }
+                if (unit == 'price') {
+                    promises.push(chartPrice(asof, security, interval, _.compact(_.union([expr], derivedFromPrice))));
+                } else if (derivedFromPrice.length) {
+                    promises.push(chartPrice(asof, security, interval, derivedFromPrice));
+                }
+                if (unit == 'volume') {
+                    promises.push(chartVolume(asof, security, interval, _.compact(_.union([expr], derivedFromVolume))));
+                } else if (derivedFromVolume.length) {
+                    promises.push(chartVolume(asof, security, interval, derivedFromVolume));
+                }
             }
-            if (derivedFromRelative.length) {
-                derivedFromRelative.forEach(function(derivedFrom){
-                    promises.push(chartRelative(asof, security, interval, [derivedFrom]));
-                });
-            }
-            if (unit == 'price') {
-                promises.push(chartPrice(asof, security, interval, _.compact(_.union([expr], derivedFromPrice))));
-            } else if (derivedFromPrice.length) {
-                promises.push(chartPrice(asof, security, interval, derivedFromPrice));
-            }
-            if (unit == 'volume') {
-                promises.push(chartVolume(asof, security, interval, _.compact(_.union([expr], derivedFromVolume))));
-            } else if (derivedFromVolume.length) {
-                promises.push(chartVolume(asof, security, interval, derivedFromVolume));
-            }
-        }
-        return Promise.all(promises).catch(calli.error);
+            return Promise.all(promises);
+        }).then(function(charts){
+            if (!_.isEqual(key, $('#relative-div').data())) return undefined;
+            $('#relative-div').empty();
+            $('#price-div').empty();
+            $('#volume-div').empty();
+            charts.forEach(function(chart){
+                if (!chart.containerId) {
+                    var div = $('<div></div>');
+                    $('#relative-div').append(div);
+                    var counter = div.prevAll().length;
+                    chart.containerId = 'relative-div-' + counter;
+                    div.attr('id', chart.containerId);
+                }
+                google.visualization.drawChart(chart);
+            });
+        }).catch(calli.error);
     }
 
     function getSecurity() {
@@ -173,41 +194,30 @@ jQuery(function($){
         });
     }
 
-    function chartRelative(asof, security, interval, expressions) {
-        var div = $('<div></div>');
-        $('#relative-div').append(div);
-        var counter = div.prevAll().length;
-        var id = 'relative-div-' + counter;
-        div.attr('id', id);
+    function chartRelative(asof, security, interval, expressions, counter) {
         var candlestick = ['date(asof)'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, 65, interval, asof).then(function(rows){
-            google.load('visualization', '1.0', {
-                packages: ['corechart'],
-                callback: function() {
-                    var colours = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
-                    var table = new google.visualization.DataTable();
-                    table.addColumn('date', 'Day');
-                    if (expressions) {
-                        expressions.forEach(function(expression){
-                            table.addColumn('number', expression);
-                        });
-                    }
-                    table.addRows(rows);
-                    google.visualization.drawChart({
-                        "containerId": id,
-                        "dataTable": table,
-                        "chartType": "ComboChart",
-                        "options": {
-                            seriesType: rows.length > 20 ? "line" : "bars",
-                            chartArea: {width: '70%', height: '90%'},
-                            colors: colours.slice(counter % colours.length, colours.length),
-                            height: 200,
-                            width: window.innerWidth
-                        }
-                    });
+            var colours = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
+            var table = new google.visualization.DataTable();
+            table.addColumn('date', 'Day');
+            if (expressions) {
+                expressions.forEach(function(expression){
+                    table.addColumn('number', expression);
+                });
+            }
+            table.addRows(rows);
+            return {
+                "dataTable": table,
+                "chartType": "ComboChart",
+                "options": {
+                    seriesType: rows.length > 20 ? "line" : "bars",
+                    chartArea: {width: '70%', height: '90%'},
+                    colors: colours.slice(counter % colours.length, colours.length),
+                    height: 200,
+                    width: window.innerWidth
                 }
-            });
+            };
         });
     }
 
@@ -215,44 +225,39 @@ jQuery(function($){
         var candlestick = ['date(asof)', 'low', 'open', 'close', 'high'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, 65, interval, asof).then(function(rows){
-            google.load('visualization', '1.0', {
-                packages: ['corechart'],
-                callback: function() {
-                    var table = new google.visualization.DataTable();
-                    table.addColumn('date', 'Day');
-                    table.addColumn('number', 'Price');
-                    table.addColumn('number');
-                    table.addColumn('number');
-                    table.addColumn('number');
-                    if (expressions) {
-                        expressions.forEach(function(expression){
-                            table.addColumn('number', expression);
-                        });
-                    }
-                    table.addRows(rows);
-                    google.visualization.drawChart({
-                        "containerId": "price-div",
-                        "dataTable": table,
-                        "chartType": "ComboChart",
-                        "options": {
-                            seriesType: "line",
-                            series: {0: {type: "candlesticks"}},
-                            chartArea: {width: '70%', height: '90%'},
-                            candlestick: {
-                                hollowIsRising: true,
-                                fallingColor: {
-                                    strokeWidth: 1
-                                },
-                                risingColor: {
-                                    strokeWidth: 1
-                                }
-                            },
-                            height: 400,
-                            width: window.innerWidth
+            var table = new google.visualization.DataTable();
+            table.addColumn('date', 'Day');
+            table.addColumn('number', 'Price');
+            table.addColumn('number');
+            table.addColumn('number');
+            table.addColumn('number');
+            if (expressions) {
+                expressions.forEach(function(expression){
+                    table.addColumn('number', expression);
+                });
+            }
+            table.addRows(rows);
+            return {
+                "containerId": "price-div",
+                "dataTable": table,
+                "chartType": "ComboChart",
+                "options": {
+                    seriesType: "line",
+                    series: {0: {type: "candlesticks"}},
+                    chartArea: {width: '70%', height: '90%'},
+                    candlestick: {
+                        hollowIsRising: true,
+                        fallingColor: {
+                            strokeWidth: 1
+                        },
+                        risingColor: {
+                            strokeWidth: 1
                         }
-                    });
+                    },
+                    height: 400,
+                    width: window.innerWidth
                 }
-            });
+            };
         });
     }
 
@@ -260,32 +265,27 @@ jQuery(function($){
         var candlestick = ['date(asof)', 'volume'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, 65, interval, asof).then(function(rows){
-            google.load('visualization', '1.0', {
-                packages: ['corechart'],
-                callback: function() {
-                    var table = new google.visualization.DataTable();
-                    table.addColumn('date', 'Day');
-                    table.addColumn('number', 'Volume');
-                    if (expressions) {
-                        expressions.forEach(function(expression){
-                            table.addColumn('number', expression);
-                        });
-                    }
-                    table.addRows(rows);
-                    google.visualization.drawChart({
-                        "containerId": "volume-div",
-                        "dataTable": table,
-                        "chartType": "ComboChart",
-                        "options": {
-                            seriesType: "line",
-                            series: {0: {type: "bars"}},
-                            chartArea: {width: '70%', height: '90%'},
-                            height: 200,
-                            width: window.innerWidth
-                        }
-                    });
+            var table = new google.visualization.DataTable();
+            table.addColumn('date', 'Day');
+            table.addColumn('number', 'Volume');
+            if (expressions) {
+                expressions.forEach(function(expression){
+                    table.addColumn('number', expression);
+                });
+            }
+            table.addRows(rows);
+            return {
+                "containerId": "volume-div",
+                "dataTable": table,
+                "chartType": "ComboChart",
+                "options": {
+                    seriesType: "line",
+                    series: {0: {type: "bars"}},
+                    chartArea: {width: '70%', height: '90%'},
+                    height: 200,
+                    width: window.innerWidth
                 }
-            });
+            };
         });
     }
 });
