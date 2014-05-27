@@ -68,10 +68,10 @@ jQuery(function($){
             if (suggestions.length != 1)
                 return;
             $('#backtesting-form button[type="submit"]').addClass('active');
-            return backtest(suggestions[0]).then(function(){
-                $('#backtesting-form button[type="submit"]').removeClass('active');
-            });
-        }).catch(calli.error);
+            return backtest(suggestions[0]);
+        }).catch(calli.error).then(function(){
+            $('#backtesting-form button[type="submit"]').removeClass('active');
+        });
     }).submit();
 
     $('#screen-form').submit(function(event){
