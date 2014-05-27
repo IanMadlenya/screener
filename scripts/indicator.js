@@ -72,7 +72,13 @@ jQuery(function($){
         }
     }).val(screener.getBacktestAsOfDateString());
 
-    $('#backtesting-form').submit(backtest);
+    $('#backtesting-form').submit(function(event){
+        event.preventDefault();
+        $('#backtesting-form').find('button[type="submit"]').addClass('active');
+        backtest().catch(calli.error).then(function(){
+            $('#backtesting-form').find('button[type="submit"]').removeClass('active');
+        });
+    });
 
     function validateExpression(){
         var group = $('#expression').closest('.form-group');
@@ -96,10 +102,7 @@ jQuery(function($){
         }
     }
 
-    function backtest(event) {
-        if (event) {
-            event.preventDefault();
-        }
+    function backtest() {
         $('#relative-div').empty();
         $('#price-div').empty();
         $('#volume-div').empty();
@@ -108,29 +111,31 @@ jQuery(function($){
         var interval = getInterval();
         var expr = getExpression();
         var unit = getUnit();
+        var promises = [];
         if (asof && security && interval) {
             var derivedFromRelative = getDerivedFrom('discrete').concat(getDerivedFrom('relative'));
             var derivedFromPrice = getDerivedFrom('price');
             var derivedFromVolume = getDerivedFrom('volume');
             if (unit == 'relative' || unit == 'discrete') {
-                chartRelative(asof, security, interval, [expr]);
+                promises.push(chartRelative(asof, security, interval, [expr]));
             }
             if (derivedFromRelative.length) {
                 derivedFromRelative.forEach(function(derivedFrom){
-                    chartRelative(asof, security, interval, [derivedFrom]);
+                    promises.push(chartRelative(asof, security, interval, [derivedFrom]));
                 });
             }
             if (unit == 'price') {
-                chartPrice(asof, security, interval, _.compact(_.union([expr], derivedFromPrice)));
+                promises.push(chartPrice(asof, security, interval, _.compact(_.union([expr], derivedFromPrice))));
             } else if (derivedFromPrice.length) {
-                chartPrice(asof, security, interval, derivedFromPrice);
+                promises.push(chartPrice(asof, security, interval, derivedFromPrice));
             }
             if (unit == 'volume') {
-                chartVolume(asof, security, interval, _.compact(_.union([expr], derivedFromVolume)));
+                promises.push(chartVolume(asof, security, interval, _.compact(_.union([expr], derivedFromVolume))));
             } else if (derivedFromVolume.length) {
-                chartVolume(asof, security, interval, derivedFromVolume);
+                promises.push(chartVolume(asof, security, interval, derivedFromVolume));
             }
         }
+        return Promise.all(promises).catch(calli.error);
     }
 
     function getSecurity() {
@@ -176,7 +181,7 @@ jQuery(function($){
         div.attr('id', id);
         var candlestick = ['date(asof)'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, 65, interval, asof).then(function(rows){
             google.load('visualization', '1.0', {
                 packages: ['corechart'],
                 callback: function() {
@@ -203,13 +208,13 @@ jQuery(function($){
                     });
                 }
             });
-        }).catch(calli.error);
+        });
     }
 
     function chartPrice(asof, security, interval, expressions) {
         var candlestick = ['date(asof)', 'low', 'open', 'close', 'high'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, 65, interval, asof).then(function(rows){
             google.load('visualization', '1.0', {
                 packages: ['corechart'],
                 callback: function() {
@@ -248,13 +253,13 @@ jQuery(function($){
                     });
                 }
             });
-        }).catch(calli.error);
+        });
     }
 
     function chartVolume(asof, security, interval, expressions) {
         var candlestick = ['date(asof)', 'volume'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, 65, interval, asof).then(function(rows){
             google.load('visualization', '1.0', {
                 packages: ['corechart'],
                 callback: function() {
@@ -281,6 +286,6 @@ jQuery(function($){
                     });
                 }
             });
-        }).catch(calli.error);
+        });
     }
 });
