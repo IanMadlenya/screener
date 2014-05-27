@@ -156,15 +156,15 @@ function filterSecurity(calculations, open, now, screens, asof, exchange, securi
                 var pass = intervalPoints.length == _.size(byInterval);
                 if (pass) {
                     var status = _.uniq(_.pluck(intervalPoints, 'status'));
-                    return _.extend(status, {
+                    return {
                         status: status.length == 1 ? status[0] : 'warning',
-                        quote: _.flatten(_.pluck(intervalPoints, "quote")),
+                        quote: _.compact(_.pluck(intervalPoints, "quote")),
                         result: _.reduce(_.pluck(intervalPoints, "result"), function(memo, value){
                             return _.extend(memo, value);
                         }, {
                             security: security
                         })
-                    });
+                    };
                 } else {
                     return null;
                 }
@@ -214,8 +214,6 @@ function loadFilteredPoint(calculations, open, now, asof, exchange, security, fa
 }
 
 function evaluateExpressions(calculations, open, failfast, security, exchange, interval, length, asof, now, expressions) {
-    var dec = subtractInterval.bind(this, exchange.tz, interval);
-    var after = dec(asof, length).toDate();
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     return new Promise(function(resolve, reject){
@@ -229,9 +227,7 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
         var store = db.transaction([interval]).objectStore(interval);
         return collectRange(failfast, security, exchange, interval, length + n - 1, asof, now, store);
     }).then(function(data) {
-        var startIndex = after ? findIndex(data.result, function(result){
-            return result.asof >= after;
-        }) || 0 : n - 1;
+        var startIndex = Math.max(data.result.length - length, 0);
         return _.extend(data, {
             result: _.map(_.range(startIndex, data.result.length), function(i) {
                 return _.map(calcs, function(calc){
@@ -267,7 +263,6 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
         cursor.onerror = reject;
         cursor.onsuccess = collect(length, function(result){
             result = result.reverse();
-            var dec = subtractInterval.bind(this, exchange.tz, interval);
             var inc = addInterval.bind(this, exchange.tz, interval);
             var next = result.length ? inc(result[result.length - 1].asof, 1) : null;
             var ticker = decodeURI(security.substring(exchange.iri.length + 1));
@@ -293,7 +288,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                         end: moment(now).tz(exchange.tz).format()
                     }]
                 });
-            } else if (result.length && result.length <= length) {
+            } else if (result.length && result.length < length) {
                 // need more historic data
                 return conclude({
                     status: failfast ? 'error' : 'warning',
@@ -305,8 +300,8 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                         ticker: ticker,
                         interval: interval,
                         result: result,
-                        start: dec(asof, length).format(),
-                        end: dec(result[0].asof, 1).format()
+                        start: inc(result[0].asof, -2 * (length - result.length)).format(),
+                        end: inc(result[0].asof, -1).format()
                     }]
                 });
             } else {
@@ -316,7 +311,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                 cursor.onsuccess = collect(1, function(arrayOfOne){
                     var earliest = arrayOfOne.length ? arrayOfOne[0] : null;
                     var thismoment = moment(now).tz(exchange.tz);
-                    var end = earliest ? dec(earliest.asof, 1) : thismoment;
+                    var end = earliest ? inc(earliest.asof, -1) : thismoment;
                     return reject({
                         status: 'error',
                         message: 'No data points available',
@@ -325,7 +320,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                             exchange: exchange,
                             ticker: ticker,
                             interval: interval,
-                            start: dec(asof, length).format(),
+                            start: inc(asof, -2 * length).format(),
                             end: end.format()
                         }]
                     });
@@ -380,7 +375,7 @@ function addInterval(tz, interval, latest, amount) {
         var w = Math.floor(units / 5);
         var d = units - w * 5;
         var day = local.add('weeks', w);
-        if (day.isoWeekday() + d < 6) {
+        if (d < 1 || day.isoWeekday() + d < 6) {
             return day.add('days', d);
         } else {
             // skip over weekend
@@ -446,34 +441,6 @@ function asCalculation(calculations, expressions) {
         }, []);
         return calculations[func].apply(calculations[func], args);
     });
-}
-
-function subtractInterval(tz, interval, latest, amount) {
-    var offset = parseInt(interval.substring(1), 10);
-    var local = moment(latest).tz(tz);
-    var unit;
-    if (interval.indexOf('d') === 0) {
-        var units = offset * (amount || 1);
-        var holidays = Math.ceil(units / 5 * 0.25);
-        var w = Math.floor(units / 5);
-        var d = units - w * 5 + holidays;
-        var day = local.subtract('weeks', w);
-        if (day.isoWeekday() - d > 0) {
-            return day.subtract('days', d);
-        } else {
-            // skip over weekend
-            return day.subtract('days', d + 2);
-        }
-    } else if (interval.indexOf('w') === 0) {
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return latest;
-    }
-    return local.subtract(unit, offset * (amount || 1));
 }
 
 function dispatch(handler, event){
