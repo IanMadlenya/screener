@@ -65,8 +65,7 @@ jQuery(function($){
     $('#backtesting-form').submit(function(event){
         event.preventDefault();
         screener.watchListLookup()($('#backtesting-list').val()).then(function(suggestions) {
-            if (suggestions.length != 1)
-                return;
+            if (suggestions.length < 1) return;
             $('#backtesting-form button[type="submit"]').addClass('active');
             return backtest(suggestions[0]);
         }).catch(calli.error).then(function(){
