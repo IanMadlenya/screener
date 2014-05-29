@@ -38,7 +38,6 @@ importScripts('../assets/moment/moment-timezone-data.js');
 importScripts('calculations.js'); // getCalculations
 
 self.addEventListener("connect", _.partial(function(calculations, open, event) {
-    var intervals = ['t144', 't233', 't610', 's120', 's300', 's600', 's1800', 's3600', 's14400', 'd1', 'w1', 'm1', 'm3', 'm12'];
     event.ports[0].onmessage = _.partial(dispatch, {
 
         close: function(event) {
@@ -60,15 +59,15 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
         },
 
         validate: function(event) {
-            return validateExpressions(calculations, intervals, event.data);
+            return validateExpressions(calculations, event.data);
         },
         'import': function(event) {
-            return importData(open.bind(this, intervals), Date.now(), event.data);
+            return importData(open, Date.now(), event.data);
         },
         load: function(event) {
             var data = event.data;
             var now = Date.now();
-            return loadData(calculations, open.bind(this, intervals), now,
+            return loadData(calculations, open, now,
                 data.asof, data.exchange, data.security, data.failfast,
                 data.expressions, data.length, data.interval
             );
@@ -76,19 +75,19 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
         screen: function(event){
             var data = event.data;
             var now = Date.now();
-            return filterSecurity(calculations, open.bind(this, intervals), now,
+            return filterSecurity(calculations, open, now,
                 data.screens, data.asof, data.exchange, data.security, data.failfast
             );
         }
     });
 }, getCalculations(), _.partial(openSymbolDatabase, indexedDB)), false);
 
-function validateExpressions(calculations, intervals, data) {
+function validateExpressions(calculations, data) {
     var calcs = asCalculation(calculations, [data.expression]);
     var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
     if (errorMessage) {
         throw new Error(errorMessage);
-    } else if (!data.interval || intervals.indexOf(data.interval) >= 0) {
+    } else if (!data.interval || ['d1', 'm12'].indexOf(data.interval) >= 0) {
         return {
             status: 'success'
         };
@@ -117,7 +116,7 @@ function importData(open, now, data) {
         return point.asof.valueOf() <= now;
     });
     return open(data.security).then(function(db) {
-        var store = db.transaction([data.interval], "readwrite").objectStore(data.interval);
+        var store = openStore(db, data.interval, "readwrite");
         return Promise.all(points.map(function(point){
             return new Promise(function(resolve, reject){
                 var op = store.put(point);
@@ -224,7 +223,7 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
             throw new Error(errorMessage);
         }
     }).then(open).then(function(db){
-        var store = db.transaction([interval]).objectStore(interval);
+        var store = openStore(db, interval, 'readonly');
         return collectRange(failfast, security, exchange, interval, length + n - 1, asof, now, store);
     }).then(function(data) {
         var startIndex = Math.max(data.result.length - length, 0);
@@ -239,7 +238,7 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
     });
 }
 
-function openSymbolDatabase(indexedDB, intervals, security) {
+function openSymbolDatabase(indexedDB, security) {
     return new Promise(function(resolve, reject) {
         var request = indexedDB.open(security);
         request.onsuccess = resolve;
@@ -247,13 +246,18 @@ function openSymbolDatabase(indexedDB, intervals, security) {
         request.onupgradeneeded = function(event) {
             var db = event.target.result;
             // Create an objectStore for this database
-            intervals.forEach(function(interval){
+            ['annual','quarter','day','minute'].forEach(function(interval){
                 db.createObjectStore(interval, { keyPath: "asof" });
             });
         };
     }).then(function(event){
         return event.target.result;
     });
+}
+
+function openStore(db, interval, mode) {
+    var store = interval == 'm12' ? 'annual' : 'day';
+    return db.transaction([store], mode).objectStore(store);
 }
 
 function collectRange(failfast, security, exchange, interval, length, asof, now, store) {
