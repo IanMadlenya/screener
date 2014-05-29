@@ -59,7 +59,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseMessage({
                 cmd: 'fields',
                 expressions: [event.data.expression]
-            }, services.mentat[key], key).then(_.property('result')).then(function(fields){
+            }, services.mentat[key], key).then(function(fields){
                 return Promise.all(_.map(services.quote, function(quote, key){
                     return promiseMessage({
                         cmd: 'validate',

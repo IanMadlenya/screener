@@ -12,5 +12,4 @@
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    calli:subscriber </auth/groups/everyone> ;
-    skos:narrower <s14400> .
+    calli:subscriber </auth/groups/everyone> .

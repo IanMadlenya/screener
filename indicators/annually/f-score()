@@ -11,6 +11,6 @@
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     calli:subscriber </auth/groups/everyone> ;
-    screener:hasInterval <../../intervals/m12> ;
+    screener:hasInterval <../../intervals/annual> ;
     screener:hasUnit <../../units/discrete> ;
     screener:isDerivedFrom <asset_turnover> , <current_ratio> , <gross_margin> , <long-term_debt> , <net_income_mil> , <operating_cash_flow_mil> , <return_on_assets> , <shares_mil> , <total_stockholders_equity> .

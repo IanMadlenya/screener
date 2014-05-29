@@ -58,11 +58,11 @@ describe("Screener", function(){
 
         these("should validate annual field", [
             'revenue_mil', 'gross_margin', 'operating_income_mil', 'operating_margin', 'net_income_mil', 'earnings_per_share_usd', 'dividends_usd', 'payout_ratio', 'shares_mil', 'book_value_per_share_usd', 'operating_cash_flow_mil', 'cap_spending_mil', 'free_cash_flow_mil', 'free_cash_flow_per_share_usd', 'working_capital_mil', 'revenue', 'cogs', 'gross_margin', 'sg&a', 'r&d', 'other', 'operating_margin', 'net_int_inc_other', 'ebt_margin', 'tax_rate', 'net_margin', 'asset_turnover', 'return_on_assets', 'financial_leverage', 'return_on_equity', 'return_on_invested_capital', 'interest_coverage', 'year_over_year_revenue', '3-year_average_revenue', '5-year_average_revenue', '10-year_average_revenue', 'year_over_year_operating_income', '3-year_average_operating_income', '5-year_average_operating_income', '10-year_average_operating_income', 'year_over_year_net_income', '3-year_average_net_income', '5-year_average_net_income', '10-year_average_net_income', 'year_over_year_eps', '3-year_average_eps', '5-year_average_eps', '10-year_average_eps', 'operating_cash_flow_growth_yoy', 'free_cash_flow_growth_yoy', 'cap_ex_as_a_of_sales', 'free_cash_flow_to_sales', 'free_cash_flow_to_net_income', 'cash_short-term_investments', 'accounts_receivable', 'inventory', 'other_current_assets', 'total_current_assets', 'net_pp&e', 'intangibles', 'other_long-term_assets', 'total_assets', 'accounts_payable', 'short-term_debt', 'taxes_payable', 'accrued_liabilities', 'other_short-term_liabilities', 'total_current_liabilities', 'long-term_debt', 'other_long-term_liabilities', 'total_liabilities', 'total_stockholders_equity', 'total_liabilities_equity', 'current_ratio', 'quick_ratio', 'financial_leverage', 'debt_to_equity', 'days_sales_outstanding', 'days_inventory', 'payables_period', 'cash_conversion_cycle', 'receivables_turnover', 'inventory_turnover', 'fixed_assets_turnover', 'asset_turnover'
-        ], isValid('m12'));
+        ], isValid('annual'));
 
         these("should validate annual expression", [
             "F-Score()"
-        ], isValid('m12'));
+        ], isValid('annual'));
     });
 
     describe("exchange list", function(){
@@ -285,7 +285,7 @@ describe("Screener", function(){
         ], loadQuotes);
         these("should return annually", [
             ['XNGS', 'MORN', ['date(asof)', 'revenue_mil', 'gross_margin', 'operating_income_mil', 'operating_margin', 'net_income_mil', 'earnings_per_share_usd', 'dividends_usd', 'payout_ratio', 'shares_mil', 'book_value_per_share_usd', 'operating_cash_flow_mil', 'cap_spending_mil', 'free_cash_flow_mil', 'free_cash_flow_per_share_usd', 'working_capital_mil', 'revenue', 'cogs', 'gross_margin', 'sg&a', 'r&d', 'other', 'operating_margin', 'net_int_inc_other', 'ebt_margin', 'tax_rate', 'net_margin', 'asset_turnover', 'return_on_assets', 'financial_leverage', 'return_on_equity', 'return_on_invested_capital', 'interest_coverage', 'year_over_year_revenue', '3-year_average_revenue', '5-year_average_revenue', '10-year_average_revenue', 'year_over_year_operating_income', '3-year_average_operating_income', '5-year_average_operating_income', '10-year_average_operating_income', 'year_over_year_net_income', '3-year_average_net_income', '5-year_average_net_income', '10-year_average_net_income', 'year_over_year_eps', '3-year_average_eps', '5-year_average_eps', '10-year_average_eps', 'operating_cash_flow_growth_yoy', 'free_cash_flow_growth_yoy', 'cap_ex_as_a_of_sales', 'free_cash_flow_to_sales', 'free_cash_flow_to_net_income', 'cash_short-term_investments', 'accounts_receivable', 'inventory', 'other_current_assets', 'total_current_assets', 'net_pp&e', 'intangibles', 'other_long-term_assets', 'total_assets', 'accounts_payable', 'short-term_debt', 'taxes_payable', 'accrued_liabilities', 'other_short-term_liabilities', 'total_current_liabilities', 'long-term_debt', 'other_long-term_liabilities', 'total_liabilities', 'total_stockholders_equity', 'total_liabilities_equity', 'current_ratio', 'quick_ratio', 'financial_leverage', 'debt_to_equity', 'days_sales_outstanding', 'days_inventory', 'payables_period', 'cash_conversion_cycle', 'receivables_turnover', 'inventory_turnover', 'fixed_assets_turnover', 'asset_turnover'],
-                3, 'm12', new Date(2014, 3, 1),
+                3, 'annual', new Date(2014, 3, 1),
                 [
                     // annual financials are expected at the end of the following two months
                     [new Date(2012, 1, 1),631,71.15,138,21.92,98,1.92,0.15,7.8,51,17.08,165,-23,142,2.78,341,100,28.85,71.15,34.02,8.42,6.8,21.92,0.27,22.19,31.16,15.58,0.56,8.71,1.37,12.03,12.03,undefined,13.69,7.91,14.91,21.34,14.34,-0.17,12.29,undefined,13.88,2.06,13.7,undefined,12.94,0.7,11.58,undefined,33.67,30.38,3.69,22.43,1.44,40.12,10.3,undefined,1.8,52.22,5.82,39.1,2.86,100,undefined,undefined,undefined,6.24,16.85,23.09,undefined,3.93,27.02,72.98,100,2.26,2.18,1.37,undefined,64.8,undefined,undefined,undefined,5.63,undefined,9.69,0.56],
@@ -302,7 +302,7 @@ describe("Screener", function(){
                 ]
             ]
         ], loadQuotes);
-        these("should find CWT.DB.B symbol", [
+        these("should find HSB.PR.C symbol", [
             ['XTSE', 'HSB.PR.C', ['date(asof)', 'open', 'high', 'low', 'close'],
                 1, 'd1', new Date(2014, 1, 1),
                 [
@@ -328,7 +328,7 @@ describe("Screener", function(){
         ], loadQuotes);
         these("should find C^K morningstar symbol", [
             ['XNYS', 'C^K', ['date(asof)', 'revenue_mil'],
-                1, 'm12', new Date(2014, 3, 1),
+                1, 'annual', new Date(2014, 3, 1),
                 [
                     [new Date(2014, 1, 1), 76366]
                 ]
@@ -336,7 +336,7 @@ describe("Screener", function(){
         ], loadQuotes);
         these("should find ADK^A morningstar symbol", [
             ['XASE', 'ADK^A', ['date(asof)', 'revenue_mil'],
-                1, 'm12', new Date(2014, 3, 1),
+                1, 'annual', new Date(2014, 3, 1),
                 [
                     [new Date(2014, 1, 1), 223]
                 ]
@@ -344,7 +344,7 @@ describe("Screener", function(){
         ], loadQuotes);
         these("should find AA^ morningstar symbol", [
             ['XASE', 'AA^', ['date(asof)', 'revenue_mil'],
-                1, 'm12', new Date(2014, 2, 1),
+                1, 'annual', new Date(2014, 2, 1),
                 [
                     [new Date(2014, 1, 1), 23032]
                 ]
@@ -409,7 +409,7 @@ describe("Screener", function(){
                 filters:[{
                     indicator:{
                         expression:"F-Score()",
-                        interval: "m12"
+                        interval: "annual"
                     },
                 }]
             }],new Date(2014, 3, 4)).then(function(result){

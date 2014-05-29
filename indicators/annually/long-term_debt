@@ -13,5 +13,5 @@ An excessive amount of long-term debt is dangerous, because the interest on that
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     calli:subscriber </auth/groups/everyone> ;
-    screener:hasInterval <../../intervals/m12> ;
+    screener:hasInterval <../../intervals/annual> ;
     screener:hasUnit <../../units/relative> .

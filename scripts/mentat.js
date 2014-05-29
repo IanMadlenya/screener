@@ -87,7 +87,7 @@ function validateExpressions(calculations, data) {
     var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
     if (errorMessage) {
         throw new Error(errorMessage);
-    } else if (!data.interval || ['d1', 'm12'].indexOf(data.interval) >= 0) {
+    } else if (!data.interval || ['m1', 'd1', 'quarter', 'annual'].indexOf(data.interval) >= 0) {
         return {
             status: 'success'
         };
@@ -256,7 +256,8 @@ function openSymbolDatabase(indexedDB, security) {
 }
 
 function openStore(db, interval, mode) {
-    var store = interval == 'm12' ? 'annual' : 'day';
+    var i = interval.charAt(0);
+    var store = i == 'd' ? 'day' : i == 'm' ? 'minute' : interval;
     return db.transaction([store], mode).objectStore(store);
 }
 
@@ -371,11 +372,13 @@ function preceding(array, len, endIndex) {
 }
 
 function addInterval(tz, interval, latest, amount) {
-    var offset = parseInt(interval.substring(1), 10);
     var local = moment(latest).tz(tz);
-    var unit;
-    if (interval.indexOf('d') === 0) {
-        var units = offset * (amount || 1);
+    if (interval == 'annual') {
+        return local.add('years', amount);
+    } else if (interval == 'quarter') {
+        return local.add('months', 3 * amount);
+    } else if (interval.charAt(0) == 'd') {
+        var units = parseInt(interval.substring(1), 10) * amount;
         var w = Math.floor(units / 5);
         var d = units - w * 5;
         var day = local.add('weeks', w);
@@ -385,39 +388,31 @@ function addInterval(tz, interval, latest, amount) {
             // skip over weekend
             return day.add('days', d + 2);
         }
-    } else if (interval.indexOf('w') === 0) {
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return latest;
+    } else if (interval.charAt(0) == 'm') {
+        var offset = parseInt(interval.substring(1), 10);
+        return local.add('minuets', offset * amount);
+    } else {
+        throw Error("Unknown interval: " + interval);
     }
-    return local.add(unit, offset * (amount || 1));
 }
 
 function startOfInterval(tz, interval, asof) {
-    var mod = parseInt(interval.substring(1), 10);
     var local = moment(asof).tz(tz);
-    var base, unit;
-    if (interval.indexOf('d') === 0) {
-        base = moment(local).startOf('isoWeek').isoWeek(1);
-        unit = 'days';
-    } else if (interval.indexOf('w') === 0) {
-        base = moment(local).startOf('isoWeek').isoWeek(1);
-        unit = 'weeks';
-    } else if (interval.indexOf('m') === 0) {
-        base = moment(local).startOf('year');
-        unit = 'months';
-    } else if (interval.indexOf('s') === 0) {
-        base = moment(local).startOf('day');
-        unit = 'seconds';
-    } else if (interval.indexOf('t') === 0) {
-        return local.format();
+    if (interval == 'annual') {
+        return moment(local).startOf('year');
+    } else if (interval == 'quarter') {
+        return moment(local).startOf('quarter');
+    } else if (interval.charAt(0) == 'd') {
+        var wk = moment(local).startOf('isoWeek').isoWeek(1);
+        var d = parseInt(interval.substring(1), 10);
+        return wk.add('days', Math.floor(local.diff(wk, 'days') / d) * d);
+    } else if (interval.charAt(0) == 'm') {
+        var day = moment(local).startOf('day').isoWeek(1);
+        var m = parseInt(interval.substring(1), 10);
+        return day.add('minutes', Math.floor(local.diff(day, 'minutes') / m) * m);
+    } else {
+        throw Error("Unknown interval: " + interval);
     }
-    var offset = Math.floor(local.diff(base, unit) / mod) * mod;
-    return base.add(unit, offset);
 }
 
 function asCalculation(calculations, expressions) {
