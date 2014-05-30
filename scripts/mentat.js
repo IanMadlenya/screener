@@ -226,6 +226,9 @@ function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, se
 }
 
 function evaluateExpressions(calculations, open, failfast, security, exchange, interval, length, asof, now, expressions) {
+    var i = interval.charAt(0);
+    var literal = i != 'd' && i != 'm' || interval.substring(1) == '1';
+    var floor = startOfInterval.bind(this, exchange.tz, interval);
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     return new Promise(function(resolve, reject){
@@ -237,7 +240,31 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
         }
     }).then(open).then(function(db){
         var store = openStore(db, interval, 'readonly');
-        return collectRange(failfast, security, exchange, interval, length + n - 1, asof, now, store);
+        var end = literal ? asof : floor(addInterval(exchange.tz, i + '1', asof, 1)).toDate();
+        var size = literal ? length + n - 1 : parseInt(interval.substring(1), 10) * (length + n - 1);
+        return collectRange(failfast, security, exchange, interval, size, end, now, store);
+    }).then(function(data){
+        if (literal) return data;
+        return _.extend(data, {
+            result: _.sortBy(_.map(_.groupBy(data.result, function(point){
+                return floor(point.asof);
+            }), function(points){
+                return _.reduce(points, function(preceding, point, index){
+                    if (!preceding) return point;
+                    return {
+                        asof: point.asof,
+                        open: preceding.open,
+                        close: point.close,
+                        adj_close: point.adj_close,
+                        high: Math.max(preceding.high, point.high),
+                        low: Math.min(preceding.low, point.low),
+                        volume: Math.round((preceding.volume * index + point.volume) / (index + 1))
+                    };
+                }, null);
+            }), function(point) {
+                return point.asof.valueOf();
+            })
+        });
     }).then(function(data) {
         var startIndex = Math.max(data.result.length - length, 0);
         return _.extend(data, {
@@ -417,7 +444,9 @@ function startOfInterval(tz, interval, asof) {
         return moment(local).startOf('quarter');
     } else if (interval.charAt(0) == 'd') {
         var wk = moment(local).startOf('isoWeek').isoWeek(1);
-        var d = parseInt(interval.substring(1), 10);
+        var num = parseInt(interval.substring(1), 10);
+        var w = Math.floor(num / 5);
+        var d = w * 7 + num - w * 5;
         return wk.add('days', Math.floor(local.diff(wk, 'days') / d) * d);
     } else if (interval.charAt(0) == 'm') {
         var day = moment(local).startOf('day').isoWeek(1);
