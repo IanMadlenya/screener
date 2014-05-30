@@ -75,9 +75,9 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
         screen: function(event){
             var data = event.data;
             var now = Date.now();
-            return filterSecurity(calculations, open, now,
-                data.screens, data.asof, data.exchange, data.security, data.failfast
-            );
+            var load = loadFilteredPoint.bind(this, calculations, open, now,
+                data.failfast, data.asof);
+            return filterSecurity(load, data.exchange, data.security, data.screens);
         }
     });
 }, getCalculations(), _.partial(openSymbolDatabase, indexedDB)), false);
@@ -145,30 +145,23 @@ function loadData(calculations, open, now, asof, exchange, security, failfast, e
     });
 }
 
-function filterSecurity(calculations, open, now, screens, asof, exchange, security, failfast){
+function filterSecurity(load, exchange, security, screens){
     return Promise.all(screens.map(function(screen) {
-        var getInterval = _.compose(_.property('interval'), _.property('indicator'));
-        return Promise.resolve(_.groupBy(screen.filters, getInterval)).then(function(byInterval){
-            return Promise.all(_.map(byInterval,
-                loadFilteredPoint.bind(this, calculations, open, now, asof, exchange, security, failfast)
-            )).then(_.compact).then(function(intervalPoints) {
-                var pass = intervalPoints.length == _.size(byInterval);
-                if (pass) {
-                    var status = _.uniq(_.pluck(intervalPoints, 'status'));
+        return reduceFilters(screen.filters, function(promise, filters, interval){
+            return promise.then(function(memo){
+                if (!memo) return memo;
+                return load(exchange, security, filters, interval).then(function(point){
+                    if (!point) return point;
                     return {
-                        status: status.length == 1 ? status[0] : 'warning',
-                        quote: _.compact(_.pluck(intervalPoints, "quote")),
-                        result: _.reduce(_.pluck(intervalPoints, "result"), function(memo, value){
-                            return _.extend(memo, value);
-                        }, {
+                        status: !memo.status || memo.status == point.status ? point.status : 'warning',
+                        quote: _.compact(_.flatten([memo.quote, point.quote])),
+                        result: _.extend(memo.result || {
                             security: security
-                        })
+                        }, point.result)
                     };
-                } else {
-                    return null;
-                }
+                });
             });
-        });
+        }, Promise.resolve({}));
     })).then(function(orResults) {
         return orResults.reduce(function(memo, point) {
             return memo || point;
@@ -182,7 +175,27 @@ function filterSecurity(calculations, open, now, screens, asof, exchange, securi
     });
 }
 
-function loadFilteredPoint(calculations, open, now, asof, exchange, security, failfast, filters, interval) {
+function reduceFilters(filters, iterator, memo){
+    var getInterval = _.compose(_.property('interval'), _.property('indicator'));
+    var byInterval = _.groupBy(filters, getInterval);
+    var intervals = _.keys(byInterval).sort(function(i1, i2){
+        if (i1 == i2) return 0;
+        if (i1 == 'annual') return -1;
+        if (i2 == 'annual') return 1;
+        if (i1 == 'quarter') return -1;
+        if (i2 == 'quarter') return 1;
+        if (i1.charAt(0) < i2.charAt(0)) return -1;
+        if (i1.charAt(0) > i2.charAt(0)) return 1;
+        var n1 = parseInt(i1.substring(1), 10);
+        var n2 = parseInt(i2.substring(2), 10);
+        return n2 - n1;
+    });
+    return _.reduce(intervals, function(memo, interval){
+        return iterator(memo, byInterval[interval], interval);
+    }, memo);
+}
+
+function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, security, filters, interval) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
     return loadData(calculations, open, now, asof, exchange, security, failfast, expressions, 1, interval).then(function(data){
         if (data.result.length < 1) return Promise.reject(_.extend(data, {
