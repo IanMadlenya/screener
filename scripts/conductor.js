@@ -222,8 +222,6 @@ function retryAfterImport(services, data, port, worker, load) {
                 });
             }));
         })).then(_.flatten).then(_.compact).then(function(imported){
-            if (load && imported.length == 0)
-                return Promise.reject(error); // didn't load anything, but asked
             return promiseMessage(data, port, worker).catch(function(error){
                 if (error.status == 'warning') {
                     // just use what we have
