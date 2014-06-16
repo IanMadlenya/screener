@@ -278,7 +278,9 @@ jQuery(function($){
             var data = new google.visualization.DataTable();
             data.addColumn('string', indicator.expression);
             data.addColumn('number', 'Securities');
-            var values = _.pluck(points, indicator.expression);
+            var values = _.reject(_.pluck(points, indicator.expression), function(num) {
+                return num === NaN || num === Infinity;
+            });
             if (indicator.hasUnit.indexOf('discrete') >= 0) {
                 var countBy = _.countBy(values, _.identity);
                 var rows = _.sortBy(_.zip(_.keys(countBy), _.values(countBy)), function(row){
