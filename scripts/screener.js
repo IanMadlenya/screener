@@ -430,10 +430,6 @@
                 return Promise.reject(event.data);
             }
         }).catch(function(error){
-            if (error.toString == Object.prototype.toString)
-                return Promise.reject(_.extend(error, {
-                    toString: _.property('message').bind(this, error)
-                }));
             return Promise.reject(error);
         });
     }

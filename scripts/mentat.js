@@ -87,7 +87,7 @@ function validateExpressions(calculations, data) {
     var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
     if (errorMessage) {
         throw new Error(errorMessage);
-    } else if (!data.interval || ['m1', 'd1', 'quarter', 'annual'].indexOf(data.interval) >= 0) {
+    } else if (!data.interval || data.interval.match(/^quarter$|^annual$|^d\d$|^m\d+$/)) {
         return {
             status: 'success'
         };
@@ -242,7 +242,9 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
         var store = openStore(db, interval, 'readonly');
         var end = literal ? asof : floor(addInterval(exchange.tz, i + '1', asof, 1)).toDate();
         var size = literal ? length + n - 1 : parseInt(interval.substring(1), 10) * (length + n - 1);
-        return collectRange(failfast, security, exchange, interval, size, end, now, store);
+        var rootInterval = literal ? interval : i + 1;
+        var inc = addInterval.bind(this, exchange.tz, interval);
+        return collectRange(failfast, security, exchange, rootInterval, size, end, now, inc, store);
     }).then(function(data){
         if (literal) return data;
         return _.extend(data, {
@@ -301,14 +303,13 @@ function openStore(db, interval, mode) {
     return db.transaction([store], mode).objectStore(store);
 }
 
-function collectRange(failfast, security, exchange, interval, length, asof, now, store) {
+function collectRange(failfast, security, exchange, interval, length, asof, now, inc, store) {
     return new Promise(function(resolve, reject){
         var conclude = failfast ? reject : resolve;
         var cursor = store.openCursor(IDBKeyRange.upperBound(asof), "prev");
         cursor.onerror = reject;
         cursor.onsuccess = collect(length, function(result){
             result = result.reverse();
-            var inc = addInterval.bind(this, exchange.tz, interval);
             var next = result.length ? inc(result[result.length - 1].asof, 1) : null;
             var ticker = decodeURI(security.substring(exchange.iri.length + 1));
             if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
