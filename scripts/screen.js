@@ -120,14 +120,16 @@ jQuery(function($){
                                 return point.security.indexOf(exchange.iri) === 0;
                             })[0];
                             var symbol = point.security.substring(exchange.iri.length + 1);
+                            var target = $('#screen-form').length ? '_blank' : "_self";
                             return $('<tr></tr>')
                                 .append($('<td></td>').append($('<a></a>',{
                                     href: point.security,
-                                    target: $('#screen-form').length ? '_blank' : "_self"
+                                    target: target
                                 }).text(symbol)))
                                 .append(_.map(filters, function(filter) {
                                     return $('<td></td>').append($('<a></a>',{
                                         href: filter.indicator.iri + '#!' + point.security,
+                                        target: target,
                                         "data-value": point[filter.indicator.expression]
                                     }).text(screener.formatNumber(screener.pceil(point[filter.indicator.expression], 3))));
                                 }));
