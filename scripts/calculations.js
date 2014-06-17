@@ -1,6 +1,5 @@
 // calculations.js
 /* 
-/* 
  *  Copyright (c) 2014 James Leigh, Some Rights Reserved
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -96,9 +95,7 @@ function getCalculations() {
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
-                getFields: function() {
-                    return calc.getFields();
-                },
+                getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
                     return n + calc.getDataLength() - 1;
                 },
@@ -116,9 +113,7 @@ function getCalculations() {
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
-                getFields: function() {
-                    return calc.getFields();
-                },
+                getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
                     return n + calc.getDataLength() - 1;
                 },
@@ -159,14 +154,29 @@ function getCalculations() {
                         return short.getErrorMessage();
                     return long.getErrorMessage();
                 },
-                getFields: function() {
-                    return long.getFields();
-                },
+                getFields: long.getFields.bind(long),
                 getDataLength: function() {
                     return Math.max(short.getDataLength(), long.getDataLength());
                 },
                 getValue: function(points) {
                     return getValue(short, points) - getValue(long, points);
+                }
+            };
+        },
+        /* Percentage Previous Oscillator */
+        PPO: function(field) {
+            var calc = getCalculation(field, arguments, 1);
+            return {
+                getErrorMessage: calc.getErrorMessage.bind(calc),
+                getFields: calc.getFields.bind(calc),
+                getDataLength: function() {
+                    return 1 + calc.getDataLength();
+                },
+                getValue: function(points) {
+                    if (points.length < 2) return 0;
+                    var current = getValue(calc, points);
+                    var previous = getValue(calc, points.slice(0, points.length - 1));
+                    return (current - previous) * 100 / previous;
                 }
             };
         },
@@ -179,9 +189,7 @@ function getCalculations() {
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
-                getFields: function() {
-                    return calc.getFields();
-                },
+                getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
                     return n + calc.getDataLength();
                 },
@@ -279,9 +287,7 @@ function getCalculations() {
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
-                getFields: function() {
-                    return calc.getFields();
-                },
+                getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
                     return n + calc.getDataLength() - 1;
                 },
@@ -300,9 +306,7 @@ function getCalculations() {
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
-                getFields: function() {
-                    return calc.getFields();
-                },
+                getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
                     return n * 10 + calc.getDataLength() - 1;
                 },

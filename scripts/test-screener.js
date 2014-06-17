@@ -305,6 +305,15 @@ describe("Screener", function(){
                 ]
             ]
         ], loadQuotes);
+        these("should return year over year", [
+            ['XNGS', 'MORN', ['date(asof)', 'PPO(earnings_per_share)'],
+                1, 'annual', new Date(2013, 3, 1),
+                [
+                    // annual financials are expected at the end of the following two months
+                    [new Date(2013, 1, 1),14.583333333333346]
+                ]
+            ]
+        ], loadQuotes);
         these("should find ET symbol", [
             ['XTSE', 'ET', ['date(asof)', 'open', 'high', 'low', 'close'],
                 1, 'd1', new Date(2014, 1, 1),
