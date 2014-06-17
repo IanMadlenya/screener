@@ -281,7 +281,7 @@ jQuery(function($){
             data.addColumn('string', indicator.expression);
             data.addColumn('number', 'Securities');
             var values = _.reject(_.pluck(points, indicator.expression), function(num) {
-                return num === NaN || num === Infinity;
+                return isNaN(num) || num === Infinity;
             });
             if (indicator.hasUnit.indexOf('discrete') >= 0) {
                 var countBy = _.countBy(values, _.identity);

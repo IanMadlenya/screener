@@ -211,10 +211,14 @@ function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, se
             if (!pass)
                 return false;
             var value = data.result[filter.indicator.expression];
-            if (filter.min && value < filter.min)
-                return false;
-            if (filter.max && filter.max < value)
-                return false;
+            if (filter.min || filter.min === 0) {
+                if (isNaN(value) || value < +filter.min)
+                    return false;
+            }
+            if (filter.max || filter.max === 0) {
+                if (isNaN(value) || +filter.max < value)
+                    return false;
+            }
             return pass;
         }, true);
         if (pass) {
