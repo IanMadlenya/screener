@@ -6,9 +6,10 @@
 
 <> a </callimachus/1.3/types/Concept> , skos:Concept ;
     dcterms:created "2014-03-17T18:51:45.564Z"^^xsd:dateTime ;
-    dcterms:modified "2014-03-17T18:52:03.744Z"^^xsd:dateTime , "2014-03-29T00:57:34.203Z"^^xsd:dateTime ;
+    dcterms:modified "2014-03-17T18:52:03.744Z"^^xsd:dateTime , "2014-03-29T00:57:34.203Z"^^xsd:dateTime , "2014-06-16T15:19:00.845Z"^^xsd:dateTime ;
     skos:prefLabel "Annually" ;
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    calli:subscriber </auth/groups/everyone> .
+    calli:subscriber </auth/groups/everyone> ;
+    skos:narrower <quarter> .
