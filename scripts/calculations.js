@@ -173,7 +173,7 @@ function getCalculations() {
                     return 1 + calc.getDataLength();
                 },
                 getValue: function(points) {
-                    if (points.length < 2) return 0;
+                    if (points.length < 2) return undefined;
                     var current = getValue(calc, points);
                     var previous = getValue(calc, points.slice(0, points.length - 1));
                     return (current - previous) * 100 / previous;
