@@ -4,7 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "Yesterday's On Balance Volume as a percentage of the lowest price low in the last 40 days" ;
+    rdfs:comment "Yesterday's On Balance Volume as a percentage of the previous maximum in the last 40 days" ;
     rdfs:label "40-day Percentage Max On Balance Volume" ;
     screener:expression "PMO(40,OBV,40)" ;
     calli:administrator </auth/groups/admin> ;
