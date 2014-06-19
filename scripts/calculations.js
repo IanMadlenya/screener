@@ -227,24 +227,25 @@ function getCalculations() {
                 }
             };
         },
-        /* Percentage Low Oscillator */
-        PLO: function(n) {
+        /* Percentage of Low */
+        PLOW: function(n, field) {
+            var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
                     if (!_.isNumber(n) || n <= 0)
                         return "Must be a positive integer: " + n;
-                    return null;
+                    return calc.getErrorMessage();
                 },
                 getFields: function() {
-                    return ['low', 'close'];
+                    return ['low'].concat(calc.getFields());
                 },
                 getDataLength: function() {
-                    return n;
+                    return n + calc.getDataLength();
                 },
                 getValue: function(points) {
                     var lowest = _.min(_.pluck(points, 'low'));
-                    var close = _.last(points).close;
-                    return (close - lowest) * 100 / lowest;
+                    var value = getValue(calc, points);
+                    return (value - lowest) * 100 / lowest;
                 }
             };
         },
