@@ -164,19 +164,23 @@ function getCalculations() {
             };
         },
         /* Percentage Previous Oscillator */
-        PPO: function(field) {
-            var calc = getCalculation(field, arguments, 1);
+        PPO: function(n, field) {
+            var calc = getCalculation(field, arguments, 2);
             return {
-                getErrorMessage: calc.getErrorMessage.bind(calc),
+                getErrorMessage: function() {
+                    if (!_.isNumber(n) || n <= 0)
+                        return "Must be a positive integer: " + n;
+                    return calc.getErrorMessage();
+                },
                 getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
-                    return 1 + calc.getDataLength();
+                    return n + calc.getDataLength();
                 },
                 getValue: function(points) {
-                    if (points.length < 2) return undefined;
+                    if (points.length <= n) return undefined;
                     var current = getValue(calc, points);
-                    var previous = getValue(calc, points.slice(0, points.length - 1));
-                    return (current - previous) * 100 / previous;
+                    var previous = getValue(calc, points.slice(0, points.length - n));
+                    return (current - previous) * 100 / Math.abs(previous);
                 }
             };
         },
