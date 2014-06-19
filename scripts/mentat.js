@@ -187,7 +187,7 @@ function reduceFilters(filters, iterator, memo){
         if (i1.charAt(0) < i2.charAt(0)) return -1;
         if (i1.charAt(0) > i2.charAt(0)) return 1;
         var n1 = parseInt(i1.substring(1), 10);
-        var n2 = parseInt(i2.substring(2), 10);
+        var n2 = parseInt(i2.substring(1), 10);
         return n2 - n1;
     });
     return _.reduce(intervals, function(memo, interval){
