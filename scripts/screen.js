@@ -124,6 +124,8 @@ jQuery(function($){
                         $('<tbody></tbody>').append(_.map(_.sortBy(result, function(point){
                             return point.security;
                         }), function(point){
+                            var self = $('body').attr("resource");
+                            var suffix = self ? ('#!' + self) : '';
                             var exchange = exchanges.filter(function(exchange){
                                 return point.security.indexOf(exchange.iri) === 0;
                             })[0];
@@ -131,7 +133,7 @@ jQuery(function($){
                             var target = $('#screen-form').length ? '_blank' : "_self";
                             return $('<tr></tr>')
                                 .append($('<td></td>').append($('<a></a>',{
-                                    href: point.security,
+                                    href: point.security + suffix,
                                     target: target
                                 }).text(symbol)))
                                 .append(_.map(filters, function(filter) {
