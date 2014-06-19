@@ -116,7 +116,7 @@ function importData(open, now, data) {
         return point.asof.valueOf() <= now;
     });
     return open(data.security).then(function(db) {
-        var store = openStore(db, data.interval, "readwrite");
+        var store = openStore(db, data.period, "readwrite");
         return Promise.all(points.map(function(point){
             return new Promise(function(resolve, reject){
                 var op = store.put(point);

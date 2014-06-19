@@ -218,7 +218,7 @@ function retryAfterImport(services, data, port, worker, load) {
                     return promiseMessage({
                         cmd: 'import',
                         security: request.security,
-                        interval: request.interval,
+                        period: request.period,
                         exchange: request.exchange,
                         points: data.result
                     }, port, worker);
