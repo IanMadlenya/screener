@@ -148,7 +148,7 @@ function screenSecurities(services, event) {
         var groups = _.groupBy(_.compact(result), function(obj){
             return obj.status && obj.status != 'success' ? 'error' : 'result';
         });
-        var success = _.isEqual(['result'], _.keys(groups));
+        var success = _.keys(groups).indexOf('error') < 0;
         var warning =  groups.result && groups.error;
         return _.extend({
             status: success ? 'success' : warning ? 'warning' : 'error',

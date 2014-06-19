@@ -168,7 +168,7 @@ function filterSecurity(load, exchange, security, screens){
         }, null);
     }).then(function(point){
         // if no screens are provide, just return the security
-        return point || screens.length === 0 && {
+        return !_.isEmpty(point) && point || screens.length === 0 && {
             status: 'success',
             result: {security: security}
         } || {status: 'success'};
