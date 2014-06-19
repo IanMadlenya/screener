@@ -75,10 +75,18 @@ jQuery(function($){
 
     $('#screen-form').submit(function(event){
         var prefix = $(this).attr('resource') || '';
-        $('[rel="screener:hasFilter"]').each(function(){
+        var filters = $('[rel="screener:hasFilter"]');
+        var counter = _.max([35].concat(filters.toArray().map(function(filter){
+            return filter.getAttribute("resource");
+        }).filter(function(iri){
+            return iri.match(/#\w\w$/);
+        }).map(function(iri){
+            return parseInt(iri.substring(iri.lastIndexOf('#') + 1), 36);
+        })));
+        filters.each(function(){
             var indicator = $(this).find('[rel="screener:forIndicator"]').attr("resource");
             if (indicator) {
-                $(this).attr("resource", prefix + "#" + localPart(indicator));
+                $(this).attr("resource", prefix + "#" + (++counter).toString(36));
             } else {
                 $(this).remove();
             }
@@ -300,7 +308,7 @@ jQuery(function($){
                 var rows = _.map(_.sortBy(_.zip(_.map(_.keys(countBy), function(key) {
                     return parseInt(key, 10);
                 }), _.values(countBy)), _.property(0)), function(row) {
-                    return [screener.formatNumber(row[0]) + ' - ' + screener.formatNumber(row[0] + interval), row[1]];
+                    return [screener.formatNumber(row[0]) + ' – ' + screener.formatNumber(row[0] + interval), row[1]];
                 });
                 data.addRows(rows);
             }
