@@ -246,9 +246,9 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
         var store = openStore(db, interval, 'readonly');
         var end = literal ? asof : floor(addInterval(exchange.tz, i + '1', asof, 1)).toDate();
         var size = literal ? length + n - 1 : parseInt(interval.substring(1), 10) * (length + n - 1);
-        var rootInterval = literal ? interval : i + 1;
+        var period = i == 'd' ? 'day' : i == 'm' ? 'minute' : interval;
         var inc = addInterval.bind(this, exchange.tz, interval);
-        return collectRange(failfast, security, exchange, rootInterval, size, end, now, inc, store);
+        return collectRange(failfast, security, exchange, period, size, end, now, inc, store);
     }).then(function(data){
         if (literal) return data;
         return _.extend(data, {
@@ -307,7 +307,7 @@ function openStore(db, interval, mode) {
     return db.transaction([store], mode).objectStore(store);
 }
 
-function collectRange(failfast, security, exchange, interval, length, asof, now, inc, store) {
+function collectRange(failfast, security, exchange, period, length, asof, now, inc, store) {
     return new Promise(function(resolve, reject){
         var conclude = failfast ? reject : resolve;
         var cursor = store.openCursor(IDBKeyRange.upperBound(asof), "prev");
@@ -332,7 +332,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                         security: security,
                         exchange: exchange,
                         ticker: ticker,
-                        interval: interval,
+                        period: period,
                         result: result,
                         start: next.format(),
                         end: moment(now).tz(exchange.tz).format()
@@ -348,7 +348,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                         security: security,
                         exchange: exchange,
                         ticker: ticker,
-                        interval: interval,
+                        period: period,
                         result: result,
                         start: inc(result[0].asof, -2 * (length - result.length)).format(),
                         end: inc(result[0].asof, -1).format()
@@ -369,7 +369,7 @@ function collectRange(failfast, security, exchange, interval, length, asof, now,
                             security: security,
                             exchange: exchange,
                             ticker: ticker,
-                            interval: interval,
+                            period: period,
                             start: inc(asof, -2 * length).format(),
                             end: end.format()
                         }]

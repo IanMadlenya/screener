@@ -55,6 +55,9 @@ self.addEventListener("connect", _.partial(function(services, event) {
         }).bind(this, services),
 
         validate: (function(services, event){
+            var interval = event.data.interval;
+            var i = interval.charAt(0);
+            var period = i == 'd' ? 'day' : i == 'm' ? 'minute' : interval;
             var key = getWorker(services.mentat, event.data.expression);
             return promiseMessage({
                 cmd: 'fields',
@@ -63,7 +66,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
                 return Promise.all(_.map(services.quote, function(quote, key){
                     return promiseMessage({
                         cmd: 'validate',
-                        interval: event.data.interval,
+                        period: period,
                         fields: _.without(fields, 'asof')
                     }, quote, key).catch(Promise.resolve);
                 }));
