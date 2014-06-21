@@ -87,6 +87,12 @@ self.addEventListener("connect", _.partial(function(services, event) {
             });
         }).bind(this, services),
 
+        increment: function(event) {
+            var data = event.data;
+            var worker = getWorker(services.mentat, data.asof.toString());
+            return promiseMessage(data, services.mentat[worker], worker);
+        },
+
         'exchange-list': _.memoize(function(event) {
             return promiseJSON('../queries/exchange-list.rq?tqx=out:table')
                 .then(tableToObjectArray)

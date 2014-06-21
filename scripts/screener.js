@@ -240,30 +240,120 @@
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
             screen: function(watchLists, screens, asof, load) {
-                return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
-                    return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
-                }).then(function(watchLists) {
-                    return Promise.all(screens.map(inlineScreen)).then(function(screens){
-                        return Promise.all(screens.map(inlineIndicator));
-                    }).then(function(screens){
-                        return postDispatchMessage({
-                            cmd: 'screen',
-                            watchLists: watchLists,
-                            screens: screens,
-                            asof: asof,
-                            load: load
-                        }).catch(function(error){
-                            if (error.status == 'warning' && load !== false)
-                                return error.result;
-                            // tell caller to try again with load = true
-                            return Promise.reject(error);
+                var next = 0;
+                var iterating = [asof];
+                var promise = Promise.resolve();
+                var message = inlineScreenMessage(watchLists, screens, load);
+                var push = pushIncrementedAsof.bind(this, message, postDispatchMessage, [], iterating);
+                return {
+                    next: function(){
+                        var index = next++;
+                        promise = promise.catch(function(){
+                            // ignore previous errors
+                        }).then(function(){
+                            return message.then(function(data){
+                                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
+                            });
                         });
-                    });
-                });
+                        return {
+                            value: promise,
+                            done: false
+                        };
+                    }
+                };
             }
 
         });
     })(synchronized(postMessage.bind(this, _.once(createDispatchPort))));
+
+    function inlineScreenMessage(watchLists, screens, load) {
+        return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
+            return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
+        }).then(function(watchLists) {
+            return Promise.all(screens.map(inlineScreen)).then(function(screens){
+                return Promise.all(screens.map(inlineIndicator));
+            }).then(function(screens){
+                var filters = ['asof', 'open', 'close'].map(function(expression){
+                    return {
+                        indicator: {
+                            expression: expression,
+                            interval: 'd1'
+                        }
+                    };
+                });
+                return screens.map(function(screen){
+                    return _.extend({}, screen, {
+                        filters: [].concat(screen.filters).concat(filters)
+                    });
+                });
+            }).then(function(screens){
+                return {
+                    cmd: 'screen',
+                    watchLists: watchLists,
+                    screens: screens,
+                    load: load
+                };
+            });
+        });
+    }
+
+    function pushIncrementedAsof(message, postDispatchMessage, exchanges, iterating, asof, result){
+        return message.then(function(data){
+            if (!exchanges.length) {
+                _.values(_.indexBy(_.pluck(data.watchLists, 'exchange'), 'iri')).reduce(function(exchanges, exchange){
+                    exchanges.push(exchange);
+                }, exchanges);
+            }
+        }).then(function(){
+            return postDispatchMessage({
+                cmd: 'increment',
+                asof: result && result.length && result[0].asof || asof,
+                interval: 'd1',
+                exchanges: exchanges
+            });
+        }).then(function(incremented){
+            if (incremented.valueOf() > asof.valueOf()) {
+                iterating.push(incremented);
+                return Promise.resolve(result);
+            }
+            return postDispatchMessage({
+                cmd: 'increment',
+                asof: asof,
+                interval: 'd1',
+                exchanges: exchanges
+            }).then(function(incremented){
+                iterating[iterating.length - 1] = incremented;
+            }).then(function(){
+                return Promise.reject(result);
+            });
+        });
+    }
+
+    function postThenPush(postDispatchMessage, push, load, data, iterating, index){
+        var asof = iterating[index];
+        return new Promise(function(callback){
+            var now = Date.now();
+            if (asof.valueOf() <= now) return callback();
+            setTimeout(callback, asof.valueOf() - now);
+        }).then(function(){
+            return postDispatchMessage(_.extend({
+                asof: asof
+            }, data));
+        }).then(function(result){
+            return push(asof, result).catch(function(){
+                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
+            });
+        }, function(error){
+            return push(asof, error).then(function(error){
+                if (error.status == 'warning' && load !== false)
+                    return error.result;
+                // tell caller to try again with load = true
+                return Promise.reject(error);
+            }, function(){
+                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
+            });
+        });
+    }
 
     function getExchange(iri) {
         return screener.exchangeLookup()(iri).then(onlyOne);

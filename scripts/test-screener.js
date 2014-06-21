@@ -407,7 +407,7 @@ describe("Screener", function(){
                     },
                     min:"500000"
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4)).next().value.then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['SMA(60,volume)']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -424,7 +424,7 @@ describe("Screener", function(){
                         interval: "annual"
                     },
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4)).next().value.then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['F-Score()']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -437,9 +437,59 @@ describe("Screener", function(){
                 includes:""
             }],
             [],
-            new Date(2014, 3, 4)).then(function(result){
+            new Date(2014, 3, 4)).next().value.then(function(result){
                 expect(result).not.toEqual([]);
             }).then(done, unexpected(done));
         });
+        these("should iterate 18 days", [
+            ["NASDAQ Global Select Market", "YHOO", ['date(asof)', 'open', 'high', 'low', 'close'],
+                18, 'd1',new Date(2014,0,3),
+                [
+                    [new Date(2014, 0, 2),40.37,40.49,39.31,39.59],
+                    [new Date(2014, 0, 3),40.16,40.44,39.82,40.12],
+                    [new Date(2014, 0, 6),40.05,40.32,39.75,39.93],
+                    [new Date(2014, 0, 7),40.08,41.20,40.08,40.92],
+                    [new Date(2014, 0, 8),41.29,41.72,41.02,41.02],
+                    [new Date(2014, 0, 9),41.33,41.35,40.61,40.92],
+                    [new Date(2014, 0, 10),40.95,41.35,40.82,41.23],
+                    [new Date(2014, 0, 13),41.16,41.22,39.80,39.99],
+                    [new Date(2014, 0, 14),40.21,41.14,40.04,41.14],
+                    [new Date(2014, 0, 15),41.06,41.31,40.76,41.07],
+                    [new Date(2014, 0, 16),40.43,40.75,40.11,40.34],
+                    [new Date(2014, 0, 17),40.12,40.44,39.47,40.01],
+                    // Martin Luther King Jr. Day -- Mon January 20, 2014
+                    [new Date(2014, 0, 21),39.98,40.05,38.86,39.52]
+                ]
+            ]
+        ], screenIterator);
+        these("should iterate 21 days", [
+            ["NASDAQ Global Select Market", "YHOO", ['date(asof)', 'open', 'high', 'low', 'close'],
+                21, 'd1',new Date(2014,0,3),
+                [
+                    [new Date(2014, 0, 2),40.37,40.49,39.31,39.59],
+                    [new Date(2014, 0, 3),40.16,40.44,39.82,40.12],
+                    [new Date(2014, 0, 6),40.05,40.32,39.75,39.93],
+                    [new Date(2014, 0, 7),40.08,41.20,40.08,40.92],
+                    [new Date(2014, 0, 8),41.29,41.72,41.02,41.02],
+                    [new Date(2014, 0, 9),41.33,41.35,40.61,40.92],
+                    [new Date(2014, 0, 10),40.95,41.35,40.82,41.23],
+                    [new Date(2014, 0, 13),41.16,41.22,39.80,39.99],
+                    [new Date(2014, 0, 14),40.21,41.14,40.04,41.14],
+                    [new Date(2014, 0, 15),41.06,41.31,40.76,41.07],
+                    [new Date(2014, 0, 16),40.43,40.75,40.11,40.34],
+                    [new Date(2014, 0, 17),40.12,40.44,39.47,40.01],
+                    // Martin Luther King Jr. Day -- Mon January 20, 2014
+                    [new Date(2014, 0, 21),39.98,40.05,38.86,39.52],
+                    [new Date(2014, 0, 22),39.66,40.40,39.32,40.18],
+                    [new Date(2014, 0, 23),39.31,39.77,39.14,39.39],
+                    [new Date(2014, 0, 24),38.67,38.98,37.62,37.91],
+                    [new Date(2014, 0, 27),37.60,37.94,36.62,36.65],
+                    [new Date(2014, 0, 28),36.83,38.32,36.52,38.22],
+                    [new Date(2014, 0, 29),35.77,36.31,34.82,34.89],
+                    [new Date(2014, 0, 30),34.89,35.81,34.45,35.31],
+                    [new Date(2014, 0, 31),34.69,36.33,34.55,36.01]
+                ]
+            ]
+        ], screenIterator);
     });
 });

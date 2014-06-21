@@ -57,10 +57,20 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
                 throw new Error(errorMessage);
             }
         },
-
         validate: function(event) {
             return validateExpressions(calculations, event.data);
         },
+        increment: function(event) {
+            var data = event.data;
+            var interval = data.interval;
+            var timezones = _.uniq(_.pluck(data.exchanges, 'tz'));
+            return timezones.reduce(function(memo, tz){
+                var next = addInterval(tz, interval, data.asof, data.increment || 1);
+                if (memo && memo.valueOf() < next.valueOf()) return memo;
+                return next.toDate();
+            }, null);
+        },
+
         'import': function(event) {
             return importData(open, Date.now(), event.data);
         },

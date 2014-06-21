@@ -205,7 +205,7 @@ function screenCheck(watchLists, screens, asof, points) {
                     })
                 });
             });
-            return screener.screen(lists, screens, asof).then(function(result){
+            return screener.screen(lists, screens, asof).next().value.then(function(result){
                 var expected = points.map(function(point){
                     var symbol = point.symbol;
                     var mic = symbol.substring(0, symbol.indexOf(':'));
@@ -215,9 +215,44 @@ function screenCheck(watchLists, screens, asof, points) {
                         security: security
                     });
                 });
-                expect(result).toEqual(expected);
+                expect(result.length).toEqual(expected.length);
+                expected.forEach(function(point, i){
+                    for (var key in point) {
+                        expect(result[i][key]).toEqual(point[key]);
+                    }
+                });
             });
         }).then(done, unexpected(done));
+    };
+}
+
+function screenIterator(exchange, ticker, expressions, length, interval, asof, rows) {
+    return function(done){
+        var iter = screener.screen([{
+            ofExchange: exchange,
+            excludes:"",
+            includes:ticker
+        }],[{
+            filters:expressions.map(function(expression){
+                return {
+                    indicator:{
+                        expression: expression,
+                        interval: interval
+                    }
+                };
+            })
+        }], asof);
+        Promise.all(rows.map(function(row){
+            return iter.next().value.then(function(result){
+                expect(result).not.toEqual([]);
+                result.forEach(function(point){
+                    expect(point.security).toMatch(ticker);
+                    expressions.forEach(function(expression, index){
+                        expect(point[expression]).toEqual(row[index]);
+                    });
+                });
+            });
+        })).then(done, unexpected(done));
     };
 }
 

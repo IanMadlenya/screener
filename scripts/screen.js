@@ -100,7 +100,7 @@ jQuery(function($){
         $('#results').data({list: list});
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, !!load).catch(function(error){
+                return screener.screen([list], [{filters: filters}], asof, !!load).next().value.catch(function(error){
                     if (error.status == 'warning' && !load) {
                         queue.push(backtest(list, true));
                         return error.result;
@@ -275,7 +275,7 @@ jQuery(function($){
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof, !!load);
+            return screener.screen([list], [{filters: excludedFilters}], asof, !!load).next().value;
         }).catch(function(error){
             if (error.status == 'warning' && !load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
