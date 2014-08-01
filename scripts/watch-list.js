@@ -188,7 +188,15 @@ jQuery(function($){
         });
         var mincap = $('[property="screener:mincap"]').attr("content");
         var maxcap = $('[property="screener:maxcap"]').attr("content");
-        return screener.listSecurities(exchange, sectors, mincap, maxcap).then(function(result){
+        return Promise.resolve(sectors).then(function(sectors){
+            $('#sector-security-list-empty').hide();
+            if (sectors.length)
+                return screener.listSecurities(exchange, sectors, mincap, maxcap);
+            $('#sector-security-list').empty();
+            if (!$('[rel="screener:include"]').children().length)
+                $('#sector-security-list-empty').show();
+        }).then(function(result){
+            if (!result) return result;
             var includes = $('[rel="screener:include"]').find("[resource]").toArray().map(function(incl){
                 return incl.getAttribute('resource');
             });
