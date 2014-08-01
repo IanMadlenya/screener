@@ -171,9 +171,11 @@
                     return _.groupBy(list, 'iri');
                 }).then(function(grouped){
                     return _.map(grouped, function(filters){
+                        var dir = filters[0].forDirection;
                         return {
                             iri: filters[0].iri,
                             label: filters[0].label,
+                            direction: dir.substring(dir.lastIndexOf('/') + 1),
                             filters: filters
                         };
                     });

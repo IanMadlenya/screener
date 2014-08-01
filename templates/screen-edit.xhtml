@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../styles/screen.less?less" />
     <link id="resource-type" href="../classes/Screen" />
     <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
+    <style type="text/css">#direction-label { margin-right: 5px; }</style>
     <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
     <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -34,6 +35,15 @@
                 <div class="form-group">
                     <label for="comment">Comment</label>
                     <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="pull-left" id="direction-label">Expected direction is</label>
+                    <div>
+                        <label rel="screener:forDirection" resource="?direction" class="radio-inline">
+                            <input type="radio" name="direction" checked="checked" required="required" />
+                            <span rev="calli:hasComponent" resource="../direction/" property="skos:prefLabel" />
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="col-sm-8">
