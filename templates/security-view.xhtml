@@ -8,19 +8,23 @@
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
+    <link rel="stylesheet" href="../styles/security.css" />
     <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
     <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../assets/moment/moment-with-langs.js"></script>
+    <script type="text/javascript" src="../assets/d3js/d3.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/security.js"></script>
 </head>
 <body>
-    <div style="position:absolute;z-index:1;width:100%;margin:2em">
+    <div class="floating-header">
         <div class="container">
             <h1 id="page-title" />
         </div>
     </div>
+    <div id="ohlc-div"></div>
     <div id="candlestick-div"></div>
 </body>
 </html>

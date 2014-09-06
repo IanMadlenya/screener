@@ -1,0 +1,90 @@
+/* security.css */
+
+.floating-header {
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    margin: 2em;
+}
+
+rect.pane {
+  cursor: crosshair;
+  fill: none;
+  pointer-events: all;
+}
+
+rect.pane.grabbing {
+    cursor: move;
+}
+
+.ohlc-div svg {
+    height: 400;
+}
+
+line.x, line.y, line.v {
+    stroke: black;
+    stroke-opacity: 0.1;
+}
+
+text.x {
+    text-anchor: middle;
+}
+
+text.y {
+    dominant-baseline: middle;
+    text-anchor: start;
+}
+
+text.v {
+    dominant-baseline: middle;
+    text-anchor: end;
+}
+
+rect.volume {
+    fill-opacity: 0.1;
+}
+
+rect.volume.up {
+    fill: green;
+}
+
+rect.volume.down {
+    fill: red;
+}
+
+g.bar path {
+    stroke: black;
+}
+
+g.poc0 path.poc {
+    stroke: red;
+}
+
+g.poc0 path.value-area {
+    fill: red;
+}
+
+g.poc1 path.poc {
+    stroke: green;
+}
+
+g.poc1 path.value-area {
+    fill: green;
+}
+
+g.poc2 path.poc {
+    stroke: blue;
+}
+
+g.poc2 path.value-area {
+    fill: blue;
+}
+
+path.poc {
+    fill: none;
+    stroke-opacity: 0.5;
+}
+
+path.value-area {
+    fill-opacity: 0.1;
+}
