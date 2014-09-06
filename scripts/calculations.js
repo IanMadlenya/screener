@@ -32,7 +32,7 @@
 function getCalculations() {
     var calculations;
     return calculations = {
-        'unknown': function(expression) {
+        unknown: function(expression) {
             return {
                 getErrorMessage: function() {
                     return "Expression is unknown: " + expression;
@@ -48,7 +48,7 @@ function getCalculations() {
                 }
             };
         },
-        'identity': function(field) {
+        identity: function(field) {
             return {
                 getErrorMessage: function() {
                     if (!_.isString(field) || !field.match(/^[0-9a-z\_\-&]+$/))
@@ -66,7 +66,7 @@ function getCalculations() {
                 }
             };
         },
-        'date': function(asof) {
+        date: function(asof) {
             return {
                 getErrorMessage: function() {
                     if (!_.isString(asof) || !asof.match(/^[0-9a-z_\-&]+$/))
@@ -91,7 +91,7 @@ function getCalculations() {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -109,7 +109,7 @@ function getCalculations() {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -126,7 +126,7 @@ function getCalculations() {
         AOH: function(n) {
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return null;
                 },
@@ -168,7 +168,7 @@ function getCalculations() {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -189,7 +189,7 @@ function getCalculations() {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -214,7 +214,7 @@ function getCalculations() {
         POO: function(n) {
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return null;
                 },
@@ -236,7 +236,7 @@ function getCalculations() {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -257,11 +257,11 @@ function getCalculations() {
         STO: function(n, s1, s2) {
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
-                    if (!_.isNumber(s1) || s1 <= 0)
+                    if (!isPositiveInteger(s1))
                         return "Must be a positive integer: " + s1;
-                    if (!_.isNumber(s2) || s2 <= 0)
+                    if (!isPositiveInteger(s2))
                         return "Must be a positive integer: " + s2;
                     return null;
                 },
@@ -284,11 +284,11 @@ function getCalculations() {
             };
         },
         /* Simple Moveing Average */
-        'SMA': function(n, field) {
+        SMA: function(n, field) {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -303,11 +303,11 @@ function getCalculations() {
             };
         },
         /* Exponential Moveing Average */
-        'EMA': function(n, field) {
+        EMA: function(n, field) {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
+                    if (!isPositiveInteger(n))
                         return "Must be a positive integer: " + n;
                     return calc.getErrorMessage();
                 },
@@ -317,6 +317,133 @@ function getCalculations() {
                 },
                 getValue: function(points) {
                     return ema(n, getValues(n * 10, calc, points));
+                }
+            };
+        },
+        /* Weighted On Blanance Volume */
+        OBV: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return 'volume';
+                },
+                getDataLength: function() {
+                    return n * 10;
+                },
+                getValue: function(points) {
+                    var numerator = points.reduce(function(p, point, i, points){
+                        if (i === 0) return 0;
+                        var prior = points[i - 1];
+                        if (point.close > prior.close)
+                            return p + (i + 1) * point.volume;
+                        if (point.close < prior.close)
+                            return p - (i + 1) * point.volume;
+                        return p;
+                    }, 0);
+                    return numerator / (points.length * (points.length - 1)) * 2;
+                }
+            };
+        },
+        POC: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    return computeTPO(points, function(tpos, weight) {
+                        var most = _.max(weight);
+                        var min = tpos[weight.indexOf(most)];
+                        var max = tpos[weight.lastIndexOf(most)];
+                        return (min + max) / 2;
+                    });
+                }
+            };
+        },
+        HIGH_VALUE: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    return computeTPO(points, function(tpos, weight) {
+                        var target = 0.7 * sum(weight);
+                        var most = _.max(weight);
+                        var min = weight.indexOf(most);
+                        var max = weight.lastIndexOf(most);
+                        var value = sum(weight.slice(min, max + 1));
+                        while (value < target) {
+                            if (min > 0 && weight[min - 1] > weight[max + 1]) {
+                                value += weight[--min];
+                            } else if (max < weight.length-1 && weight[min -1] < weight[max + 1]) {
+                                value += weight[++max];
+                            } else if (min > 0) {
+                                value += weight[--min];
+                            } else if (max < weight.length-1){
+                                value += weight[++max];
+                            } else {
+                                break;
+                            }
+                        }
+                        return tpos[max];
+                    });
+                }
+            };
+        },
+        LOW_VALUE: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    return computeTPO(points, function(tpos, weight) {
+                        var target = 0.7 * sum(weight);
+                        var most = _.max(weight);
+                        var min = weight.indexOf(most);
+                        var max = weight.lastIndexOf(most);
+                        var value = sum(weight.slice(min, max + 1));
+                        while (value < target) {
+                            if (min > 0 && weight[min - 1] > weight[max + 1]) {
+                                value += weight[--min];
+                            } else if (max < weight.length-1 && weight[min -1] < weight[max + 1]) {
+                                value += weight[++max];
+                            } else if (min > 0) {
+                                value += weight[--min];
+                            } else if (max < weight.length-1){
+                                value += weight[++max];
+                            } else {
+                                break;
+                            }
+                        }
+                        return tpos[min];
+                    });
                 }
             };
         },
@@ -364,36 +491,37 @@ function getCalculations() {
                     ;
                 }
             };
-        },
-        /* Weighted On Blanance Volume */
-        OBV: function(n) {
-            return {
-                getErrorMessage: function() {
-                    if (!_.isNumber(n) || n <= 0)
-                        return "Must be a positive integer: " + n;
-                    return null;
-                },
-                getFields: function() {
-                    return 'volume';
-                },
-                getDataLength: function() {
-                    return n * 10;
-                },
-                getValue: function(points) {
-                    var numerator = points.reduce(function(p, point, i, points){
-                        if (i === 0) return 0;
-                        var prior = points[i - 1];
-                        if (point.close > prior.close)
-                            return p + (i + 1) * point.volume;
-                        if (point.close < prior.close)
-                            return p - (i + 1) * point.volume;
-                        return p;
-                    }, 0);
-                    return numerator / (points.length * (points.length - 1)) * 2;
-                }
-            };
         }
     };
+
+    function computeTPO(points, func) {
+        var tpos = _.uniq(points.reduce(function(tpos, point){
+            tpos.push(point.high * 10000);
+            tpos.push(point.low * 10000);
+            return tpos;
+        }, []).sort(function(a, b) {
+            return Math.round(a - b);
+        }), true);
+        if (tpos.length === 0) return func([], []);
+        if (tpos.length == 1) return func([points[0].high], [points.length]);
+        var step = tpos.slice(1, tpos.length-1).reduce(function(step, tpo, i, tpos) {
+            var d = tpos[i + 1] - tpo;
+            var div = d / step;
+            return Math.round(((div - Math.floor(div)) || 1) * step) || 100;
+        }, tpos[1] - tpos[0]);
+        var range = _.range(tpos[0], tpos[tpos.length - 1] + step, step).map(function(d){
+            return d / 10000;
+        });
+        var weight = points.reduce(function(weight, point){
+            var low = _.sortedIndex(range, point.low);
+            var high = _.sortedIndex(range, point.high);
+            for (var i=low; i<=high && i<weight.length; i++) {
+                weight[i]++;
+            }
+            return weight;
+        }, range.map(_.identity.bind(_, 0)));
+        return func(range, weight);
+    }
 
     function getCalculation(field, args, slice) {
         var shifted = slice ? Array.prototype.slice.call(args, slice, args.length) : args;
@@ -437,5 +565,9 @@ function getCalculations() {
         return _.reduce(values, function(memo, value){
             return memo + value;
         }, 0);
+    }
+
+    function isPositiveInteger(n) {
+        return n > 0 && _.isNumber(n) && Math.round(n) == n;
     }
 }
