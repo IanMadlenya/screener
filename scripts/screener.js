@@ -136,6 +136,7 @@
             }),
 
             listSectors: _.memoize(function(exchange) {
+                if (!exchange) return Promise.resolve([]);
                 return getExchange(exchange).then(function(exchange){
                     return postDispatchMessage({
                         cmd: 'sector-list',
@@ -220,7 +221,18 @@
                 });
             }),
 
+            resetSecurity: function(security){
+                return getExchangeOfSecurity(security).then(function(exchange){
+                    return postDispatchMessage({
+                        cmd: 'reset',
+                        exchange: exchange,
+                        security: security
+                    });
+                });
+            },
+
             load: function(security, expressions, length, interval, asof) {
+                if (length <= 0 || length != Math.round(length)) throw Error("length must be a positive integer, not " + length);
                 var int = interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
                 return getExchangeOfSecurity(security).then(function(exchange){
                     return postDispatchMessage({
@@ -236,6 +248,9 @@
             },
 
             /*
+             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * screens: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
+             * asof: new Date()
              * load:
              * * When false, don't load anything and reject on any error, but include result (if available) as warning
              * * When undefined, load if needed and treat warning as success
@@ -358,7 +373,7 @@
     }
 
     function getExchange(iri) {
-        return screener.exchangeLookup()(iri).then(onlyOne);
+        return screener.exchangeLookup()(iri).then(onlyOne(iri));
     }
 
     function getExchangeOfSecurity(security) {
@@ -373,7 +388,7 @@
     }
 
     function inlineWatchList(hasWatchList) {
-        return screener.watchListLookup()(hasWatchList).then(onlyOne);
+        return screener.watchListLookup()(hasWatchList).then(onlyOne(hasWatchList));
     }
 
     function inlineExchangeIncludeExclude(watchList) {
@@ -399,12 +414,13 @@
     }
 
     function inlineScreen(screen) {
-        return screener.screenLookup()(screen).then(onlyOne);
+        return screener.screenLookup()(screen).then(onlyOne(screen));
     }
 
     function inlineIndicator(screen) {
         return Promise.all(screen.filters.map(function(filter){
-            return screener.indicatorLookup()(filter.indicator || filter.forIndicator).then(onlyOne).then(function(indicator){
+            var indicator = filter.indicator || filter.forIndicator;
+            return screener.indicatorLookup()(indicator).then(onlyOne(indicator)).then(function(indicator){
                 var int = indicator.hasInterval;
                 var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
                 var min = indicator.min;
@@ -483,12 +499,14 @@
         }, options));
     }
 
-    function onlyOne(array) {
-        if (array.length == 1)
-            return array[0];
-        if (array.length)
-            throw Error("Too many values: " + array);
-        throw Error("Missing value");
+    function onlyOne(term) {
+        return function(array) {
+            if (array.length == 1)
+                return array[0];
+            if (array.length)
+                throw Error("Too many values: " + array);
+            throw Error("Missing " + JSON.stringify(term));
+        };
     }
 
     function pad(num) {
@@ -537,6 +555,11 @@
                 name: name
             }, [worker]);
         });
+        port.postMessage({
+            cmd: "register",
+            service: 'quote',
+            name: "dtn-quote"
+        }, [new SharedWorker('/screener/2014/scripts/dtn-quote.js', "dtn-quote").port]);
         return port;
     }
 

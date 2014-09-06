@@ -33,7 +33,7 @@
  * builds requested dataset based on sub messages sent to other workers
  */
 
-importScripts('../assets/underscore/underscore.js');
+importScripts('utils.js');
 
 self.addEventListener("connect", _.partial(function(services, event) {
     event.ports[0].onmessage = _.partial(dispatch, {
@@ -68,7 +68,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
                         cmd: 'validate',
                         period: period,
                         fields: _.without(fields, 'asof')
-                    }, quote, key).catch(Promise.resolve);
+                    }, quote, key).catch(Promise.resolve.bind(Promise));
                 }));
             }).then(function(results){
                 return results.filter(function(result){
@@ -93,25 +93,25 @@ self.addEventListener("connect", _.partial(function(services, event) {
             return promiseMessage(data, services.mentat[worker], worker);
         },
 
-        'exchange-list': _.memoize(function(event) {
+        'exchange-list': _.memoize(function() {
             return promiseJSON('../queries/exchange-list.rq?tqx=out:table')
                 .then(tableToObjectArray)
                 .then(function(result){
                     return result;
                 });
-        }),
+        }, _.constant(0)),
 
         'sector-list': serviceMessage.bind(this, services, 'list'),
 
         'security-list': serviceMessage.bind(this, services, 'list'),
 
-        'indicator-list': _.memoize(function(event) {
+        'indicator-list': _.memoize(function() {
             return promiseJSON('../queries/indicator-list.rq?tqx=out:table')
                 .then(tableToObjectArray)
                 .then(function(result){
                     return result;
             });
-        }),
+        }, _.constant(0)),
 
         load: (function(services, event) {
             var data = event.data;
@@ -121,23 +121,29 @@ self.addEventListener("connect", _.partial(function(services, event) {
             });
         }).bind(this, services),
 
-        'watch-list': function(params) {
+        'watch-list': function(event) {
             var url = '../queries/watch-list.rq?tqx=out:table';
-            return promiseJSON(params ? (url + '&' + params) : url)
+            return promiseJSON(url)
                 .then(tableToObjectArray)
                 .then(function(result){
                     return result;
                 });
         },
 
-        'screen-list': function(params) {
+        'screen-list': function(event) {
             var url = '../queries/screen-list.rq?tqx=out:table';
-            return promiseJSON(params ? (url + '&' + params) : url)
+            return promiseJSON(url)
                 .then(tableToObjectArray)
                 .then(function(result){
                     return result;
                 });
         },
+
+        reset: (function(services, event) {
+            var m = serviceMessage(services, 'mentat', event);
+            var q = serviceMessage(services, 'quote', event);
+            return Promise.all([m, q]).then(combineResult);
+        }).bind(this, services),
 
         screen: screenSecurities.bind(this, services)
     });
@@ -216,10 +222,10 @@ function retryAfterImport(services, data, port, worker, load) {
             return Promise.reject(error);
         // try to load more
         return Promise.all(error.quote.map(function(request){
-            return Promise.all(_.map(services.quote, function(quote){
+            return Promise.all(_.map(services.quote, function(quote, quoteName){
                 return promiseMessage(_.extend({
                     cmd: 'quote'
-                }, request), quote).then(function(data){
+                }, request), quote, quoteName).then(function(data){
                     if (data.result.length == 0) return null;
                     return promiseMessage({
                         cmd: 'import',
@@ -320,61 +326,4 @@ function promiseJSON(url) {
         xhr.open("GET", url, true);
         xhr.send();
     });
-}
-
-function dispatch(handler, event){
-    var cmd = event.data.cmd || event.data;
-    if (typeof cmd == 'string' && typeof handler[cmd] == 'function') {
-        Promise.resolve(event).then(handler[cmd]).then(function(result){
-            if (_.isObject(result) && result.status && _.isObject(event.data)) {
-                event.ports[0].postMessage(_.extend(_.omit(event.data, 'points', 'result'), result));
-            } else if (result !== undefined) {
-                event.ports[0].postMessage(result);
-            }
-        }).catch(rejectNormalizedError).catch(function(error){
-            var clone = _.isString(event.data) ? {cmd: event.data} : _.omit(event.data, 'points', 'result');
-            event.ports[0].postMessage(_.extend(clone, error));
-        });
-    } else if (event.ports && event.ports.length) {
-        console.log('Unknown command ' + cmd);
-        event.ports[0].postMessage({
-            status: 'error',
-            message: 'Unknown command ' + cmd
-        });
-    } else {
-        console.log(event.data);
-    }
-}
-
-function rejectNormalizedError(error) {
-    if (error.status != 'error' || error.message) {
-        console.log(error);
-    }
-    return Promise.reject(normalizedError(error));
-}
-
-function normalizedError(error) {
-    if (error && error.status && error.status != 'success') {
-        return error;
-    } else if (error.target && error.target.errorCode){
-        return {
-            status: 'error',
-            errorCode: error.target.errorCode
-        };
-    } else if (error.message && error.stack) {
-        return _.extend({
-            status: 'error',
-            message: error.message,
-            stack: error.stack
-        }, _.omit(error, 'prototype', _.functions(error)));
-    } else if (error.message) {
-        return _.extend({
-            status: 'error'
-        }, _.omit(error, 'prototype', _.functions(error)));
-    } else {
-        return {
-            status: 'error',
-            message: error
-        };
-    }
 }

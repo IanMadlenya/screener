@@ -29,12 +29,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-importScripts('../assets/underscore/underscore.js');
 importScripts('../assets/moment/moment-with-langs.js');
 var window = { moment: moment };
 importScripts('../assets/moment/moment-timezone.js');
 importScripts('../assets/moment/moment-timezone-data.js');
 
+importScripts('utils.js');
 importScripts('calculations.js'); // getCalculations
 
 self.addEventListener("connect", _.partial(function(calculations, open, event) {
@@ -73,6 +73,17 @@ self.addEventListener("connect", _.partial(function(calculations, open, event) {
 
         'import': function(event) {
             return importData(open, Date.now(), event.data);
+        },
+        reset: function(event) {
+            return open(event.data.security).then(function(db) {
+                return Promise.all(['annual','quarter','day','minute'].map(function(period){
+                    openStore(db, period, "readwrite").clear();
+                }));
+            }).then(function(){
+                return {
+                    status: 'success'
+                };
+            });
         },
         load: function(event) {
             var data = event.data;
@@ -419,7 +430,7 @@ function findIndex(array, predicate) {
 
 function preceding(array, len, endIndex) {
     var list = [];
-    var startIndex = _.max([0, endIndex - len + 1]);
+    var startIndex = Math.max(0, endIndex - len + 1);
     for (var i=startIndex; i < array.length && i <= endIndex; i++) {
         list.push(array[i]);
     }
@@ -445,7 +456,7 @@ function addInterval(tz, interval, latest, amount) {
         }
     } else if (interval.charAt(0) == 'm') {
         var offset = parseInt(interval.substring(1), 10);
-        return local.add('minuets', offset * amount);
+        return local.add('minutes', offset * amount);
     } else {
         throw Error("Unknown interval: " + interval);
     }
@@ -466,7 +477,7 @@ function startOfInterval(tz, interval, asof) {
     } else if (interval.charAt(0) == 'm') {
         var day = moment(local).startOf('day').isoWeek(1);
         var m = parseInt(interval.substring(1), 10);
-        return day.add('minutes', Math.floor(local.diff(day, 'minutes') / m) * m);
+        return day.add('minutes', Math.floor((local.diff(day, 'minutes') - 1) / m) * m);
     } else {
         throw Error("Unknown interval: " + interval);
     }
@@ -497,61 +508,4 @@ function asCalculation(calculations, expressions) {
         }, []);
         return calculations[func].apply(calculations[func], args);
     });
-}
-
-function dispatch(handler, event){
-    var cmd = event.data.cmd || event.data;
-    if (typeof cmd == 'string' && typeof handler[cmd] == 'function') {
-        Promise.resolve(event).then(handler[cmd]).then(function(result){
-            if (_.isObject(result) && result.status && _.isObject(event.data)) {
-                event.ports[0].postMessage(_.extend(_.omit(event.data, 'points', 'result'), result));
-            } else if (result !== undefined) {
-                event.ports[0].postMessage(result);
-            }
-        }).catch(rejectNormalizedError).catch(function(error){
-            var clone = _.isString(event.data) ? {cmd: event.data} : _.omit(event.data, 'points', 'result');
-            event.ports[0].postMessage(_.extend(clone, error));
-        });
-    } else if (event.ports && event.ports.length) {
-        console.log('Unknown command ' + cmd);
-        event.ports[0].postMessage({
-            status: 'error',
-            message: 'Unknown command ' + cmd
-        });
-    } else {
-        console.log(event.data);
-    }
-}
-
-function rejectNormalizedError(error) {
-    if (error.status != 'error' || error.message) {
-        console.log(error);
-    }
-    return Promise.reject(normalizedError(error));
-}
-
-function normalizedError(error) {
-    if (error && error.status && error.status != 'success') {
-        return error;
-    } else if (error.target && error.target.errorCode){
-        return {
-            status: 'error',
-            errorCode: error.target.errorCode
-        };
-    } else if (error.message && error.stack) {
-        return _.extend({
-            status: 'error',
-            message: error.message,
-            stack: error.stack
-        }, _.omit(error, 'prototype', _.functions(error)));
-    } else if (error.message) {
-        return _.extend({
-            status: 'error'
-        }, _.omit(error, 'prototype', _.functions(error)));
-    } else {
-        return {
-            status: 'error',
-            message: error
-        };
-    }
 }
