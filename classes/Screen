@@ -5,7 +5,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<> a </callimachus/1.3/types/Class> , owl:Class ;
+<> a </callimachus/1.4/types/Class> , owl:Class ;
     dcterms:created "2014-03-10T13:35:21.101Z"^^xsd:dateTime ;
     rdfs:comment "Investors and traders can use these to filter stocks based on user-defined metrics. Stock screeners allow users to select trading instruments that fit a certain profile set of criteria." ;
     rdfs:label "Screen" ;
@@ -18,4 +18,4 @@
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     calli:subscriber </auth/groups/everyone> ;
     calli:view <../templates/screen-view.xhtml> ;
-    rdfs:subClassOf </callimachus/1.3/types/Editable> , </callimachus/1.3/types/Serviceable> , </callimachus/1.3/types/Viewable> .
+    rdfs:subClassOf </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .

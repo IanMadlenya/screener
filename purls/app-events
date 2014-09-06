@@ -4,7 +4,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<> a calli:Purl , </callimachus/1.3/types/Purl> ;
+<> a calli:Purl , </callimachus/1.4/types/Purl> ;
     calli:alternate "../pages/app-events.html" ;
     dcterms:created "2014-03-26T13:40:11.005Z"^^xsd:dateTime ;
     dcterms:modified "2014-03-26T18:23:05.786Z"^^xsd:dateTime ;

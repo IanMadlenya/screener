@@ -5,7 +5,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<> a </callimachus/1.3/types/Class> , owl:Class ;
+<> a </callimachus/1.4/types/Class> , owl:Class ;
     dcterms:created "2014-04-03T15:11:55.987Z"^^xsd:dateTime ;
     dcterms:modified "2014-04-03T19:41:06.719Z"^^xsd:dateTime ;
     rdfs:comment "A trading system is simply a group of specific rules, or parameters, that determine entry and exit points for a given set of equities." ;
@@ -20,4 +20,4 @@
     calli:subscriber </auth/groups/everyone> ;
     calli:thumbnail <../images/system.svg> ;
     calli:view <../templates/system-view.xhtml> ;
-    rdfs:subClassOf </callimachus/1.3/types/Editable> , </callimachus/1.3/types/Serviceable> , </callimachus/1.3/types/Viewable> .
+    rdfs:subClassOf </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .
