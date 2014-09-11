@@ -17,74 +17,69 @@ rect.pane.grabbing {
     cursor: move;
 }
 
-.ohlc-div svg {
-    height: 400;
+.axis.y path {
+    display: none;
 }
 
-line.x, line.y, line.v {
+.axis.x path {
+    shape-rendering: crispEdges;
+    stroke: black;
+    fill: none;
+}
+
+.axis line {
+    shape-rendering: crispEdges;
     stroke: black;
     stroke-opacity: 0.1;
 }
 
-text.x {
-    text-anchor: middle;
+g.volume rect {
+    fill: orange;
+    fill-opacity: 0.2;
 }
 
-text.y {
-    dominant-baseline: middle;
-    text-anchor: start;
-}
-
-text.v {
-    dominant-baseline: middle;
-    text-anchor: end;
-}
-
-rect.volume {
-    fill-opacity: 0.1;
-}
-
-rect.volume.up {
+g.volume rect.up {
     fill: green;
 }
 
-rect.volume.down {
+g.volume rect.down {
     fill: red;
 }
 
-g.bar path {
+g.price path {
+    shape-rendering: crispEdges;
     stroke: black;
 }
 
-g.poc0 path.poc {
+g.poc0 path {
     stroke: red;
 }
 
-g.poc0 path.value-area {
+g.band0 path {
     fill: red;
 }
 
-g.poc1 path.poc {
+g.poc1 path {
     stroke: green;
 }
 
-g.poc1 path.value-area {
+g.band1 path {
     fill: green;
 }
 
-g.poc2 path.poc {
+g.poc2 path {
     stroke: blue;
 }
 
-g.poc2 path.value-area {
+g.band2 path {
     fill: blue;
 }
 
-path.poc {
+g.poc path {
     fill: none;
     stroke-opacity: 0.5;
 }
 
-path.value-area {
+g.band path {
     fill-opacity: 0.1;
 }

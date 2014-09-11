@@ -15,6 +15,7 @@
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../assets/moment/moment-with-langs.js"></script>
     <script type="text/javascript" src="../assets/d3js/d3.js"></script>
+    <script type="text/javascript" src="../scripts/chart.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/security.js"></script>
 </head>
@@ -24,7 +25,13 @@
             <h1 id="page-title" />
         </div>
     </div>
-    <div id="ohlc-div"></div>
+    <svg xmlns="http://www.w3.org/2000/svg" id="ohlc-div">
+        <defs>
+            <clippath>
+                <rect />
+            </clippath>
+        </defs>
+    </svg>
     <div id="candlestick-div"></div>
 </body>
 </html>

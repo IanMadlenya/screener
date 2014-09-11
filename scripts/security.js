@@ -64,107 +64,105 @@ jQuery(function($){
         var interval = 'm60';
         var asof = _.property(0);
         var low = _.property(1);
+        var open = _.property(2);
+        var close = _.property(3);
         var high = _.property(4);
-        var margin = {top:1,left:60,right:60,bottom:50};
-        var height = 600 - margin.top - margin.bottom;
-        var svg = d3.select('#ohlc-div').append("svg").attr("height", height + margin.top + margin.bottom);
-        var x =  d3.scale.linear();
-        var y = d3.scale.linear().range([height, 0]).nice(20);
-        var chart = updateAll(svg, "g")
-            .attr("transform", 'translate(' + margin.left + ',' + margin.top + ')');
-        var zoom = d3.behavior.zoom();
-        var pane = svg.append("rect").attr("class", "pane").attr("height", height + margin.top).call(zoom);
-        var rows, redrawCounter = 0;
+        var volume = _.property(5);
+        var chart = d3.chart().width(document.documentElement.clientWidth).height(600);
+        var v = d3.scale.linear().range(chart.y().range());
+        chart.series("volume", d3.chart.series.bar(volume).y(v));
+        for (var poc=columns().length-3;poc>=6;poc-=3) {
+            chart.series("poc poc" + ((poc - 6)/3), d3.chart.series.line(_.property(poc)));
+            chart.series("band band" + ((poc - 6)/3), d3.chart.series.band(_.property(poc+2), _.property(poc+1)));
+        }
+        chart.series("price", d3.chart.series.ohlc(open, high, low, close));
+        var redrawCounter = 0;
         $(window).resize(function(){
-            resizeChartWidth(margin.left + margin.right, svg, pane, zoom, x);
-            if (rows) drawOhlcChart(chart, height, x, y, rows);
+            chart.width(document.documentElement.clientWidth);
+            d3.select('#ohlc-div').call(chart);
         });
-        resizeChartWidth(margin.left + margin.right, svg, pane, zoom, x);
-        var drawing = loadChartData(security, x, interval).then(redraw);
+        var drawing = loadChartData(security, interval, optimalDataLength(chart) * 2).then(redraw);
         return drawing;
-        function redraw(new_rows){
-            if (rows) {
-                x.domain(mapDateDomain(x.domain(), rows.map(asof), new_rows.map(asof)));
-                rows = new_rows;
+        function redraw(rows){
+            var visible = chart.visible();
+            var domain = rows.map(asof);
+            var m = parseInt(interval.substring(1),10);
+            var x = d3.time.scale().domain(domain);
+            if (visible.length) {
+                var xScale = chart.xAxis().scale();
+                var d1 = Math.min(_.sortedIndex(rows, visible[0], asof), rows.length-1);
+                var d2 = Math.min(_.sortedIndex(rows, visible[visible.length-1], asof), rows.length-1);
+                var x1 = xScale(asof(rows[d1], d1));
+                var x2 = xScale(asof(rows[d2], d2));
+                var step = x1 == x2 || d1 == d2?
+                    chart.innerWidth()/domain.length:
+                    (x2 - x1) / (d2 - d1);
+                var start = x1 - d1 * step;
+                x.range(_.range(start, start + domain.length*step, step));
+                chart.scaleExtent([Math.min(m/60 /step*5,1), Math.max(m/1 /step*5,1)]);
             } else {
-                rows = new_rows;
-                x.domain([0,rows.length-1]);
+                var ppp = Math.max(chart.innerWidth()/domain.length, 5);
+                var offset = chart.innerWidth() - domain.length * ppp;
+                x.range(_.range(offset, offset + domain.length*ppp, ppp));
+                chart.scaleExtent([Math.min(m/60 /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
             }
-            resizeChartWidth(margin.left + margin.right, svg, pane, zoom, x);
-            zoom.on("zoomstart", function(){
-                var pane = d3.select(this);
-                pane.attr("class", pane.attr("class") + ' grabbing');
-            });
-            zoom.on("zoom", function(){
-                drawOhlcChart(chart, height, x, y, rows);
-            });
-            zoom.on("zoomend", function(){
-                var pane = d3.select(this);
-                pane.attr("class", pane.attr("class").replace(/ grabbing/g,''));
-                drawOhlcChart(chart, height, x, y, rows);
-                var int = getOptimalInterval(x, interval, rows);
-                if (interval != int || x.range()[1] > rows.length * 5.05) {
+            chart.width(document.documentElement.clientWidth);
+            chart.datum(rows);
+            chart.xPlot(asof);
+            chart.x(x);
+            d3.select('#ohlc-div').call(chart);
+            chart.zoomend(function(){
+                var int = optimalInterval(chart, interval);
+                var len = optimalDataLength(chart);
+                if (interval != int || len > rows.length) {
                     var counter = ++redrawCounter;
                     drawing = drawing.then(function(){
                         return new Promise(function(callback){
                             setTimeout(callback, 1000);
                         });
                     }).then(function(){
-                        if (counter == redrawCounter) {
-                            return loadChartData(security, x, int).then(redraw).then(function(){
-                                interval = int;
+                        if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
+                            return loadChartData(security, int, optimalDataLength(chart) * 2).then(function(rows){
+                                if (int == optimalInterval(chart, interval)) {
+                                    interval = int;
+                                    redraw(rows);
+                                }
                             });
                         }
                     }).catch(calli.error);
                 }
             });
-            drawOhlcChart(chart, height, x, y, rows);
         }
     }
 
-    function getOptimalInterval(x, interval, rows) {
-        var m = parseInt(interval.substring(1), 10);
-        var d = x.domain();
-        var min = Math.max(Math.floor(d[0]),0);
-        var max = Math.min(Math.ceil(d[1]),rows.length-1);
-        var len = Math.floor((x(rows.length-1) - x(min)) / 5);
-        var minutes = Math.min(Math.max(Math.round((max - min) * m / (x(max) - x(min))) * 5, 1), 60);
-        console.log(minutes);
-        return 'm' + minutes;
+    function optimalInterval(chart, interval) {
+        var intervals = ['m1','m5','m15','m30','m60'];
+        var minutesPerPixel = intervals.map(function(interval){
+            var m = parseInt(interval.substring(1), 10);
+            return m / 5; // minimum minutes per pixel
+        });
+        var x = _.compose(chart.x(), chart.xPlot());
+        var datum = chart.visible() || [];
+        var minutes = datum.length * parseInt(interval.substring(1), 10);
+        var width = x(datum[datum.length-1], datum.length-1) - x(datum[0], 0);
+        return intervals[Math.min(_.sortedIndex(minutesPerPixel, Math.round(minutes / width)), intervals.length-1)];
     }
 
-    function loadChartData(security, x, interval) {
-        console.log(interval, Math.floor(x.range()[1]/5));
-        return screener.load(security, columns(interval), Math.floor(x.range()[1]/5), interval, new Date());
+    function optimalDataLength(chart) {
+        var x = _.compose(chart.x(), chart.xPlot());
+        var datum = chart.datum() || [];
+        var visible = chart.visible() || [];
+        var tail = visible.length ? x(datum[datum.length-1], datum.length-1) - x(visible[visible.length-1], visible.length-1) : 0;
+        var width = chart.innerWidth() + tail;
+        return Math.ceil(width / 5);
     }
 
-    function mapDateDomain(d, _dates, dates) {
-        var d0 = Math.max(Math.floor(d[0]),0);
-        var d1 = Math.min(Math.ceil(d[1]), _dates.length-1);
-        var p0 = _.sortedIndex(dates, _dates[d0], valueOf);
-        var p1 = _.sortedIndex(dates, _dates[d1], valueOf);
-        if (p0 == p1 || d0 == d1) return [0, dates.length-1];
-        var s = (p1 - p0) / (d1 - d0);
-        return [
-            Math.max(0, p0 - (d0 - d[0]) * s),
-            p1 - (d1 - d[1]) * s
-        ];
-    }
-
-    function valueOf(date) {
-        return date.valueOf();
-    }
-
-    function resizeChartWidth(margin, svg, pane, zoom, x) {
-        var width = document.documentElement.clientWidth;
-        svg.attr("width", width);
-        pane.attr("width", width);
-        x.range([0, width - margin]);
-        zoom.x(x);
+    function loadChartData(security, interval, len) {
+        return screener.load(security, columns(interval), len, interval, new Date());
     }
 
     function columns(interval) {
-        var m = parseInt(interval.substring(1), 10);
+        var m = interval ? parseInt(interval.substring(1), 10) : 60;
         return ['asof', 'low', 'open', 'close', 'high', 'volume',
             fn('POC', 4), fn('LOW_VALUE', 4), fn('HIGH_VALUE', 4),
             fn('POC', 8), fn('LOW_VALUE', 8), fn('HIGH_VALUE', 8),
@@ -173,131 +171,6 @@ jQuery(function($){
         function fn(name, hours) {
             return name + '(' + Math.round(hours * 60 / m) + ')';
         }
-    }
-
-    function drawOhlcChart(chart, height, x, y, rows) {
-        var asof = _.property(0);
-        var low = _.property(1);
-        var open = _.property(2);
-        var close = _.property(3);
-        var high = _.property(4);
-        var volume = _.property(5);
-        var width = x.range()[1];
-        var start = Math.max(0,Math.ceil(x.domain()[0]));
-        var visible = rows.slice(start, Math.min(rows.length, Math.floor(x.domain()[1])));
-        var xticks = timeTicks(_.map(visible, asof), 10).map(function(i){
-            return start + i;
-        });
-        updateAll(chart, "line", "x", xticks).call(function(selection){
-            selection.attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", height);
-        });
-        updateAll(chart, "text", "x", xticks).call(function(selection){
-            selection.attr("x", x).attr("y", height).attr("dy", 20)
-            .text(function(d, i){
-                if (d < 0 || d >= rows.length) return '';
-                var date = asof(rows[d]);
-                var ref = asof(rows[i===0? xticks[i+1] : xticks[i-1]]);
-                if (date.getFullYear() != ref.getFullYear()) return date.getFullYear();
-                if (date.getMonth() != ref.getMonth()) return moment(date).format("MMM");
-                if (date.getDate() != ref.getDate()) return date.getDate();
-                if (date.getHours() != ref.getHours() && date.getMinutes() === 0) return moment(date).format("HH");
-                if (date.getHours() != ref.getHours()) return moment(date).format("HH:mm");
-                if (date.getMinutes() != ref.getMinutes()) return date.getMinutes();
-                return moment(date).fromNow(true);
-            });
-        }).each(function(d){
-            updateAll(d3.select(this), "title", "tip", [d]).text(asof(rows[d]).toLocaleString());
-        });
-        y.domain([low(_.min(rows.slice(start), low)), high(_.max(rows.slice(start), high))]);
-        updateAll(chart, "line", "y", y.ticks(15).slice(1)).call(function(selection){
-            selection.attr("x1", 0).attr("x2", width).attr("y1", y).attr("y2", y);
-        });
-        updateAll(chart, "text", "y", y.ticks(10).slice(1,-1).map(function(tick){
-            return Math.round(tick * 100000) / 100000; // remove rounding errors
-        })).call(function(selection){
-            selection.attr("x", width+2).attr("y", y).text(String);
-        });
-        var ycross = (y(y.ticks(15)[0]) + y(y.ticks(15)[1])) / 2;
-        var v = d3.scale.linear().domain([volume(_.min(rows, volume)), volume(_.max(rows, volume))*2]).range([height, 0]).nice(20);
-        updateAll(chart, "text", "v", v.ticks(10).filter(function(d,i,ticks){
-            return d > 0 && i<ticks.length/2;
-        })).call(function(selection){
-            selection.attr("x", -2).attr("y", v).text(screener.formatNumber);
-        });
-        var volume_width = 5;
-        updateAll(chart, "rect", "volume", rows).call(function(selection){
-            selection.attr("class", function(d){
-                if (open(d) > close(d)) return "volume down";
-                return "volume up";
-            }).attr("x", function(d, i){
-                return x(i) - volume_width / 2;
-            }).attr("y", _.compose(v, volume)).attr("width", volume_width).attr("height", function(d){
-                return height - v(volume(d));
-            });
-        }).each(function(d){
-            updateAll(d3.select(this), "title", "tip", [d]).text(screener.formatNumber(volume(d)));
-        });
-        for (var poc=rows[0].length-3;poc>=6;poc-=3) {
-            var g = updateAll(chart, "g", "poc" + ((poc - 6)/3));
-            updateAll(g, "path", "poc").datum(rows).attr("d", d3.svg.line().x(function(d,i){
-                return x(i);
-            }).y(_.compose(y,_.property(poc))));
-            updateAll(g, "path", "value-area").datum(rows).attr("d", d3.svg.area().x(function(d,i){
-                return x(i);
-            }).y0(_.compose(y,_.property(poc+1))).y1(_.compose(y,_.property(poc+2))));
-        }
-        var bars = updateAll(chart, "g", "bar", rows).each(function(d,i){
-            var bar = d3.select(this);
-            updateAll(bar, "path", "high-low").attr("d", 'M' + x(i) + ',' + y(high(d)) + ' L' + x(i) + ',' + y(low(d)));
-            updateAll(bar, "path", "close").attr("d", 'M' + x(i) + ',' + y(close(d)) + ' L' + (x(i) + 2) + ',' + y(close(d)));
-            updateAll(bar, "path", "open").attr("d", 'M' + (x(i) - 2) + ',' + y(open(d)) + ' L' + x(i) +',' + y(open(d)));
-            updateAll(bar, "title", "tip").text(asof(d).toLocaleString());
-        });
-    }
-
-    function timeTicks(times, size) {
-        var min = times[0];
-        var max = times[times.length-1];
-        var years = [], months = [], weeks = [], days = [], noons = [], hours = [], thirty = [], teens = [], fives = [];
-        times.forEach(function(time, i, times){
-            var ref = i===0? time : times[i-1];
-            if (time.getFullYear() != ref.getFullYear()) {
-                years.push(i);
-            } else if (time.getMonth() != ref.getMonth()) {
-                months.push(i);
-            } else if (time.getDay() < ref.getDay()) {
-                weeks.push(i);
-            } else if (time.getDate() != ref.getDate()) {
-                days.push(i);
-            } else if (time.getHours() % 12 < ref.getHours() % 12 && time.getMinutes() === 0) {
-                noons.push(i);
-            } else if (time.getHours() != ref.getHours()) {
-                hours.push(i);
-            } else if (time.getMinutes() % 30 < ref.getMinutes() % 30) {
-                thirty.push(i);
-            } else if (time.getMinutes() % 15 < ref.getMinutes() % 15) {
-                teens.push(i);
-            } else if (time.getMinutes() % 5 < ref.getMinutes() % 5) {
-                fives.push(i);
-            }
-        });
-        var ticks = [];
-        var data = [years, months, weeks, days, noons, hours, thirty, teens, fives];
-        for (var i=0;i<data.length;i++) {
-            if (ticks.length >= size) break;
-            if (size - ticks.length < Math.abs(size - ticks.length - data[i].length)) break;
-            ticks = ticks.concat(data[i]);
-        }
-        return _.sortBy(ticks);
-    }
-
-    function updateAll(chart, tag, cls, data){
-        var selector = cls ? (tag + '.' + cls) : tag;
-        var existing = chart.selectAll(selector).data(data || [undefined]);
-        var created = existing.enter().append(tag);
-        if (cls) created.attr("class", cls);
-        existing.exit().remove();
-        return chart.selectAll(selector);
     }
 
     function drawDailySecurityData(security, now) {
