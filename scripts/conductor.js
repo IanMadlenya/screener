@@ -57,7 +57,7 @@ self.addEventListener("connect", _.partial(function(services, event) {
         validate: (function(services, event){
             var interval = event.data.interval;
             var i = interval && interval.charAt(0);
-            var period = i == 'd' ? 'day' : i == 'm' ? 'minute' : interval;
+            var period = i == 'd' ? 'd1' : i == 'm' ? 'm1' : interval;
             var key = getWorker(services.mentat, event.data.expression);
             return promiseMessage({
                 cmd: 'fields',

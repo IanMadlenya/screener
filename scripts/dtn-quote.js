@@ -48,7 +48,7 @@ self.addEventListener("connect", _.partial(function(hit, event) {
         },
 
         validate: function(event) {
-            if ('minute' != event.data.period)
+            if ('m1' != event.data.period && 'm15' != event.data.period)
                 return Promise.reject({status: 'error'});
             return event.data.fields.reduce(function(memo, field){
                 if (['open','high','low','close','volume','total_volume'].indexOf(field) >= 0)
@@ -64,12 +64,13 @@ self.addEventListener("connect", _.partial(function(hit, event) {
         quote: function(event) {
             var data = event.data;
             var period = data.period;
-            if (period != 'minute') return {status: 'success', result: []};
+            if (period != 'm1' && period != 'm15') return {status: 'success', result: []};
+            var interval = period == 'm1' ? 60 : 900;
             var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
             var asof = Date.now();
             return hit({
                 symbol: symbol,
-                interval: 60,
+                interval: interval,
                 begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
                 end: moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
             }).then(function(lines){
@@ -86,7 +87,7 @@ self.addEventListener("connect", _.partial(function(hit, event) {
                         volume: parseFloat(row[7])
                     };
                 });
-                if (results.length && moment(results[0].dateTime).valueOf() > asof - 60000) {
+                if (results.length && moment(results[0].dateTime).valueOf() > asof - (interval * 1000)) {
                     results = results.slice(1); // first line might yet be incomplete
                 }
                 return {

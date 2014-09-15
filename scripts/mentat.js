@@ -38,7 +38,53 @@ importScripts('utils.js');
 importScripts('calculations.js'); // getCalculations
 
 self.addEventListener("connect", _.partial(function(calculations, event) {
-    var periods = {
+    var d1 = {
+        storeName: 'd1',
+        millis: 24 * 60 * 60 * 1000,
+        inc: function(exchange, dateTime, amount) {
+            var start = moment(dateTime).tz(exchange.tz).startOf('day');
+            if (start.valueOf() < dateTime.valueOf())
+                return d1.inc(exchange, start, amount + 1);
+            var w = Math.floor(amount / 5);
+            var d = amount - w * 5;
+            var day = start.add('weeks', w);
+            if (d < 1 || day.isoWeekday() + d < 6) {
+                return day.add('days', d);
+            } else {
+                // skip over weekend
+                return day.add('days', d + 2);
+            }
+        }
+    };
+    var m15 = {
+        storeName: 'm15',
+        millis: 15 * 60 * 1000,
+        inc: function(exchange, dateTime, amount) {
+            var start = moment(dateTime).tz(exchange.tz).startOf('second');
+            var minutes = start.minutes();
+            if (minutes % 15 === 0)
+                return m1.inc(exchange, start, amount * 15);
+            if (minutes < 45)
+                return m1.inc(exchange, start.minutes((minutes + 14) % 15), amount * 30);
+            return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
+        }
+    };
+    var m1 = {
+        storeName: 'm1',
+        millis: 60 * 1000,
+        inc: function(exchange, dateTime, amount) {
+            var start = moment(dateTime).tz(exchange.tz).startOf('minute');
+            if (start.valueOf() < dateTime.valueOf())
+                return m1.inc(exchange, start, amount + 1);
+            var offset = start.hour() * 60 + start.minute();
+            var days = Math.floor(amount / (6.5 * 60));
+            var m = amount - days * (6.5 * 60);
+            if (days !== 0)
+                return d1.inc(exchange, start.startOf('day'), days).add('minutes', offset + m);
+            return start.add('minutes', m);
+        }
+    };
+    var intervals = {
         annual: {
             storeName: 'annual',
             millis: 365 * 24 * 60 * 60 * 1000,
@@ -59,43 +105,11 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
                 return start.add('months', 3 * amount);
             }
         },
-        day: {
-            storeName: 'day',
-            millis: 24 * 60 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('day');
-                if (start.valueOf() < dateTime.valueOf())
-                    return periods.day.inc(exchange, start, amount + 1);
-                var w = Math.floor(amount / 5);
-                var d = amount - w * 5;
-                var day = start.add('weeks', w);
-                if (d < 1 || day.isoWeekday() + d < 6) {
-                    return day.add('days', d);
-                } else {
-                    // skip over weekend
-                    return day.add('days', d + 2);
-                }
-            }
-        },
-        minute: {
-            storeName: 'minute',
-            millis: 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
-                if (start.valueOf() < dateTime.valueOf())
-                    return periods.minute.inc(exchange, start, amount + 1);
-                var offset = start.hour() * 60 + start.minute();
-                var days = Math.floor(amount / (6.5 * 60));
-                var m = amount - days * (6.5 * 60);
-                if (days !== 0)
-                    return periods.day.inc(exchange, start.startOf('day'), days).add('minutes', offset + m);
-                return start.add('minutes', m);
-            }
-        }
-    };
-    var intervals = _.extend({
+        d1: d1,
+        m15: m15,
+        m1: m1,
         d5: {
-            derivedFrom: periods.day,
+            derivedFrom: d1,
             storeName: 'd5',
             aggregate: 5,
             millis: 7 * 24 * 60 * 60 * 1000,
@@ -106,17 +120,10 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
                 return start.add('weeks', amount);
             }
         },
-        d1: {
-            derivedFrom: periods.day,
-            storeName: 'd1',
-            aggregate: 1,
-            millis: 24 * 60 * 60 * 1000,
-            inc: periods.day.inc
-        },
         m60: {
-            derivedFrom: periods.minute,
+            derivedFrom: m15,
             storeName: 'm60',
-            aggregate: 60,
+            aggregate: 4,
             millis: 60 * 60 * 1000,
             inc: function(exchange, dateTime, amount) {
                 var start = moment(dateTime).tz(exchange.tz).startOf('hour');
@@ -126,37 +133,22 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
             }
         },
         m30: {
-            derivedFrom: periods.minute,
+            derivedFrom: m15,
             storeName: 'm30',
-            aggregate: 30,
+            aggregate: 2,
             millis: 30 * 60 * 1000,
             inc: function(exchange, dateTime, amount) {
                 var start = moment(dateTime).tz(exchange.tz).startOf('second');
                 var minutes = start.minutes();
                 if (minutes % 30 === 0)
-                    return periods.minute.inc(exchange, start, amount * 30);
+                    return m1.inc(exchange, start, amount * 30);
                 if (minutes < 30)
-                    return periods.minute.inc(exchange, start.minutes(30), amount * 30);
-                return periods.minute.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
-            }
-        },
-        m15: {
-            derivedFrom: periods.minute,
-            storeName: 'm15',
-            aggregate: 15,
-            millis: 15 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('second');
-                var minutes = start.minutes();
-                if (minutes % 15 === 0)
-                    return periods.minute.inc(exchange, start, amount * 15);
-                if (minutes < 45)
-                    return periods.minute.inc(exchange, start.minutes((minutes + 14) % 15), amount * 30);
-                return periods.minute.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
+                    return m1.inc(exchange, start.minutes(30), amount * 30);
+                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
             }
         },
         m5: {
-            derivedFrom: periods.minute,
+            derivedFrom: m1,
             storeName: 'm5',
             aggregate: 5,
             millis: 5 * 60 * 1000,
@@ -164,20 +156,13 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
                 var start = moment(dateTime).tz(exchange.tz).startOf('second');
                 var minutes = start.minutes();
                 if (minutes % 5 === 0)
-                    return periods.minute.inc(exchange, start, amount * 5);
+                    return m1.inc(exchange, start, amount * 5);
                 if (minutes < 55)
-                    return periods.minute.inc(exchange, start.minutes((minutes + 4) % 5), amount * 30);
-                return periods.minute.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
+                    return m1.inc(exchange, start.minutes((minutes + 4) % 5), amount * 30);
+                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
             }
-        },
-        m1: {
-            derivedFrom: periods.minute,
-            storeName: 'm1',
-            aggregate: 1,
-            millis: 60 * 1000,
-            inc: periods.minute.inc
         }
-    }, periods);
+    };
     var open = _.partial(openSymbolDatabase, indexedDB, _.map(intervals, 'storeName'));
     event.ports[0].onmessage = _.partial(dispatch, {
 
@@ -392,20 +377,30 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
     if (errorMessage) throw Error(errorMessage);
     return collectIntervalRange(open, failfast, security, exchange, interval, length + n - 1, asof, now).then(function(data) {
         var startIndex = Math.max(data.result.length - length, 0);
-        return _.extend(data, {
-            result: _.map(data.result.slice(startIndex), function(result, i) {
-                return _.reduce(calcs, function(result, calc, c){
-                    if (_.isUndefined(result[expressions[c]])) {
-                        var points = preceding(data.result, calc.getDataLength(), startIndex + i);
-                        result[expressions[c]] = calc.getValue(points);
-                    }
-                    return result;
-                }, result);
-            })
+        var updates = [];
+        var result = _.map(data.result.slice(startIndex), function(result, i) {
+            var updated = false;
+            var point = _.reduce(calcs, function(point, calc, c){
+                if (_.isUndefined(point[expressions[c]])) {
+                    var points = preceding(data.result, calc.getDataLength(), startIndex + i);
+                    point[expressions[c]] = calc.getValue(points);
+                    updated = true;
+                }
+                return point;
+            }, result);
+            if (updated) {
+                updates.push(point);
+            }
+            return point;
         });
-    }).then(function(data){
-        if (!interval.derivedFrom) return data;
-        return storeData(open, security, interval, data.result).then(_.constant(data));
+        if (updates.length) {
+            return storeData(open, security, interval, updates).then(_.constant(_.extend(data, {
+                result: result
+            })));
+        }
+        return _.extend(data, {
+            result: result
+        });
     });
 }
 
@@ -462,25 +457,31 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
         });
     }).then(function(data){
         if (interval.aggregate == 1) return data;
+        var groupped = _.groupBy(data.result, function(point){
+            return ceil(point.asof);
+        });
+        var mapped = _.map(groupped, function(points){
+            return _.reduce(points, function(preceding, point, index){
+                if (!preceding) return point;
+                return {
+                    asof: point.asof,
+                    open: preceding.open,
+                    close: point.close,
+                    adj_close: point.adj_close,
+                    total_volume: point.total_volume,
+                    high: Math.max(preceding.high, point.high),
+                    low: Math.min(preceding.low, point.low),
+                    volume: interval.storeName.charAt(0) == 'm' ?
+                        (preceding.volume + point.volume) :
+                        Math.round((preceding.volume * index + point.volume) / (index + 1))
+                };
+            }, null);
+        });
+        var result = _.sortBy(mapped, function(point) {
+            return point.asof.valueOf();
+        });
         return _.extend(data, {
-            result: _.sortBy(_.map(_.groupBy(data.result, function(point){
-                return ceil(point.asof);
-            }), function(points){
-                return _.reduce(points, function(preceding, point, index){
-                    if (!preceding) return point;
-                    return {
-                        asof: point.asof,
-                        open: preceding.open,
-                        close: point.close,
-                        adj_close: point.adj_close,
-                        high: Math.max(preceding.high, point.high),
-                        low: Math.min(preceding.low, point.low),
-                        volume: Math.round((preceding.volume * index + point.volume) / (index + 1))
-                    };
-                }, null);
-            }), function(point) {
-                return point.asof.valueOf();
-            })
+            result: result
         });
     });
 }
