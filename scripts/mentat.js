@@ -60,13 +60,16 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
         storeName: 'm15',
         millis: 15 * 60 * 1000,
         inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('second');
+            var start = moment(dateTime).tz(exchange.tz).startOf('minute');
+            if (start.valueOf() < dateTime.valueOf()) {
+                start = start.add('minutes', 1);
+            }
             var minutes = start.minutes();
             if (minutes % 15 === 0)
                 return m1.inc(exchange, start, amount * 15);
             if (minutes < 45)
-                return m1.inc(exchange, start.minutes((minutes + 14) % 15), amount * 30);
-            return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
+                return m1.inc(exchange, start.minutes(Math.ceil(minutes/15)*15), amount * 15);
+            return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 15);
         }
     };
     var m1 = {
@@ -138,7 +141,10 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
             aggregate: 2,
             millis: 30 * 60 * 1000,
             inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('second');
+                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
+                if (start.valueOf() < dateTime.valueOf()) {
+                    start = start.add('minutes', 1);
+                }
                 var minutes = start.minutes();
                 if (minutes % 30 === 0)
                     return m1.inc(exchange, start, amount * 30);
@@ -147,19 +153,40 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
                 return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
             }
         },
+        m10: {
+            derivedFrom: m1,
+            storeName: 'm10',
+            aggregate: 10,
+            millis: 10 * 60 * 1000,
+            inc: function(exchange, dateTime, amount) {
+                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
+                if (start.valueOf() < dateTime.valueOf()) {
+                    start = start.add('minutes', 1);
+                }
+                var minutes = start.minutes();
+                if (minutes % 10 === 0)
+                    return m1.inc(exchange, start, amount * 10);
+                if (minutes < 50)
+                    return m1.inc(exchange, start.minutes(Math.ceil(minutes/10)*10), amount * 10);
+                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 10);
+            }
+        },
         m5: {
             derivedFrom: m1,
             storeName: 'm5',
             aggregate: 5,
             millis: 5 * 60 * 1000,
             inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('second');
+                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
+                if (start.valueOf() < dateTime.valueOf()) {
+                    start = start.add('minutes', 1);
+                }
                 var minutes = start.minutes();
                 if (minutes % 5 === 0)
                     return m1.inc(exchange, start, amount * 5);
                 if (minutes < 55)
-                    return m1.inc(exchange, start.minutes((minutes + 4) % 5), amount * 30);
-                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
+                    return m1.inc(exchange, start.minutes(Math.ceil(minutes/5)*5), amount * 5);
+                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 5);
             }
         }
     };
@@ -592,7 +619,7 @@ function storeData(open, security, interval, data) {
 
 function openSymbolDatabase(indexedDB, storeNames, security, interval, mode, callback) {
     return new Promise(function(resolve, reject) {
-        var request = indexedDB.open(security, 2);
+        var request = indexedDB.open(security, 3);
         request.onerror = reject;
         request.onupgradeneeded = function(event) {
             try {
