@@ -456,14 +456,15 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
             result: data.result.slice(_.sortedIndex(data.result, {asof: since}, 'asof') + 1)
         });
     }).then(function(data){
-        if (interval.aggregate == 1) return data;
-        var groupped = _.groupBy(data.result, function(point){
-            return ceil(point.asof);
-        });
-        var mapped = _.map(groupped, function(points){
-            return _.reduce(points, function(preceding, point, index){
-                if (!preceding) return point;
-                return {
+        if (!data.result.length) return data;
+        var upper;
+        var result = data.result.reduce(function(result, point){
+            var preceding = result[result.length-1];
+            if (!preceding || point.asof.valueOf() > upper.valueOf()) {
+                result.push(point);
+                upper = ceil(point.asof);
+            } else {
+                result[result.length-1] = {
                     asof: point.asof,
                     open: preceding.open,
                     close: point.close,
@@ -475,11 +476,9 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
                         (preceding.volume + point.volume) :
                         Math.round((preceding.volume * index + point.volume) / (index + 1))
                 };
-            }, null);
-        });
-        var result = _.sortBy(mapped, function(point) {
-            return point.asof.valueOf();
-        });
+            }
+            return result;
+        }, []);
         return _.extend(data, {
             result: result
         });
@@ -521,26 +520,30 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
             });
         } else if (result.length && result.length < length) {
             // need more historic data
-            return conclude({
-                status: failfast ? 'error' : 'warning',
-                message: 'Need more data points',
+            var quote = [{
+                security: security,
+                exchange: exchange,
+                ticker: ticker,
+                period: period.storeName,
                 result: result,
-                quote: [{
-                    security: security,
-                    exchange: exchange,
-                    ticker: ticker,
-                    period: period.storeName,
-                    result: result,
-                    start: inc(result[0].asof, -2 * (length - result.length)).format(),
-                    end: inc(result[0].asof, -1).format()
-                }, {
+                start: inc(result[0].asof, -2 * (length - result.length)).format(),
+                end: inc(result[0].asof, -1).format()
+            }];
+            if (next.valueOf() < asof.valueOf()) {
+                quote.push({
                     security: security,
                     exchange: exchange,
                     ticker: ticker,
                     period: period.storeName,
                     start: next.format(),
                     end: moment(now).tz(exchange.tz).format()
-                }]
+                });
+            }
+            return conclude({
+                status: failfast ? 'error' : 'warning',
+                message: 'Need more data points',
+                result: result,
+                quote: quote
             });
         } else {
             // no data available
