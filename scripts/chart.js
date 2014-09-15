@@ -89,13 +89,20 @@
                 .selectAll("line").attr("x1", -chart.innerWidth());
             var axis = updateAll(svg, "g", "x axis").attr("transform", f('translate', margin.left, chart.innerHeight() + margin.top)).call(xAxis);
             axis.selectAll("line").attr("y1", -chart.innerHeight());
-            var end;
+            var x1, n1, s1,s0;
             axis.selectAll("text").each(function(d,i){
                 // remove overlapping ticks
-                if (end && i > 0 && end > chart.x()(d)) {
-                    d3.select(this.parentElement).remove();
+                var overlap = x1 && i > 0 && x1 > chart.x()(d);
+                if (overlap && !significant(s0,s1,d.toISOString())) {
+                    d3.select(this.parentElement).attr("style", "opacity:0;");
                 } else {
-                    end = chart.x()(d) + this.getComputedTextLength();
+                    if (overlap) {
+                        d3.select(n1).attr("style", "opacity:0;");
+                    }
+                    s0 = s1;
+                    s1 = moment(d).format();
+                    n1 = this.parentElement;
+                    x1 = chart.x()(d) + this.getComputedTextLength();
                 }
             });
             grid = updateAll(svg, "g", "grid")
@@ -431,6 +438,19 @@
         if (cls) created.attr("class", cls);
         existing.exit().remove();
         return chart.selectAll(selector);
+    }
+
+    function significant(s0,s1,s2) {
+        if (!s0) return false;
+        for (var i=0;i<s0.length;i++) {
+            if (s0.charAt(i) != s1.charAt(i) && s1.charAt(i) == s2.charAt(i))
+                return false;
+            if (s0.charAt(i) != s2.charAt(i))
+                return true;
+            if (s0.charAt(i) != s1.charAt(i))
+                return false;
+        }
+        return false;
     }
 
     function f(name) {
