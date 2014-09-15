@@ -84,6 +84,7 @@ jQuery(function($){
         var drawing = loadChartData(security, interval, optimalDataLength(chart) * 2).then(redraw);
         return drawing;
         function redraw(rows){
+            var x0 = chart.x().copy();
             var visible = chart.visible();
             var domain = rows.map(asof);
             var m = parseInt(interval.substring(1),10);
@@ -109,20 +110,31 @@ jQuery(function($){
             chart.width(document.documentElement.clientWidth);
             chart.datum(rows);
             chart.xPlot(asof);
-            chart.x(x);
-            d3.select('#ohlc-div').call(chart);
+            d3.select('#ohlc-div').transition().duration(5000).tween("axis", function(){
+                var x1 = x.copy();
+                var ease = d3.ease('cubic-in-out');
+                return function(t) {
+                    x1.range(x.domain().map(function(d){
+                        var from = x0(d);
+                        var to = x(d);
+                        var e = ease(t);
+                        return from + (to - from) * e;
+                    }));
+                    chart.x(x1);
+                    d3.select('#ohlc-div').call(chart);
+                };
+            }).each("end", function(){
+                chart.x(x);
+                d3.select('#ohlc-div').call(chart);
+            });
             chart.zoomend(function(){
                 var int = optimalInterval(chart, interval);
                 var len = optimalDataLength(chart);
                 if (interval != int || len > rows.length) {
                     var counter = ++redrawCounter;
                     drawing = drawing.then(function(){
-                        return new Promise(function(callback){
-                            setTimeout(callback, 1000);
-                        });
-                    }).then(function(){
                         if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
-                            return loadChartData(security, int, optimalDataLength(chart) * 2).then(function(rows){
+                            return loadChartData(security, int, optimalDataLength(chart) * 4).then(function(rows){
                                 if (int == optimalInterval(chart, interval)) {
                                     interval = int;
                                     redraw(rows);

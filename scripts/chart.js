@@ -48,7 +48,7 @@
         var grid = d3.selectAll([]);
         var pane = d3.selectAll([]);
         var axis = d3.selectAll([]);
-        var x_orig = d3.scale.linear();
+        var x_orig = d3.time.scale();
         var x = x_orig.copy();
         var y = d3.scale.linear();
         var xAxis = d3.svg.axis();
@@ -170,7 +170,9 @@
             if (x_trim.range().length > 2) {
                 var start = _.sortedIndex(x_trim.range(), 0);
                 var end = _.sortedIndex(x_trim.range(), chart.innerWidth()+1);
-                x_trim.domain(x_trim.domain().slice(start, end)).range(x_trim.range().slice(start, end));
+                if (start < end - 1) {
+                    x_trim.domain(x_trim.domain().slice(start, end)).range(x_trim.range().slice(start, end));
+                }
             }
             zoom.x(x_trim);
             xAxis.scale(x_trim);
