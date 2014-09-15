@@ -71,17 +71,25 @@ jQuery(function($){
         var chart = d3.chart().width(document.documentElement.clientWidth).height(600);
         var v = d3.scale.linear().range(chart.y().range());
         chart.series("volume", d3.chart.series.bar(volume).y(v));
-        for (var poc=columns().length-3;poc>=6;poc-=3) {
-            chart.series("poc poc" + ((poc - 6)/3), d3.chart.series.line(_.property(poc)));
-            chart.series("band band" + ((poc - 6)/3), d3.chart.series.band(_.property(poc+2), _.property(poc+1)));
-        }
         chart.series("price", d3.chart.series.ohlc(open, high, low, close));
         var redrawCounter = 0;
         $(window).resize(function(){
             chart.width(document.documentElement.clientWidth);
             d3.select('#ohlc-div').call(chart);
         });
-        var drawing = loadChartData(security, interval, optimalDataLength(chart) * 2).then(redraw);
+        var drawing = screener.load(security, ['asof',
+                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)',
+                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)',
+                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 1024, 'm30', new Date()).then(function(rows){
+            chart.series("poc poc0", d3.chart.series.line(_.property(1)).xPlot(_.property(0)).datum(rows));
+            chart.series("band band0", d3.chart.series.band(_.property(2), _.property(3)).xPlot(_.property(0)).datum(rows));
+            chart.series("poc poc1", d3.chart.series.line(_.property(4)).xPlot(_.property(0)).datum(rows));
+            chart.series("band band1", d3.chart.series.band(_.property(5), _.property(6)).xPlot(_.property(0)).datum(rows));
+            chart.series("poc poc2", d3.chart.series.line(_.property(7)).xPlot(_.property(0)).datum(rows));
+            chart.series("band band2", d3.chart.series.band(_.property(8), _.property(9)).xPlot(_.property(0)).datum(rows));
+        }).then(function(){
+            return loadChartData(security, interval, optimalDataLength(chart) * 2).then(redraw);
+        });
         return drawing;
         function redraw(rows){
             var x0 = chart.x().copy();
@@ -132,7 +140,7 @@ jQuery(function($){
                 var len = optimalDataLength(chart);
                 if (interval != int || len > rows.length) {
                     var counter = ++redrawCounter;
-                    drawing = drawing.then(function(){
+                    drawing = drawing.catch(function(){}).then(function(){
                         if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
                             return loadChartData(security, int, optimalDataLength(chart) * 4).then(function(rows){
                                 if (int == optimalInterval(chart, interval)) {
@@ -155,9 +163,13 @@ jQuery(function($){
         });
         var x = _.compose(chart.x(), chart.xPlot());
         var datum = chart.visible() || [];
+        var index = intervals.indexOf(interval);
         var minutes = datum.length * parseInt(interval.substring(1), 10);
         var width = x(datum[datum.length-1], datum.length-1) - x(datum[0], 0);
-        return intervals[Math.min(_.sortedIndex(minutesPerPixel, Math.round(minutes / width)), intervals.length-1)];
+        var diff = _.sortedIndex(minutesPerPixel, Math.round(minutes / width)) - index;
+        if (diff === 0) return interval;
+        var i = index + (diff < 0 ? -1 : 1);
+        return intervals[Math.min(Math.max(i, 0), intervals.length-1)];
     }
 
     function optimalDataLength(chart) {
@@ -170,19 +182,7 @@ jQuery(function($){
     }
 
     function loadChartData(security, interval, len) {
-        return screener.load(security, columns(interval), len, interval, new Date());
-    }
-
-    function columns(interval) {
-        var m = interval ? parseInt(interval.substring(1), 10) : 60;
-        return ['asof', 'low', 'open', 'close', 'high', 'volume',
-            fn('POC', 4), fn('LOW_VALUE', 4), fn('HIGH_VALUE', 4),
-            fn('POC', 8), fn('LOW_VALUE', 8), fn('HIGH_VALUE', 8),
-            fn('POC',65), fn('LOW_VALUE',65), fn('HIGH_VALUE',65)
-        ];
-        function fn(name, hours) {
-            return name + '(' + Math.round(hours * 60 / m) + ')';
-        }
+        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], len, interval, new Date());
     }
 
     function drawDailySecurityData(security, now) {
