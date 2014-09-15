@@ -299,6 +299,14 @@ function loadData(calculations, open, now, asof, exchange, security, failfast, e
         } else {
             return data;
         }
+    }).then(function(data) {
+        return _.extend(data, {
+            result: _.map(data.result, function(result) {
+                return _.map(expressions, function(expression){
+                    return result[expression];
+                });
+            })
+        });
     });
 }
 
@@ -385,13 +393,19 @@ function evaluateExpressions(calculations, open, failfast, security, exchange, i
     return collectIntervalRange(open, failfast, security, exchange, interval, length + n - 1, asof, now).then(function(data) {
         var startIndex = Math.max(data.result.length - length, 0);
         return _.extend(data, {
-            result: _.map(_.range(startIndex, data.result.length), function(i) {
-                return _.map(calcs, function(calc){
-                    var points = preceding(data.result, calc.getDataLength(), i);
-                    return calc.getValue(points);
-                });
+            result: _.map(data.result.slice(startIndex), function(result, i) {
+                return _.reduce(calcs, function(result, calc, c){
+                    if (_.isUndefined(result[expressions[c]])) {
+                        var points = preceding(data.result, calc.getDataLength(), startIndex + i);
+                        result[expressions[c]] = calc.getValue(points);
+                    }
+                    return result;
+                }, result);
             })
         });
+    }).then(function(data){
+        if (!interval.derivedFrom) return data;
+        return storeData(open, security, interval, data.result).then(_.constant(data));
     });
 }
 
@@ -417,28 +431,36 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
             // need to update with newer data
             var last = result[result.length - 1];
             var size = Math.ceil((asof.valueOf() - last.asof.valueOf()) / interval.millis);
-            return collectAggregateRange(open, failfast, security, exchange, interval, size, asof, now).then(function(aggregated){
+            return collectAggregateRange(open, failfast, security, exchange, interval, size, last.asof, asof, now).then(function(aggregated){
+                return _.extend(aggregated, {
+                    result: aggregated.result.slice(_.sortedIndex(aggregated.result, last, 'asof') + 1)
+                });
+            }).then(function(aggregated){
                 return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
             }).then(function(aggregated){
-                var from = _.sortedIndex(aggregated, last, 'asof');
                 return _.extend(aggregated, {
-                    result: result.concat(aggregated.result.slice(from))
+                    result: result.concat(aggregated.result)
                 });
             });
         } else {
             // no data available
-            return collectAggregateRange(open, failfast, security, exchange, interval, length, asof, now).then(function(aggregated){
+            return collectAggregateRange(open, failfast, security, exchange, interval, length, null, asof, now).then(function(aggregated){
                 return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
             });
         }
     });
 }
 
-function collectAggregateRange(open, failfast, security, exchange, interval, length, asof, now) {
+function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
     var ceil = _.partial(interval.inc, exchange, _, 0);
     var end = ceil(asof);
     var size = interval.aggregate * length;
     return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end.toDate(), now).then(function(data){
+        if (!since) return data;
+        return _.extend(data, {
+            result: data.result.slice(_.sortedIndex(data.result, {asof: since}, 'asof') + 1)
+        });
+    }).then(function(data){
         if (interval.aggregate == 1) return data;
         return _.extend(data, {
             result: _.sortBy(_.map(_.groupBy(data.result, function(point){
@@ -490,7 +512,31 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                     security: security,
                     exchange: exchange,
                     ticker: ticker,
+                    period: period.storeName,
                     result: result,
+                    start: next.format(),
+                    end: moment(now).tz(exchange.tz).format()
+                }]
+            });
+        } else if (result.length && result.length < length) {
+            // need more historic data
+            return conclude({
+                status: failfast ? 'error' : 'warning',
+                message: 'Need more data points',
+                result: result,
+                quote: [{
+                    security: security,
+                    exchange: exchange,
+                    ticker: ticker,
+                    period: period.storeName,
+                    result: result,
+                    start: inc(result[0].asof, -2 * (length - result.length)).format(),
+                    end: inc(result[0].asof, -1).format()
+                }, {
+                    security: security,
+                    exchange: exchange,
+                    ticker: ticker,
+                    period: period.storeName,
                     start: next.format(),
                     end: moment(now).tz(exchange.tz).format()
                 }]
@@ -503,7 +549,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                 cursor.onsuccess = collect(1, resolve, reject);
             }).then(function(arrayOfOne){
                 var earliest = arrayOfOne.length ? arrayOfOne[0] : null;
-                var d1 = inc(asof, -2 * length);
+                var d1 = inc(asof, -length);
                 var d2 = earliest ? inc(earliest.asof, -1) : d1;
                 var start = d1.valueOf() < d2.valueOf() ? d1 : d2;
                 return Promise.reject({
@@ -513,6 +559,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                         security: security,
                         exchange: exchange,
                         ticker: ticker,
+                        period: period.storeName,
                         start: start.format(),
                         end: moment(now).tz(exchange.tz).format()
                     }]
@@ -523,6 +570,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
 }
 
 function storeData(open, security, interval, data) {
+    if (!data.length) return Promise.resolve(data);
     return open(security, interval, "readwrite", function(store, resolve, reject){
         var counter = 0;
         var onsuccess = function(){
