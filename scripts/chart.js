@@ -48,9 +48,9 @@
         var grid = d3.selectAll([]);
         var pane = d3.selectAll([]);
         var axis = d3.selectAll([]);
-        var x_orig = d3.time.scale();
+        var x_orig = d3.time.scale().domain([moment().subtract('months',1).toDate(), new Date()]).range([0,width-margin.left-margin.right]);
         var x = x_orig.copy();
-        var y = d3.scale.linear();
+        var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis();
         var yAxis = d3.svg.axis().orient("right");
         var clip = 'clip-' + Math.random().toString(16).slice(2);
@@ -63,7 +63,7 @@
             scaleChart();
             if (listeners.zoom)
                 listeners.zoom.apply(this, arguments);
-            chart(svg);
+            redraw();
         }).on("zoomend", function(){
             pane.attr("class", pane.attr("class").replace(/ grabbing/g,''));
             scaleChart();
@@ -75,48 +75,49 @@
         var chart = function(_svg) {
             if (!arguments.length) return svg;
             svg = _svg;
-            svg.attr("width", width);
-            svg.attr("height", height);
-            var clipRect = svg.select("defs rect").node();
-            if (clipRect) {
-                clipRect.parentElement.setAttribute("id", clip);
-                d3.select(clipRect)
-                    .attr("x", 0).attr("y", 0)
-                    .attr("width", width - margin.left - margin.right)
-                    .attr("height", height - margin.top - margin.bottom);
-            }
-            updateAll(svg, "g", "y axis").attr("transform", f('translate', chart.innerWidth() + margin.left, margin.top)).call(yAxis)
-                .selectAll("line").attr("x1", -chart.innerWidth());
-            var axis = updateAll(svg, "g", "x axis").attr("transform", f('translate', margin.left, chart.innerHeight() + margin.top)).call(xAxis);
-            axis.selectAll("line").attr("y1", -chart.innerHeight());
-            var x1, n1, s1,s0;
-            axis.selectAll("text").each(function(d,i){
-                // remove overlapping ticks
-                var overlap = x1 && i > 0 && x1 > chart.x()(d);
-                if (overlap && !significant(s0,s1,d.toISOString())) {
-                    d3.select(this.parentElement).attr("style", "opacity:0;");
-                } else {
-                    if (overlap) {
-                        d3.select(n1).attr("style", "opacity:0;");
-                    }
-                    s0 = s1;
-                    s1 = moment(d).format();
-                    n1 = this.parentElement;
-                    x1 = chart.x()(d) + this.getComputedTextLength();
+            var x0 = chart.x().copy();
+            var y0 = chart.y().copy();
+            var start = _.sortedIndex(x0.range(), 0);
+            var end = Math.min(_.sortedIndex(x0.range(), chart.innerWidth()), x0.range().length-1);
+            var xDomain = [x0.domain()[start], x0.domain()[end]];
+            var yDomain = _.reduce(series, function(yDomain, series){
+                var d = series.yDomain(xDomain);
+                if (!d) return yDomain;
+                if (isFinite(d[0]) && (d[0] < yDomain[0] || yDomain[0] === 0)) {
+                    yDomain[0] = d[0];
                 }
+                if (isFinite(d[1]) && (d[1] > yDomain[1] || yDomain[1] === 1)) {
+                    yDomain[1] = d[1];
+                }
+                return yDomain;
+            }, [0, 1]);
+            var domain = chart.datum().map(chart.xPlot());
+            svg.transition().duration(1000).tween("axis", function(){
+                var y = y0.copy().domain(yDomain);
+                var ease = d3.ease('cubic-in-out');
+                return function(t) {
+                    var range = xrange(x0, domain, chart.innerWidth());
+                    var x = chart.x().domain(domain).range(domain.map(function(d,i){
+                        var from = x0(d);
+                        var to = range[i];
+                        var e = ease(t);
+                        return from + (to - from) * e;
+                    }));
+                    y.domain(yDomain.map(function(to){
+                        var from = y0.invert(y(to));
+                        var e = ease(t);
+                        return from + (to - from) * e;
+                    }));
+                    chart.x(x);
+                    chart.y(y);
+                    redraw();
+                };
+            }).each("end", function(){
+                var x = chart.x().domain(domain).range(xrange(chart.x(),domain,chart.innerWidth()));
+                chart.x(x);
+                chart.y(chart.y().domain(yDomain));
+                redraw();
             });
-            grid = updateAll(svg, "g", "grid")
-                .attr("transform", f('translate', margin.left, margin.top))
-                .attr("clip-path", f('url', '#' + clip));
-            _.each(series, function(mark, cls){
-                updateAll(grid, "g", cls).call(mark);
-            });
-            pane = updateAll(svg, "rect", "pane")
-                .attr("x", margin.left)
-                .attr("y", margin.top)
-                .attr("width", width - margin.left - margin.right)
-                .attr("height", height - margin.top - margin.bottom)
-                .call(zoom);
             return chart;
         };
         chart.select = function() {
@@ -181,10 +182,6 @@
         chart.y = function(_y) {
             if (!arguments.length) return y;
             y = _y;
-            y.domain([0,1]);
-            _.keys(series).forEach(function(cls){
-                series[cls] = series[cls].chart(chart);
-            });
             yAxis.scale(y);
             return chart;
         };
@@ -217,41 +214,21 @@
         chart.xPlot = function(_xIteratee) {
             if (!arguments.length) return xIteratee;
             xIteratee = _.iteratee(_xIteratee);
-            x.domain(_.reduce(datum, function(result, d, i){
-                var value = xIteratee(d,i);
-                if (value < result[0] || result[0] === 0) {
-                    result[0] = value;
-                }
-                if (value > result[1] || result[1] === 1) {
-                    result[1] = value;
-                }
-                return result;
-            }, [0, 1]));
             return chart.x(x);
         };
         chart.datum = function(_datum) {
             if (!arguments.length) return datum;
             if (!Array.isArray(_datum)) throw Error("datum must be an Array");
             datum = _datum;
-            x.domain(_.reduce(datum, function(result, d, i){
-                var value = xIteratee(d,i);
-                if (value < result[0] || result[0] === 0) {
-                    result[0] = value;
-                }
-                if (value > result[1] || result[1] === 1) {
-                    result[1] = value;
-                }
-                return result;
-            }, [0, 1]));
-            return chart.x(x);
+            return chart;
         };
         chart.visible = function() {
             var xIteratee = chart.xPlot();
             var datum = chart.datum();
-            var domain = xAxis.scale().domain();
-            var start = sortedIndex(datum, domain[0], xIteratee);
-            var end = sortedIndex(datum, domain[domain.length-1], xIteratee);
-            return datum.slice(start, end+1);
+            var mapped = datum.map(xIteratee);
+            var start = _.sortedIndex(mapped, chart.x().invert(0));
+            var end = _.sortedIndex(mapped, chart.x().invert(chart.innerWidth()+1));
+            return datum.slice(start, end);
         };
         chart.series = function(cls, _) {
             if (!arguments.length) return series;
@@ -275,7 +252,53 @@
             chart.x().range(x_orig.range().map(function(x){
                 return x * scale + offset;
             }));
-            chart.y(y);
+            return chart;
+        }
+
+        function redraw() {
+            svg.attr("width", width);
+            svg.attr("height", height);
+            var clipRect = svg.select("defs rect").node();
+            if (clipRect) {
+                clipRect.parentElement.setAttribute("id", clip);
+                d3.select(clipRect)
+                    .attr("x", 0).attr("y", 0)
+                    .attr("width", width - margin.left - margin.right)
+                    .attr("height", height - margin.top - margin.bottom);
+            }
+            updateAll(svg, "g", "y axis").attr("transform", f('translate', chart.innerWidth() + margin.left, margin.top)).call(yAxis)
+                .selectAll("line").attr("x1", -chart.innerWidth());
+            var axis = updateAll(svg, "g", "x axis").attr("transform", f('translate', margin.left, chart.innerHeight() + margin.top)).call(xAxis);
+            axis.selectAll("line").attr("y1", -chart.innerHeight());
+            var x1, n1, s1,s0;
+            axis.selectAll("text").each(function(d,i){
+                // remove overlapping ticks
+                var overlap = x1 && i > 0 && x1 > chart.x()(d);
+                if (overlap && !significant(s0,s1,d.toISOString())) {
+                    d3.select(this.parentElement).attr("style", "opacity:0;");
+                } else {
+                    if (overlap) {
+                        d3.select(n1).attr("style", "opacity:0;");
+                    }
+                    s0 = s1;
+                    s1 = moment(d).format();
+                    n1 = this.parentElement;
+                    x1 = chart.x()(d) + this.getComputedTextLength();
+                }
+            });
+            grid = updateAll(svg, "g", "grid")
+                .attr("transform", f('translate', margin.left, margin.top))
+                .attr("clip-path", f('url', '#' + clip));
+            _.each(series, function(mark, cls){
+                updateAll(grid, "g", cls).call(mark);
+            });
+            pane = updateAll(svg, "rect", "pane")
+                .attr("x", margin.left)
+                .attr("y", margin.top)
+                .attr("width", width - margin.left - margin.right)
+                .attr("height", height - margin.top - margin.bottom)
+                .call(zoom);
+            return chart;
         }
     };
 
@@ -348,89 +371,55 @@
         series.chart = function(_) {
             if (!arguments.length) return chart;
             chart = _;
-            var y = series.y();
-            var domain = y.domain();
-            var d = domainFn(series.visible());
-            if (isFinite(d[0]) && (d[0] < domain[0] || domain[0] === 0)) {
-                domain[0] = d[0];
-            }
-            if (isFinite(d[1]) && (d[1] > domain[1] || domain[1] === 1)) {
-                domain[1] = d[1];
-            }
-            y.domain(domain);
             return series;
+        };
+        series.yDomain = function(xDomain) {
+            if (y) return;
+            var datum = series.datum();
+            var xIteratee = series.xPlot();
+            var mapped = datum.map(xIteratee);
+            var start = _.sortedIndex(mapped, xDomain[0]);
+            var end = _.sortedIndex(mapped, xDomain[xDomain.length-1]);
+            var visible = datum.slice(start, end+1);
+            return domainFn(visible);
         };
         series.x = function(_) {
             if (!arguments.length) return x || chart.x();
             x = _;
-            x.domain(_.reduce(series.datum(), function(result, d, i){
-                var value = series.xPlot()(d,i);
-                if (value < result[0] || result[0] === 0) {
-                    result[0] = value;
-                }
-                if (value > result[1] || result[1] === 1) {
-                    result[1] = value;
-                }
-                return result;
-            }, [0, 1]));
             return series;
         };
         series.y = function(_) {
             if (!arguments.length) return y || chart.y();
             y = _;
-            y.domain(domainFn(series.visible()));
             return series;
         };
         series.xPlot = function(_xIteratee) {
             if (!arguments.length) return xIteratee || chart.xPlot();
             xIteratee = _.iteratee(_xIteratee);
-            if (x) x.domain(_.reduce(series.datum(), function(result, d, i){
-                var value = xIteratee(d,i);
-                if (value < result[0] || result[0] === 0) {
-                    result[0] = value;
-                }
-                if (value > result[1] || result[1] === 1) {
-                    result[1] = value;
-                }
-                return result;
-            }, [0, 1]));
             return series;
         };
         series.datum = function(_datum) {
             if (!arguments.length) return datum || chart.datum();
             if (!Array.isArray(_datum)) throw Error("datum must be an Array");
             datum = _datum;
-            if (x) x.domain(_.reduce(series.datum(), function(result, d, i){
-                var value = xIteratee(d,i);
-                if (value < result[0] || result[0] === 0) {
-                    result[0] = value;
-                }
-                if (value > result[1] || result[1] === 1) {
-                    result[1] = value;
-                }
-                return result;
-            }, [0, 1]));
-            if (y) y.domain(domainFn(series.visible()));
             return series;
-        };
-        series.visible = function() {
-            if (!datum && chart) return chart.visible();
-            var xIteratee = series.xPlot();
-            var domain = series.x().domain();
-            var start = sortedIndex(datum, domain[0], xIteratee);
-            var end = sortedIndex(datum, domain[domain.length-1], xIteratee);
-            return datum.slice(start, end+1);
         };
         return series;
     }
 
-    function sortedIndex(array, value, iteratee) {
-        var low = 0, high = array.length;
-        while (low < high) {
-            var mid = low + high >>> 1;
-            if (iteratee(array[mid], mid) < value) low = mid + 1; else high = mid;
-        }
-        return low;
+    function xrange(scale, domain, width) {
+        var range = scale.range();
+        var d = scale.domain();
+        var start = _.sortedIndex(range, 0);
+        var end = Math.min(_.sortedIndex(range, width), range.length-1);
+        var d1 = Math.min(_.sortedIndex(domain, d[start]), domain.length-1);
+        var d2 = Math.min(_.sortedIndex(domain, d[end]), domain.length-1);
+        var x1 = scale(domain[d1]);
+        var x2 = scale(domain[d2]);
+        var step = x1 == x2 || d1 == d2?
+            width/domain.length:
+            (x2 - x1) / (d2 - d1);
+        return _.range(x1 - d1 * step, x1 + (domain.length - d1)*step, step);
     }
 
     function updateAll(chart, tag, cls, data){

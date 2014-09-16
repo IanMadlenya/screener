@@ -68,7 +68,7 @@ jQuery(function($){
         var close = _.property(3);
         var high = _.property(4);
         var volume = _.property(5);
-        var chart = d3.chart().width(document.documentElement.clientWidth).height(600);
+        var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot(asof);
         var v = d3.scale.linear().range(chart.y().range());
         chart.series("volume", d3.chart.series.bar(volume).y(v));
         chart.series("price", d3.chart.series.ohlc(open, high, low, close));
@@ -92,49 +92,11 @@ jQuery(function($){
         });
         return drawing;
         function redraw(rows){
-            var x0 = chart.x().copy();
-            var visible = chart.visible();
-            var domain = rows.map(asof);
-            var m = parseInt(interval.substring(1),10);
-            var x = d3.time.scale().domain(domain);
-            if (visible.length) {
-                var xScale = chart.xAxis().scale();
-                var d1 = Math.min(_.sortedIndex(rows, visible[0], asof), rows.length-1);
-                var d2 = Math.min(_.sortedIndex(rows, visible[visible.length-1], asof), rows.length-1);
-                var x1 = xScale(asof(rows[d1], d1));
-                var x2 = xScale(asof(rows[d2], d2));
-                var step = x1 == x2 || d1 == d2?
-                    chart.innerWidth()/domain.length:
-                    (x2 - x1) / (d2 - d1);
-                var start = x1 - d1 * step;
-                x.range(_.range(start, start + domain.length*step, step));
-                chart.scaleExtent([Math.min(m/60 /step*5,1), Math.max(m/1 /step*5,1)]);
-            } else {
-                var ppp = Math.max(chart.innerWidth()/domain.length, 5);
-                var offset = chart.innerWidth() - domain.length * ppp;
-                x.range(_.range(offset, offset + domain.length*ppp, ppp));
-                chart.scaleExtent([Math.min(m/60 /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
-            }
-            chart.width(document.documentElement.clientWidth);
+            v.domain([_.min(rows.map(volume)), _.max(rows.map(volume))]);
             chart.datum(rows);
-            chart.xPlot(asof);
-            d3.select('#ohlc-div').transition().duration(5000).tween("axis", function(){
-                var x1 = x.copy();
-                var ease = d3.ease('cubic-in-out');
-                return function(t) {
-                    x1.range(x.domain().map(function(d){
-                        var from = x0(d);
-                        var to = x(d);
-                        var e = ease(t);
-                        return from + (to - from) * e;
-                    }));
-                    chart.x(x1);
-                    d3.select('#ohlc-div').call(chart);
-                };
-            }).each("end", function(){
-                chart.x(x);
-                d3.select('#ohlc-div').call(chart);
-            });
+            var m = parseInt(interval.substring(1), 10);
+            var ppp = Math.max(chart.innerWidth()/(chart.visible().length || rows.length), 5);
+            chart.scaleExtent([Math.min(m/60 /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
             chart.zoomend(function(){
                 var int = optimalInterval(chart, interval);
                 var len = optimalDataLength(chart);
@@ -142,9 +104,11 @@ jQuery(function($){
                     var counter = ++redrawCounter;
                     drawing = drawing.catch(function(){}).then(function(){
                         if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
+                            console.log("loading", int);
                             return loadChartData(security, int, optimalDataLength(chart) * 4).then(function(rows){
                                 if (int == optimalInterval(chart, interval)) {
                                     interval = int;
+                                    console.log("loaded", interval);
                                     redraw(rows);
                                 }
                             });
@@ -152,6 +116,7 @@ jQuery(function($){
                     }).catch(calli.error);
                 }
             });
+            d3.select('#ohlc-div').call(chart);
         }
     }
 
