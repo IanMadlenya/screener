@@ -61,7 +61,7 @@ jQuery(function($){
     }
 
     function drawOhlcChartData(security, now) {
-        var interval = 'm60';
+        var interval = screener.getItem("interval", 'm60');
         var asof = _.property(0);
         var low = _.property(1);
         var open = _.property(2);
@@ -69,6 +69,8 @@ jQuery(function($){
         var high = _.property(4);
         var volume = _.property(5);
         var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot(asof);
+        var since = moment().subtract(+screener.getItem("time-width", 365*24*60*60*1000), 'ms');
+        chart.x(chart.x().domain([since, new Date()]));
         var v = d3.scale.linear().range(chart.y().range());
         chart.series("volume", d3.chart.series.bar(volume).y(v));
         chart.series("price", d3.chart.series.ohlc(open, high, low, close));
@@ -94,26 +96,33 @@ jQuery(function($){
         function redraw(rows){
             v.domain([_.min(rows.map(volume)), _.max(rows.map(volume))]);
             chart.datum(rows);
+            var visible = chart.visible();
+            if (visible.length > 1) {
+                screener.setItem("time-width", asof(visible[visible.length-1],visible.length-1).valueOf() - asof(visible[0],0).valueOf());
+            }
             var m = parseInt(interval.substring(1), 10);
-            var ppp = Math.max(chart.innerWidth()/(chart.visible().length || rows.length), 5);
+            var ppp = Math.max(chart.innerWidth()/(visible.length || rows.length), 5);
             chart.scaleExtent([Math.min(m/60 /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
             chart.zoomend(function(){
                 var int = optimalInterval(chart, interval);
                 var len = optimalDataLength(chart);
                 if (interval != int || len > rows.length) {
                     var counter = ++redrawCounter;
-                    drawing = drawing.catch(function(){}).then(function(){
+                    drawing = drawing.then(function(){
                         if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
                             console.log("loading", int);
                             return loadChartData(security, int, optimalDataLength(chart) * 4).then(function(rows){
                                 if (int == optimalInterval(chart, interval)) {
                                     interval = int;
+                                    screener.setItem("interval", interval);
                                     console.log("loaded", interval);
                                     redraw(rows);
                                 }
+                            }, function(error) {
+                                calli.error(error);
                             });
                         }
-                    }).catch(calli.error);
+                    });
                 }
             });
             d3.select('#ohlc-div').call(chart);
