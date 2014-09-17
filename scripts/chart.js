@@ -48,7 +48,7 @@
         var grid = d3.selectAll([]);
         var pane = d3.selectAll([]);
         var axis = d3.selectAll([]);
-        var x_orig = d3.time.scale().domain([moment().subtract('months',1).toDate(), new Date()]).range([0,width-margin.left-margin.right]);
+        var x_orig = d3.time.scale().domain([moment().subtract('years',1).toDate(), new Date()]).range([0,width-margin.left-margin.right]);
         var x = x_orig.copy();
         var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis();
@@ -75,27 +75,15 @@
         var chart = function(_svg) {
             if (!arguments.length) return svg;
             svg = _svg;
-            var x0 = chart.x().copy();
-            var y0 = chart.y().copy();
-            var start = _.sortedIndex(x0.range(), 0);
-            var end = Math.min(_.sortedIndex(x0.range(), chart.innerWidth()), x0.range().length-1);
-            var xDomain = [x0.domain()[start], x0.domain()[end]];
-            var yDomain = _.reduce(series, function(yDomain, series){
-                var d = series.yDomain(xDomain);
-                if (!d) return yDomain;
-                if (isFinite(d[0]) && (d[0] < yDomain[0] || yDomain[0] === 0)) {
-                    yDomain[0] = d[0];
-                }
-                if (isFinite(d[1]) && (d[1] > yDomain[1] || yDomain[1] === 1)) {
-                    yDomain[1] = d[1];
-                }
-                return yDomain;
-            }, [0, 1]);
             var domain = chart.datum().map(chart.xPlot());
             svg.transition().duration(1000).tween("axis", function(){
-                var y = y0.copy().domain(yDomain);
+                var x0 = chart.x().copy();
+                var y0 = chart.y().copy();
+                var yDomain = ydomain(x0, chart.innerWidth(), series, chart.y().domain());
+                var y = y0.domain(yDomain);
                 var ease = d3.ease('cubic-in-out');
                 return function(t) {
+                    if (chart.datum().length != domain.length) return;
                     var range = xrange(x0, domain, chart.innerWidth());
                     var x = chart.x().domain(domain).range(domain.map(function(d,i){
                         var from = x0(d);
@@ -113,8 +101,10 @@
                     redraw();
                 };
             }).each("end", function(){
-                var x = chart.x().domain(domain).range(xrange(chart.x(),domain,chart.innerWidth()));
-                chart.x(x);
+                if (chart.datum().length != domain.length) return;
+                var range = xrange(chart.x(),domain,chart.innerWidth());
+                chart.x(chart.x().domain(domain).range(range));
+                var yDomain = ydomain(x, chart.innerWidth(), series, chart.y().domain());
                 chart.y(chart.y().domain(yDomain));
                 redraw();
             });
@@ -308,7 +298,7 @@
             var series = buildSeries(function(g){
                 var x = series.x(), y = series.y(), datum = series.datum(), xIteratee = series.xPlot();
                 var range = x.range();
-                var width = Math.floor((range[range.length-1]-range[0]) / datum.length);
+                var width = Math.max(Math.floor((range[range.length-1]-range[0]) / datum.length), 2);
                 updateAll(g, "rect", "bar", datum).attr("x", function(d, i){
                     return x(xIteratee(d,i)) - width / 2;
                 }).attr("y", _.compose(y, iteratee)).attr("width", width).attr("height", function(d,i){
@@ -410,16 +400,32 @@
     function xrange(scale, domain, width) {
         var range = scale.range();
         var d = scale.domain();
-        var start = _.sortedIndex(range, 0);
+        var start = Math.min(_.sortedIndex(range, 0), range.length-2);
         var end = Math.min(_.sortedIndex(range, width), range.length-1);
-        var d1 = Math.min(_.sortedIndex(domain, d[start]), domain.length-1);
+        var d1 = Math.max(Math.min(_.sortedIndex(domain, d[start]), domain.length-10),0);
         var d2 = Math.min(_.sortedIndex(domain, d[end]), domain.length-1);
-        var x1 = scale(domain[d1]);
-        var x2 = scale(domain[d2]);
-        var step = x1 == x2 || d1 == d2?
-            width/domain.length:
-            (x2 - x1) / (d2 - d1);
-        return _.range(x1 - d1 * step, x1 + (domain.length - d1)*step, step);
+        var size = domain.length - d2 < 10 ? (domain.length-1 - d1) : (d2 - d1);
+        var step = width / size;
+        return _.range(-d1 * step, (domain.length - d1)*step, step);
+    }
+
+    function ydomain(x, width, series, domain) {
+        var start = Math.min(_.sortedIndex(x.range(), 0), x.range().length-2);
+        var end = Math.min(_.sortedIndex(x.range(), width), x.range().length-1);
+        var xDomain = [x.domain()[start], x.domain()[end]];
+        var yDomain = _.reduce(series, function(yDomain, series){
+            var d = series.yDomain(xDomain);
+            if (!d) return yDomain;
+            if (isFinite(d[0]) && (d[0] < yDomain[0] || yDomain[0] === 0)) {
+                yDomain[0] = d[0];
+            }
+            if (isFinite(d[1]) && (d[1] > yDomain[1] || yDomain[1] === 100)) {
+                yDomain[1] = d[1];
+            }
+            return yDomain;
+        }, [0, 100]);
+        if (_.isEqual(yDomain, [0,100])) return domain;
+        return yDomain;
     }
 
     function updateAll(chart, tag, cls, data){
