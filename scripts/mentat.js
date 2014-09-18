@@ -541,7 +541,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                     ticker: ticker,
                     period: period.storeName,
                     result: result,
-                    start: next.format(),
+                    start: inc(result[result.length - 1].asof, -1).format(),
                     end: moment(now).tz(exchange.tz).format()
                 }]
             });
@@ -562,7 +562,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                     exchange: exchange,
                     ticker: ticker,
                     period: period.storeName,
-                    start: next.format(),
+                    start: inc(result[result.length - 1].asof, -1).format(),
                     end: moment(now).tz(exchange.tz).format()
                 });
             }
