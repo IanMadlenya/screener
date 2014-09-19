@@ -157,6 +157,8 @@ function openHIT(){
             queue = new Promise(construct);
         queue = queue.then(function(){
             return new Promise(fn);
+        }).catch(function(error){
+            // errors are handled by caller
         });
         var same = queue;
         queue.then(function(){

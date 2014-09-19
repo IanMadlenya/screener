@@ -475,7 +475,7 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
 
 function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
     var ceil = _.partial(interval.inc, exchange, _, 0);
-    var end = ceil(asof);
+    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.inc(exchange, asof, -1);
     var size = interval.aggregate * length;
     return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end.toDate(), now).then(function(data){
         if (!since) return data;
