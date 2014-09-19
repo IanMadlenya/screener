@@ -53,20 +53,53 @@
         var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis();
         var yAxis = d3.svg.axis().orient("right");
+        var yRule = 0;
         var clip = 'clip-' + Math.random().toString(16).slice(2);
         var listeners = {};
+        var zoomFocal, zoomScale;
+        var dragOffset;
+        var drag = d3.behavior.drag().origin(function(){
+            if (d3.event.type == "mousedown") {
+                dragOffset = d3.event.y - chart.y()(yRule);
+            }
+            return {x:0,y:chart.y()(yRule)};
+        }).on("drag", function(){
+            var domain = chart.y().domain();
+            var se = d3.event.sourceEvent;
+            var position = dragOffset && se && se.type == "mousemove" ? se.y - dragOffset : d3.event.y;
+            yRule = Math.max(domain[0], Math.min(domain[domain.length-1], chart.y().invert(position)));
+            var rule = d3.select(this.parentElement);
+            rule.attr("transform", f('translate', chart.innerWidth() + margin.left, chart.y()(yRule)+margin.top)).select("text").text(yRule);
+        }).on("dragend", function(){
+            redraw();
+            dragOffset = undefined;
+        });
         var zoom = d3.behavior.zoom().on("zoomstart", function(){
-            pane.attr("class", pane.attr("class") + ' grabbing');
+            if (d3.event.sourceEvent.type == 'mousedown') {
+                pane.attr("class", pane.attr("class") + ' grabbing');
+            }
+            zoomFocal = chart.x().invert(d3.mouse(grid.node())[0]);
+            zoomScale = zoom.scale();
             if (listeners.zoomstart)
                 listeners.zoomstart.apply(this, arguments);
         }).on("zoom", function(){
-            scaleChart();
+            if (zoomScale == zoom.scale()) { // pan
+                scaleChart(zoomFocal, d3.mouse(grid.node())[0]);
+                zoomScale = zoom.scale();
+            } else {
+                scaleChart(); // zoom
+            }
             if (listeners.zoom)
                 listeners.zoom.apply(this, arguments);
             redraw();
         }).on("zoomend", function(){
             pane.attr("class", pane.attr("class").replace(/ grabbing/g,''));
-            scaleChart();
+            if (zoomScale == zoom.scale()) { // pan
+                scaleChart(zoomFocal, d3.mouse(grid.node())[0]);
+                zoomScale = zoom.scale();
+            } else {
+                scaleChart(); // zoom
+            }
             if (listeners.zoomend)
                 listeners.zoomend.apply(this, arguments);
             chart(svg);
@@ -226,15 +259,25 @@
             series[cls] = _.chart(chart);
             return chart.y(y);
         };
+        chart.rule = function(_) {
+            if (!arguments.length) return yRule;
+            yRule = _;
+            return chart;
+        };
         return chart;
 
-        function scaleChart() {
+        function scaleChart(focal, xfocal) {
             var scale = zoom.scale();
             var offset = zoom.translate()[0];
             var datum = chart.datum() || [];
             if (datum.length) {
                 var end = x_orig(chart.xPlot()(datum[datum.length-1]));
                 if (end * scale + offset < chart.innerWidth()) {
+                    if (arguments.length) {
+                        var mid = x_orig(focal);
+                        scale = (chart.innerWidth() - xfocal) / (end - mid);
+                        zoom.scale(scale);
+                    }
                     offset = chart.innerWidth() - end * scale;
                     zoom.translate([offset, zoom.translate()[1]]);
                 }
@@ -288,6 +331,30 @@
                 .attr("width", width - margin.left - margin.right)
                 .attr("height", height - margin.top - margin.bottom)
                 .call(zoom);
+            updateAll(svg, "g", "rule").call(function(rule){
+                var domain = chart.y().domain();
+                yRule = Math.max(domain[0], Math.min(domain[domain.length-1], yRule));
+                var y = chart.y()(yRule);
+                rule.attr("transform", f('translate', chart.innerWidth() + margin.left, y+margin.top));
+                updateAll(rule, "line").attr("x1", -chart.innerWidth()).attr("x2", 6);
+                updateAll(rule, "text").call(function(text){
+                    text.attr("x",  9).attr("dy", ".32em").attr("style", "text-anchor:start;").text(yRule);
+                    var rhalf = text.node().getBBox().height/2;
+                    svg.selectAll("g.y.axis .tick").each(function(d){
+                        var dy = chart.y()(d);
+                        var half = this.getBBox().height/2;
+                        if (dy - half < y + rhalf && dy + half > y - rhalf) {
+                            d3.select(this).attr("style", "opacity:0;");
+                        }
+                    });
+                });
+                updateAll(rule, "rect", "pane")
+                    .attr("x", -chart.innerWidth())
+                    .attr("y", -10)
+                    .attr("width", chart.innerWidth() + margin.right)
+                    .attr("height", 20)
+                    .call(drag);
+            });
             return chart;
         }
     };

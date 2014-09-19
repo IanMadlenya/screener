@@ -90,7 +90,12 @@ jQuery(function($){
             chart.series("poc poc2", d3.chart.series.line(_.property(7)).xPlot(_.property(0)).datum(rows));
             chart.series("band band2", d3.chart.series.band(_.property(8), _.property(9)).xPlot(_.property(0)).datum(rows));
         }).then(function(){
-            return loadChartData(security, interval, optimalDataLength(chart) * 2).then(redraw);
+            return screener.load(security, ['close'], 1, 'd1', new Date()).then(function(data){
+                var close = data[0][0];
+                chart.rule(close);
+            });
+        }).then(function(){
+            return loadChartData(security, interval, optimalDataLength(chart) * 4).then(redraw);
         });
         return drawing;
         function redraw(rows){
@@ -137,6 +142,7 @@ jQuery(function($){
         });
         var x = _.compose(chart.x(), chart.xPlot());
         var datum = chart.visible() || [];
+        if (!datum.length) return interval;
         var index = intervals.indexOf(interval);
         var minutes = datum.length * parseInt(interval.substring(1), 10);
         var width = x(datum[datum.length-1], datum.length-1) - x(datum[0], 0);
