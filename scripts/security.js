@@ -53,9 +53,8 @@ jQuery(function($){
             })[0];
         }).then(function(exchange){
             var ticker = security.substring(exchange.iri.length + 1);
-            var symbol = exchange.mic + ':' + ticker;
-            $('title').text(symbol);
-            $('#page-title').text(symbol);
+            $('title').text(ticker + ' / ' + exchange.label);
+            $('#page-title').text(ticker);
             return security;
         });
     }
@@ -80,15 +79,18 @@ jQuery(function($){
             d3.select('#ohlc-div').call(chart);
         });
         var drawing = screener.load(security, ['asof',
-                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)',
-                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)',
-                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 1024, 'm30', new Date()).then(function(rows){
+                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)'], 1024, 'm15', new Date()).then(function(rows){
             chart.series("poc poc0", d3.chart.series.line(_.property(1)).xPlot(_.property(0)).datum(rows));
             chart.series("band band0", d3.chart.series.band(_.property(2), _.property(3)).xPlot(_.property(0)).datum(rows));
-            chart.series("poc poc1", d3.chart.series.line(_.property(4)).xPlot(_.property(0)).datum(rows));
-            chart.series("band band1", d3.chart.series.band(_.property(5), _.property(6)).xPlot(_.property(0)).datum(rows));
-            chart.series("poc poc2", d3.chart.series.line(_.property(7)).xPlot(_.property(0)).datum(rows));
-            chart.series("band band2", d3.chart.series.band(_.property(8), _.property(9)).xPlot(_.property(0)).datum(rows));
+        }).then(function(){
+            return screener.load(security, ['asof',
+                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)',
+                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 1024, 'm30', new Date());
+        }).then(function(rows){
+            chart.series("poc poc1", d3.chart.series.line(_.property(1)).xPlot(_.property(0)).datum(rows));
+            chart.series("band band1", d3.chart.series.band(_.property(2), _.property(3)).xPlot(_.property(0)).datum(rows));
+            chart.series("poc poc2", d3.chart.series.line(_.property(4)).xPlot(_.property(0)).datum(rows));
+            chart.series("band band2", d3.chart.series.band(_.property(5), _.property(6)).xPlot(_.property(0)).datum(rows));
         }).then(function(){
             return screener.load(security, ['close'], 1, 'd1', new Date()).then(function(data){
                 var close = data[0][0];

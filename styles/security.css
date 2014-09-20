@@ -3,18 +3,28 @@
 .floating-header {
     position: absolute;
     z-index: -1;
-    width: 100%;
     margin: 2em;
 }
 
 rect.pane {
-  cursor: crosshair;
-  fill: none;
-  pointer-events: all;
+    cursor: -webkit-grab;
+    cursor: grab;
+    fill: none;
+    pointer-events: all;
 }
 
 rect.pane.grabbing {
     cursor: move;
+}
+
+g.rule rect.pane {
+    cursor: ns-resize;
+}
+
+g.rule line {
+    stroke: black;
+    stroke-opacity: 0.4;
+    shape-rendering: crispEdges;
 }
 
 .axis.y path {
@@ -35,7 +45,7 @@ rect.pane.grabbing {
 
 g.volume rect {
     fill: orange;
-    fill-opacity: 0.2;
+    fill-opacity: 0.3;
 }
 
 g.volume rect.up {
@@ -49,6 +59,7 @@ g.volume rect.down {
 g.price path {
     shape-rendering: crispEdges;
     stroke: black;
+    stroke-opacity: 0.7;
 }
 
 g.poc0 path {

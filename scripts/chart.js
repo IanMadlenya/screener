@@ -41,7 +41,7 @@
         var margin = {
             top: 10,
             left: 10,
-            right: 60,
+            right: 70,
             bottom: 20
         };
         var svg = d3.selectAll([]);
@@ -57,22 +57,32 @@
         var clip = 'clip-' + Math.random().toString(16).slice(2);
         var listeners = {};
         var zoomFocal, zoomScale;
-        var dragOffset;
+        var dragOffset, dragPoints;
         var drag = d3.behavior.drag().origin(function(){
             if (d3.event.type == "mousedown") {
                 dragOffset = d3.event.y - chart.y()(yRule);
             }
+            var domain = [chart.x().invert(0), chart.x().invert(chart.innerWidth())];
+            dragPoints = _.reduce(series, function(array, series){
+                series.points(domain, function(point){
+                    var i = _.sortedIndex(array, point);
+                    if (point != array[i])
+                        array.splice(i, 0, point);
+                });
+                return array;
+            }, []);
             return {x:0,y:chart.y()(yRule)};
         }).on("drag", function(){
             var domain = chart.y().domain();
             var se = d3.event.sourceEvent;
             var position = dragOffset && se && se.type == "mousemove" ? se.y - dragOffset : d3.event.y;
-            yRule = Math.max(domain[0], Math.min(domain[domain.length-1], chart.y().invert(position)));
+            var value = dragPoints[Math.min(_.sortedIndex(dragPoints, chart.y().invert(position)),dragPoints.length-1)] || 0;
+            yRule = Math.max(domain[0], Math.min(domain[domain.length-1], value)) || 0;
             var rule = d3.select(this.parentElement);
             rule.attr("transform", f('translate', chart.innerWidth() + margin.left, chart.y()(yRule)+margin.top)).select("text").text(yRule);
         }).on("dragend", function(){
             redraw();
-            dragOffset = undefined;
+            dragOffset = dragPoints = undefined;
         });
         var zoom = d3.behavior.zoom().on("zoomstart", function(){
             if (d3.event.sourceEvent.type == 'mousedown') {
@@ -109,12 +119,12 @@
             if (!arguments.length) return svg;
             svg = _svg;
             var domain = chart.datum().map(chart.xPlot());
-            svg.transition().duration(1000).tween("axis", function(){
+            var ease = d3.ease('linear');
+            svg.transition().ease(ease).duration(1000).tween("axis", function(){
                 var x0 = chart.x().copy();
                 var y0 = chart.y().copy();
                 var yDomain = ydomain(x0, chart.innerWidth(), series, chart.y().domain());
                 var y = y0.domain(yDomain);
-                var ease = d3.ease('cubic-in-out');
                 return function(t) {
                     if (chart.datum().length != domain.length) return;
                     var range = xrange(x0, domain, chart.innerWidth());
@@ -371,9 +381,10 @@
                 }).attr("y", _.compose(y, iteratee)).attr("width", width).attr("height", function(d,i){
                     return series.chart().innerHeight() - y(iteratee(d,i));
                 });
-            }, function(datum) {
-                var values = datum.map(iteratee);
-                return [_.min(values), _.max(values)];
+            }, function(datum, callback) {
+                return datum.forEach(function(data, i){
+                    callback(iteratee(data,i),i);
+                });
             });
             return series;
         },
@@ -383,9 +394,10 @@
                 var x = series.x(), y = series.y(), datum = series.datum(), xIteratee = series.xPlot();
                 var line = d3.svg.line().x(_.compose(x,xIteratee)).y(_.compose(y,iteratee));
                 updateAll(g, "path").datum(datum).attr("d", line);
-            }, function(datum) {
-                var values = datum.map(iteratee);
-                return [_.min(values), _.max(values)];
+            }, function(datum, callback) {
+                return datum.forEach(function(data, i){
+                    callback(iteratee(data,i),i);
+                });
             });
             return series;
         },
@@ -396,8 +408,11 @@
                 var x = series.x(), y = series.y(), datum = series.datum(), xIteratee = series.xPlot();
                 var area = d3.svg.area().x(_.compose(x,xIteratee)).y0(_.compose(y,high)).y1(_.compose(y,low));
                 updateAll(g, "path").datum(datum).attr("d", area);
-            }, function(datum) {
-                return [_.min(datum.map(low)), _.max(datum.map(high))];
+            }, function(datum, callback) {
+                return datum.forEach(function(data, i){
+                    callback(low(data,i),i);
+                    callback(high(data,i),i);
+                });
             });
             return series;
         },
@@ -415,8 +430,13 @@
                     updateAll(ohlc, "path", "open").attr("d", 'M' + (x(xIteratee(d,i)) - 2) + ',' + y(open(d,i)) + ' L' + x(xIteratee(d,i)) +',' + y(open(d,i)));
                     updateAll(ohlc, "title").text(xIteratee(d,i) + ' ' + low(d,i) + ' - ' + high(d,i));
                 });
-            }, function(datum) {
-                return [_.min(datum.map(low)), _.max(datum.map(high))];
+            }, function(datum, callback) {
+                return datum.forEach(function(data, i){
+                    callback(open(data,i),i);
+                    callback(low(data,i),i);
+                    callback(high(data,i),i);
+                    callback(close(data,i),i);
+                });
             });
             return series;
         }
@@ -430,7 +450,7 @@
             chart = _;
             return series;
         };
-        series.yDomain = function(xDomain) {
+        series.points = function(xDomain, callback) {
             if (y) return;
             var datum = series.datum();
             var xIteratee = series.xPlot();
@@ -438,7 +458,7 @@
             var start = _.sortedIndex(mapped, xDomain[0]);
             var end = _.sortedIndex(mapped, xDomain[xDomain.length-1]);
             var visible = datum.slice(start, end+1);
-            return domainFn(visible);
+            return domainFn(visible, callback);
         };
         series.x = function(_) {
             if (!arguments.length) return x || chart.x();
@@ -472,7 +492,7 @@
         var d1 = Math.max(Math.min(_.sortedIndex(domain, d[start]), domain.length-10),0);
         var d2 = Math.min(_.sortedIndex(domain, d[end]), domain.length-1);
         var size = domain.length - d2 < 10 ? (domain.length-1 - d1) : (d2 - d1);
-        var step = width / size;
+        var step = size === 0 ? (width / 10) :( width / size);
         return _.range(-d1 * step, (domain.length - d1)*step, step);
     }
 
@@ -481,14 +501,14 @@
         var end = Math.min(_.sortedIndex(x.range(), width), x.range().length-1);
         var xDomain = [x.domain()[start], x.domain()[end]];
         var yDomain = _.reduce(series, function(yDomain, series){
-            var d = series.yDomain(xDomain);
-            if (!d) return yDomain;
-            if (isFinite(d[0]) && (d[0] < yDomain[0] || yDomain[0] === 0)) {
-                yDomain[0] = d[0];
-            }
-            if (isFinite(d[1]) && (d[1] > yDomain[1] || yDomain[1] === 100)) {
-                yDomain[1] = d[1];
-            }
+            series.points(xDomain, function(point){
+                if (isFinite(point) && (point < yDomain[0] || yDomain[0] === 0)) {
+                    yDomain[0] = point;
+                }
+                if (isFinite(point) && (point > yDomain[1] || yDomain[1] === 100)) {
+                    yDomain[1] = point;
+                }
+            });
             return yDomain;
         }, [0, 100]);
         if (_.isEqual(yDomain, [0,100])) return domain;
