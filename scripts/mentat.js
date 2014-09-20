@@ -45,7 +45,7 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
             var start = moment(dateTime).tz(exchange.tz).startOf('day');
             if (start.valueOf() < dateTime.valueOf())
                 return d1.inc(exchange, start, amount + 1);
-            var w = Math.floor(amount / 5);
+            var w = amount > 0 ? Math.floor(amount / 5) : Math.ceil(amount / 5);
             var d = amount - w * 5;
             var day = start.add('weeks', w);
             if (d < 1 || day.isoWeekday() + d < 6) {
@@ -80,7 +80,7 @@ self.addEventListener("connect", _.partial(function(calculations, event) {
             if (start.valueOf() < dateTime.valueOf())
                 return m1.inc(exchange, start, amount + 1);
             var offset = start.hour() * 60 + start.minute();
-            var days = Math.floor(amount / (6.5 * 60));
+            var days = amount > 0 ? Math.floor(amount / (6.5 * 60)) : Math.ceil(amount / (6.5 * 60));
             var m = amount - days * (6.5 * 60);
             if (days !== 0)
                 return d1.inc(exchange, start.startOf('day'), days).add('minutes', offset + m);

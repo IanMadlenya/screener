@@ -366,7 +366,8 @@ function getCalculations() {
                         var most = _.max(weight);
                         var min = tpos[weight.indexOf(most)];
                         var max = tpos[weight.lastIndexOf(most)];
-                        return (min + max) / 2;
+                        if (min == max) return min;
+                        return Math.round((min + max) * 10000 / 2) / 10000;
                     });
                 }
             };
@@ -510,7 +511,7 @@ function getCalculations() {
             return Math.round(((div - Math.floor(div)) || 1) * step) || 100;
         }, tpos[1] - tpos[0]);
         var range = _.range(tpos[0], tpos[tpos.length - 1] + step, step).map(function(d){
-            return d / 10000;
+            return Math.round(d) / 10000;
         });
         var weight = points.reduce(function(weight, point){
             var low = _.sortedIndex(range, point.low);
@@ -519,7 +520,7 @@ function getCalculations() {
                 weight[i]++;
             }
             return weight;
-        }, range.map(_.identity.bind(_, 0)));
+        }, range.map(_.constant(0)));
         return func(range, weight);
     }
 
