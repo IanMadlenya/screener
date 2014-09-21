@@ -293,6 +293,7 @@ function importData(open, interval, now, data) {
         // Yahoo provides weekly/month-to-date data
         return point.asof.valueOf() <= now;
     });
+    console.log("Storing", points.length, interval.storeName, data.security);
     return storeData(open, data.security, interval, points).then(function(){
         return {
             status: 'success'
@@ -311,14 +312,6 @@ function loadData(calculations, open, now, asof, exchange, security, failfast, e
         } else {
             return data;
         }
-    }).then(function(data) {
-        return _.extend(data, {
-            result: _.map(data.result, function(result) {
-                return _.map(expressions, function(expression){
-                    return result[expression];
-                });
-            })
-        });
     });
 }
 
@@ -357,7 +350,7 @@ function reduceFilters(intervals, filters, iterator, memo){
     var byInterval = _.groupBy(filters, getInterval);
     var sorted = _.sortBy(_.keys(byInterval), function(interval) {
         return intervals[interval].millis;
-    });
+    }).reverse();
     return _.reduce(sorted, function(memo, interval){
         return iterator(memo, byInterval[interval], intervals[interval]);
     }, memo);
@@ -372,7 +365,7 @@ function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, se
             interval: interval.storeName
         }));
         return _.extend(data, {
-            result: _.object(expressions, data.result[data.result.length - 1])
+            result: data.result[data.result.length - 1]
         });
     }).then(function(data){
         var pass = _.reduce(filters, function(pass, filter) {
@@ -475,21 +468,22 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
 
 function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
     var ceil = _.partial(interval.inc, exchange, _, 0);
-    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.inc(exchange, asof, -1);
+    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.inc(exchange, asof, -1).toDate();
     var size = interval.aggregate * length;
-    return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end.toDate(), now).then(function(data){
+    return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end, now).then(function(data){
         if (!since) return data;
         return _.extend(data, {
             result: data.result.slice(_.sortedIndex(data.result, {asof: since}, 'asof') + 1)
         });
     }).then(function(data){
         if (!data.result.length) return data;
-        var upper;
+        var upper, count;
         var result = data.result.reduce(function(result, point){
             var preceding = result[result.length-1];
             if (!preceding || point.asof.valueOf() > upper.valueOf()) {
                 result.push(point);
                 upper = ceil(point.asof);
+                count = 0;
             } else {
                 result[result.length-1] = {
                     asof: point.asof,
@@ -499,9 +493,9 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
                     total_volume: point.total_volume,
                     high: Math.max(preceding.high, point.high),
                     low: Math.min(preceding.low, point.low),
-                    volume: interval.storeName.charAt(0) == 'm' ?
-                        (preceding.volume + point.volume) :
-                        Math.round((preceding.volume * index + point.volume) / (index + 1))
+                    volume: interval.storeName.charAt(0) == 'd' ?
+                        Math.round((preceding.volume * count + point.volume) / (++count)) :
+                        (preceding.volume + point.volume)
                 };
             }
             return result;
@@ -530,20 +524,30 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                 result: result
             };
         } else if (result.length >= length) {
-            // need to update with newer data
-            return conclude({
-                status: failfast ? 'error' : 'warning',
-                message: 'Need more data points',
-                result: result,
-                quote: [{
-                    security: security,
-                    exchange: exchange,
-                    ticker: ticker,
-                    period: period.storeName,
+            return open(security, period, 'readonly', function(store, resolve, reject){
+                var cursor = store.openCursor(IDBKeyRange.lowerBound(asof), "next");
+                cursor.onerror = reject;
+                cursor.onsuccess = collect(1, resolve, reject);
+            }).then(function(newer){
+                if (newer.length) return { // result complete
+                    status: 'success',
+                    result: result
+                };
+                // need to update with newer data
+                return conclude({
+                    status: failfast ? 'error' : 'warning',
+                    message: 'Need newer data points',
                     result: result,
-                    start: inc(result[result.length - 1].asof, -1).format(),
-                    end: moment(now).tz(exchange.tz).format()
-                }]
+                    quote: [{
+                        security: security,
+                        exchange: exchange,
+                        ticker: ticker,
+                        period: period.storeName,
+                        result: result,
+                        start: inc(result[result.length - 1].asof, -1).format(),
+                        end: moment(now).tz(exchange.tz).format()
+                    }]
+                });
             });
         } else if (result.length && result.length < length) {
             // need more historic data

@@ -244,6 +244,12 @@
                         interval: int,
                         asof: asof
                     });
+                }).then(function(data) {
+                    return data.map(function(result) {
+                        return expressions.map(function(expression){
+                            return result[expression];
+                        });
+                    });
                 });
             },
 
@@ -300,7 +306,7 @@
                 });
                 return screens.map(function(screen){
                     return _.extend({}, screen, {
-                        filters: [].concat(screen.filters).concat(filters)
+                        filters: [].concat(screen.filters, filters)
                     });
                 });
             }).then(function(screens){

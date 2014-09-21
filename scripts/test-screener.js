@@ -335,7 +335,7 @@ describe("Screener", function(){
         ], loadQuotes);
         these("should return weekly", [
             ['XNGS', 'YHOO', ['date(asof)', 'open', 'high', 'low', 'close'],
-                4, 'd5', new Date(2014, 1,1),
+                4, 'd5', new Date(2014, 1, 3),
                 [
                     [new Date(2014, 0, 10),40.05,41.72,39.75,41.23],
                     [new Date(2014, 0, 17),41.16,41.31,39.47,40.01],
