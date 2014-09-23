@@ -68,7 +68,7 @@ jQuery(function($){
         var high = _.property(4);
         var volume = _.property(5);
         var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot(asof);
-        var since = moment().subtract(+screener.getItem("time-width", 365*24*60*60*1000), 'ms');
+        var since = moment().subtract(Math.max(+screener.getItem("time-width", 365*24*60*60*1000), 24*60*60*1000), 'ms');
         chart.x(chart.x().domain([since, new Date()]));
         var v = d3.scale.linear().range(chart.y().range());
         chart.series("volume", d3.chart.series.bar(volume).y(v));
