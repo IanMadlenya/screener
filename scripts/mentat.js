@@ -293,7 +293,6 @@ function importData(open, interval, now, data) {
         // Yahoo provides weekly/month-to-date data
         return point.asof.valueOf() <= now;
     });
-    console.log("Storing", points.length, interval.storeName, data.security);
     return storeData(open, data.security, interval, points).then(function(){
         return {
             status: 'success'
@@ -469,7 +468,7 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
 function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
     var ceil = _.partial(interval.inc, exchange, _, 0);
     var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.inc(exchange, asof, -1).toDate();
-    var size = interval.aggregate * length;
+    var size = interval.aggregate * length + 1;
     return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end, now).then(function(data){
         if (!since) return data;
         return _.extend(data, {
@@ -477,8 +476,9 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
         });
     }).then(function(data){
         if (!data.result.length) return data;
-        var upper, count;
+        var upper, count, discard = ceil(data[0].asof).valueOf();
         var result = data.result.reduce(function(result, point){
+            if (point.asof.valueOf() <= discard) return result;
             var preceding = result[result.length-1];
             if (!preceding || point.asof.valueOf() > upper.valueOf()) {
                 result.push(point);
@@ -606,6 +606,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
 
 function storeData(open, security, interval, data) {
     if (!data.length) return Promise.resolve(data);
+    console.log("Storing", data.length, interval.storeName, security, data[data.length-1]);
     return open(security, interval, "readwrite", function(store, resolve, reject){
         var counter = 0;
         var onsuccess = function(){
