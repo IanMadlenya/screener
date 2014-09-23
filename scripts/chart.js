@@ -51,7 +51,7 @@
         var x_orig = d3.time.scale().domain([moment().subtract('years',1).toDate(), new Date()]).range([0,width-margin.left-margin.right]);
         var x = x_orig.copy();
         var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
-        var xAxis = d3.svg.axis();
+        var xAxis = d3.svg.axis().ticks(30);
         var yAxis = d3.svg.axis().orient("right");
         var yRule = 0;
         var clip = 'clip-' + Math.random().toString(16).slice(2);
@@ -317,14 +317,15 @@
             axis.selectAll("text").each(function(d,i){
                 // remove overlapping ticks
                 var overlap = x1 && i > 0 && x1 > chart.x()(d);
-                if (overlap && !significant(s0,s1,d.toISOString())) {
+                var formatted = moment(d).format();
+                if (overlap && !significant(s0,s1,formatted)) {
                     d3.select(this.parentElement).attr("style", "opacity:0;");
                 } else {
                     if (overlap) {
                         d3.select(n1).attr("style", "opacity:0;");
                     }
                     s0 = s1;
-                    s1 = moment(d).format();
+                    s1 = formatted;
                     n1 = this.parentElement;
                     x1 = chart.x()(d) + this.getComputedTextLength();
                 }
@@ -528,6 +529,8 @@
         if (!s0) return false;
         for (var i=0;i<s0.length;i++) {
             if (s0.charAt(i) != s1.charAt(i) && s1.charAt(i) == s2.charAt(i))
+                return false;
+            if (s0.charAt(i) != s2.charAt(i) && s0.charAt(i) != s1.charAt(i))
                 return false;
             if (s0.charAt(i) != s2.charAt(i))
                 return true;
