@@ -61,51 +61,44 @@ jQuery(function($){
 
     function drawOhlcChartData(security, now) {
         var interval = screener.getItem("interval", 'm60');
-        var asof = _.property(0);
-        var low = _.property(1);
-        var open = _.property(2);
-        var close = _.property(3);
-        var high = _.property(4);
-        var volume = _.property(5);
-        var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot(asof);
-        var since = moment().subtract(Math.max(+screener.getItem("time-width", 365*24*60*60*1000), 24*60*60*1000), 'ms');
+        var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot('asof');
+        var since = moment().subtract(Math.max(+screener.getItem("time-width", 30*24*60*60*1000), 24*60*60*1000), 'ms');
         chart.x(chart.x().domain([since, new Date()]));
         var v = d3.scale.linear().range(chart.y().range());
-        chart.series("volume", d3.chart.series.bar(volume).y(v));
-        chart.series("price", d3.chart.series.ohlc(open, high, low, close));
+        chart.series("volume", d3.chart.series.bar('volume').y(v));
+        chart.series("price", d3.chart.series.ohlc('open', 'high', 'low', 'close'));
         var redrawCounter = 0;
         $(window).resize(function(){
             chart.width(document.documentElement.clientWidth);
             d3.select('#ohlc-div').call(chart);
         });
         var drawing = screener.load(security, ['asof',
-                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)'], 1024, 'm15', new Date()).then(function(rows){
-            chart.series("poc poc0", d3.chart.series.line(_.property(1)).xPlot(_.property(0)).datum(rows));
-            chart.series("band band0", d3.chart.series.band(_.property(2), _.property(3)).xPlot(_.property(0)).datum(rows));
+                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)'], 'm15', 1024, new Date()).then(function(rows){
+            chart.series("poc poc0", d3.chart.series.line('POC(8)').xPlot('asof').datum(rows));
+            chart.series("band band0", d3.chart.series.band('HIGH_VALUE(8)', 'LOW_VALUE(8)').xPlot('asof').datum(rows));
         }).then(function(){
             return screener.load(security, ['asof',
                 'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)',
-                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 1024, 'm30', new Date());
+                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 'm30', 1024, new Date());
         }).then(function(rows){
-            chart.series("poc poc1", d3.chart.series.line(_.property(1)).xPlot(_.property(0)).datum(rows));
-            chart.series("band band1", d3.chart.series.band(_.property(2), _.property(3)).xPlot(_.property(0)).datum(rows));
-            chart.series("poc poc2", d3.chart.series.line(_.property(4)).xPlot(_.property(0)).datum(rows));
-            chart.series("band band2", d3.chart.series.band(_.property(5), _.property(6)).xPlot(_.property(0)).datum(rows));
+            chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum(rows));
+            chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum(rows));
+            chart.series("poc poc2", d3.chart.series.line('POC(128)').xPlot('asof').datum(rows));
+            chart.series("band band2", d3.chart.series.band('HIGH_VALUE(128)', 'LOW_VALUE(128)').xPlot('asof').datum(rows));
         }).then(function(){
-            return screener.load(security, ['close'], 1, 'd1', new Date()).then(function(data){
-                var close = data[0][0];
-                chart.rule(close);
+            return screener.load(security, ['close'], 'd1', 1, new Date()).then(function(data){
+                chart.rule(data[0].close);
             });
         }).then(function(){
             return loadChartData(security, interval, optimalDataLength(chart) * 4).then(redraw);
         });
         return drawing;
         function redraw(rows){
-            v.domain([_.min(rows.map(volume)), _.max(rows.map(volume))]);
+            v.domain([_.min(rows, 'volume').volume, _.max(rows, 'volume').volume]);
             chart.datum(rows);
             var visible = chart.visible();
             if (visible.length > 1) {
-                screener.setItem("time-width", asof(visible[visible.length-1],visible.length-1).valueOf() - asof(visible[0],0).valueOf());
+                screener.setItem("time-width", visible[visible.length-1].asof.valueOf() - visible[0].asof.valueOf());
             }
             var m = parseInt(interval.substring(1), 10);
             var ppp = Math.max(chart.innerWidth()/(visible.length || rows.length), 5);
@@ -164,13 +157,19 @@ jQuery(function($){
     }
 
     function loadChartData(security, interval, len) {
-        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], len, interval, new Date());
+        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, len, new Date());
     }
 
     function drawDailySecurityData(security, now) {
+        var columns = ['date(asof)', 'low', 'open', 'close', 'high'];
         return loadGoogle().then(function(){
-            var columns = ['date(asof)', 'low', 'open', 'close', 'high'];
-            return screener.load(security, columns, 125, 'd1', now);
+            return screener.load(security, columns, 'd1', 125, now);
+        }).then(function(data) {
+            return data.map(function(result) {
+                return columns.map(function(columns){
+                    return result[columns];
+                });
+            });
         }).then(function(rows){
             $(window).resize(drawPriceChart.bind(this, rows));
             drawPriceChart(rows);
@@ -222,11 +221,7 @@ jQuery(function($){
                     return indicator.expression;
                 });
                 var columns = ['date(asof)'].concat(expressions);
-                return screener.load(security, columns, 125, interval, now).then(function(rows){
-                    return rows.map(function(row){
-                        return _.object(columns, row);
-                    });
-                }).then(function(results){
+                return screener.load(security, columns, interval, 125, now).then(function(results){
                     $(window).resize(drawIndicatorCharts.bind(this, id, indicators[interval], results));
                     drawIndicatorCharts(id, indicators[interval], results);
                 });

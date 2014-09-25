@@ -197,7 +197,13 @@ jQuery(function($){
     function chartRelative(asof, security, interval, expressions, counter) {
         var candlestick = ['date(asof)'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        return screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, interval, 65, asof).then(function(data) {
+            return data.map(function(result) {
+                return expressions.map(function(expression){
+                    return result[expression];
+                });
+            });
+        }).then(function(rows){
             var colours = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
             var table = new google.visualization.DataTable();
             table.addColumn('date', 'Day');
@@ -224,7 +230,13 @@ jQuery(function($){
     function chartPrice(asof, security, interval, expressions) {
         var candlestick = ['date(asof)', 'low', 'open', 'close', 'high'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        return screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, interval, 65, asof).then(function(data) {
+            return data.map(function(result) {
+                return expressions.map(function(expression){
+                    return result[expression];
+                });
+            });
+        }).then(function(rows){
             var table = new google.visualization.DataTable();
             table.addColumn('date', 'Day');
             table.addColumn('number', 'Price');
@@ -264,7 +276,13 @@ jQuery(function($){
     function chartVolume(asof, security, interval, expressions) {
         var candlestick = ['date(asof)', 'volume'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
-        return screener.load(security, columns, 65, interval, asof).then(function(rows){
+        return screener.load(security, columns, interval, 65, asof).then(function(data) {
+            return data.map(function(result) {
+                return expressions.map(function(expression){
+                    return result[expression];
+                });
+            });
+        }).then(function(rows){
             var table = new google.visualization.DataTable();
             table.addColumn('date', 'Day');
             table.addColumn('number', 'Volume');

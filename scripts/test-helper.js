@@ -161,7 +161,13 @@ function loadQuotesWithError(errorMessage) {
             }).then(function(exchanges){
                 return exchanges[0].iri + '/' + encodeURI(ticker);
             }).then(function(security){
-                return screener.load(security, expressions, length, interval, asof);
+                return screener.load(security, expressions, interval, length, asof);
+            }).then(function(data) {
+                return data.map(function(result) {
+                    return expressions.map(function(expression){
+                        return result[expression];
+                    });
+                });
             }).then(unexpected(done)).catch(function(data){
                 expect(data.status).not.toBe('success');
                 expect(data.message).toBe(errorMessage);
@@ -180,7 +186,13 @@ function loadQuotes(mic, ticker, expressions, length, interval, asof, rows) {
         }).then(function(exchanges){
                 return exchanges[0].iri + '/' + encodeURI(ticker);
         }).then(function(security){
-            return screener.load(security, expressions, length, interval, asof);
+            return screener.load(security, expressions, interval, length, asof);
+        }).then(function(data) {
+            return data.map(function(result) {
+                return expressions.map(function(expression){
+                    return result[expression];
+                });
+            });
         }).then(function(result){
             expect(result.length).toBe(length);
             expect(result).toEqual(rows);

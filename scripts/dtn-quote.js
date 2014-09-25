@@ -155,10 +155,10 @@ function openHIT(){
     var exec = function(fn){
         if (!queue || socket && socket.readyState > 1)
             queue = new Promise(construct);
-        queue = queue.then(function(){
-            return new Promise(fn);
-        }).catch(function(error){
+        queue = queue.catch(function(error){
             // errors are handled by caller
+        }).then(function(){
+            return new Promise(fn);
         });
         var same = queue;
         queue.then(function(){
