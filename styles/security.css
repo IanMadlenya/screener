@@ -86,6 +86,14 @@ g.band2 path {
     fill: blue;
 }
 
+g.poc3 path {
+    stroke: aqua;
+}
+
+g.band3 path {
+    fill: aqua;
+}
+
 g.poc path {
     fill: none;
     stroke-opacity: 0.5;

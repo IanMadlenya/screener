@@ -56,7 +56,7 @@
         var yRule = 0;
         var clip = 'clip-' + Math.random().toString(16).slice(2);
         var listeners = {};
-        var zoomFocal, zoomScale;
+        var zoomFocal, zoomScale, zoomCounter = 0;
         var dragOffset, dragPoints;
         var drag = d3.behavior.drag().origin(function(){
             if (d3.event.type == "mousedown") {
@@ -85,6 +85,7 @@
             dragOffset = dragPoints = undefined;
         });
         var zoom = d3.behavior.zoom().on("zoomstart", function(){
+            zoomCounter++;
             if (d3.event.sourceEvent.type == 'mousedown') {
                 pane.attr("class", pane.attr("class") + ' grabbing');
             }
@@ -93,6 +94,7 @@
             if (listeners.zoomstart)
                 listeners.zoomstart.apply(this, arguments);
         }).on("zoom", function(){
+            zoomCounter++;
             if (zoomScale == zoom.scale()) { // pan
                 scaleChart(zoomFocal, d3.mouse(grid.node())[0]);
                 zoomScale = zoom.scale();
@@ -103,6 +105,7 @@
                 listeners.zoom.apply(this, arguments);
             redraw();
         }).on("zoomend", function(){
+            var count = ++zoomCounter;
             pane.attr("class", pane.attr("class").replace(/ grabbing/g,''));
             if (zoomScale == zoom.scale()) { // pan
                 scaleChart(zoomFocal, d3.mouse(grid.node())[0]);
@@ -112,15 +115,19 @@
             }
             if (listeners.zoomend)
                 listeners.zoomend.apply(this, arguments);
-            chart(svg);
+            _.delay(function(){
+                if (count == zoomCounter) {
+                    chart(svg);
+                }
+            }, 100);
         });
     
         var chart = function(_svg) {
             if (!arguments.length) return svg;
             svg = _svg;
             var domain = chart.datum().map(chart.xPlot());
-            var ease = d3.ease('linear');
-            svg.transition().ease(ease).duration(1000).tween("axis", function(){
+            var ease = d3.ease('cube-in-out');
+            svg.transition().ease(ease).tween("axis", function(){
                 var x0 = chart.x().copy();
                 var y0 = chart.y().copy();
                 var yDomain = ydomain(x0, chart.innerWidth(), series, chart.y().domain());
@@ -170,6 +177,7 @@
             if (!arguments.length) return width;
             var innerWidth = chart.innerWidth();
             var _innerWidth = _ - margin.left - margin.right;
+            if (isNaN(_innerWidth)) throw Error("Not a valid width: " + _);
             x.range(x.range().map(function(point){
                 return point * _innerWidth / innerWidth;
             }));
@@ -255,14 +263,6 @@
             datum = _datum;
             return chart;
         };
-        chart.visible = function() {
-            var xIteratee = chart.xPlot();
-            var datum = chart.datum();
-            var mapped = datum.map(xIteratee);
-            var start = _.sortedIndex(mapped, chart.x().invert(0));
-            var end = _.sortedIndex(mapped, chart.x().invert(chart.innerWidth()+1));
-            return datum.slice(start, end);
-        };
         chart.series = function(cls, _) {
             if (!arguments.length) return series;
             if (arguments.length == 1) return series[cls];
@@ -279,18 +279,17 @@
         function scaleChart(focal, xfocal) {
             var scale = zoom.scale();
             var offset = zoom.translate()[0];
-            var datum = chart.datum() || [];
-            if (datum.length) {
-                var end = x_orig(chart.xPlot()(datum[datum.length-1]));
-                if (end * scale + offset < chart.innerWidth()) {
-                    if (arguments.length) {
-                        var mid = x_orig(focal);
+            var end = x_orig(new Date());
+            if (end * scale + offset < chart.innerWidth()) {
+                if (focal && xfocal) {
+                    var mid = x_orig(focal);
+                    if (end != mid) {
                         scale = (chart.innerWidth() - xfocal) / (end - mid);
                         zoom.scale(scale);
                     }
-                    offset = chart.innerWidth() - end * scale;
-                    zoom.translate([offset, zoom.translate()[1]]);
                 }
+                offset = chart.innerWidth() - end * scale;
+                zoom.translate([offset, zoom.translate()[1]]);
             }
             chart.x().range(x_orig.range().map(function(x){
                 return x * scale + offset;
@@ -424,12 +423,15 @@
             close = _.iteratee(close);
             var series = buildSeries(function(g) {
                 var x = series.x(), y = series.y(), datum = series.datum(), xIteratee = series.xPlot();
-                updateAll(g, "g", "ohlc", datum).each(function(d,i){
-                    var ohlc = d3.select(this);
-                    updateAll(ohlc, "path", "high-low").attr("d", 'M' + x(xIteratee(d,i)) + ',' + y(high(d,i)) + ' L' + x(xIteratee(d,i)) + ',' + y(low(d,i)));
-                    updateAll(ohlc, "path", "close").attr("d", 'M' + x(xIteratee(d,i)) + ',' + y(close(d,i)) + ' L' + (x(xIteratee(d,i)) + 2) + ',' + y(close(d,i)));
-                    updateAll(ohlc, "path", "open").attr("d", 'M' + (x(xIteratee(d,i)) - 2) + ',' + y(open(d,i)) + ' L' + x(xIteratee(d,i)) +',' + y(open(d,i)));
-                    updateAll(ohlc, "title").text(xIteratee(d,i) + ' ' + low(d,i) + ' - ' + high(d,i));
+                updateAll(g, "path", "ohlc", datum).attr("d", function(d,i){
+                    return [
+                        'M', (x(xIteratee(d,i)) - 2), y(open(d,i)),
+                        'L', x(xIteratee(d,i)), y(open(d,i)),
+                        'M', x(xIteratee(d,i)), y(high(d,i)),
+                        'L', x(xIteratee(d,i)), y(low(d,i)),
+                        'M', x(xIteratee(d,i)), y(close(d,i)),
+                        'L', (x(xIteratee(d,i)) + 2), y(close(d,i))
+                    ].join(' ');
                 });
             }, function(datum, callback) {
                 return datum.forEach(function(data, i){
@@ -488,19 +490,16 @@
     function xrange(scale, domain, width) {
         var range = scale.range();
         var d = scale.domain();
-        var start = Math.min(_.sortedIndex(range, 0), range.length-2);
-        var end = Math.min(_.sortedIndex(range, width), range.length-1);
-        var d1 = Math.max(Math.min(_.sortedIndex(domain, d[start]), domain.length-10),0);
-        var d2 = Math.min(_.sortedIndex(domain, d[end]), domain.length-1);
-        var size = domain.length - d2 < 10 ? (domain.length-1 - d1) : (d2 - d1);
-        var step = size === 0 ? (width / 10) :( width / size);
-        return _.range(-d1 * step, (domain.length - d1)*step, step);
+        var d1 = Math.max(Math.min(_.sortedIndex(domain, scale.invert(0)), domain.length-10),0);
+        var d2 = Math.min(_.sortedIndex(domain, scale.invert(width)), domain.length-1);
+        var s2 = scale.invert(width).valueOf() > Date.now() ? width / scale(new Date()) : 1;
+        var step = s2 * Math.max(scale(domain[d2]) - scale(domain[d1]), 100) / Math.max(d2 - d1, 10);
+        var offset = scale(domain[d1]) - d1 * step;
+        return _.range(offset, offset + domain.length *step, step);
     }
 
     function ydomain(x, width, series, domain) {
-        var start = Math.min(_.sortedIndex(x.range(), 0), x.range().length-2);
-        var end = Math.min(_.sortedIndex(x.range(), width), x.range().length-1);
-        var xDomain = [x.domain()[start], x.domain()[end]];
+        var xDomain = [x.invert(0), x.invert(width)];
         var yDomain = _.reduce(series, function(yDomain, series){
             series.points(xDomain, function(point){
                 if (isFinite(point) && (point < yDomain[0] || yDomain[0] === 0)) {

@@ -64,8 +64,8 @@ self.addEventListener("connect", _.partial(function(hit, event) {
         quote: function(event) {
             var data = event.data;
             var period = data.period;
-            if (period != 'm1' && period != 'm15') return {status: 'success', result: []};
-            var interval = period == 'm1' ? 60 : 900;
+            if (period != 'm1' && period != 'm10' && period != 'm60') return {status: 'success', result: []};
+            var interval = period == 'm1' ? 60 : period == 'm10' ? 600 : 3600;
             var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
             var asof = Date.now();
             return hit({

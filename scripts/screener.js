@@ -231,12 +231,8 @@
                 });
             },
 
-            load: function(security, expressions, interval, lengthOrBeginDate, asof) {
-                var length = _.isNumber(lengthOrBeginDate) ? lengthOrBeginDate : undefined;
-                var since = lengthOrBeginDate instanceof Date ? lengthOrBeginDate : undefined;
-                if (!length && !since) throw Error("Length or begin date must be provided, was " + lengthOrBeginDate);
-                if (length && (length <= 0 || length != Math.round(length))) throw Error("length must be a positive integer, not " + length);
-                if (since && since.valueOf() > asof.valueOf()) throw Error("Begin date must be before asof, was " + since);
+            load: function(security, expressions, interval, length, asof) {
+                if (length <= 0 || length != Math.round(length)) throw Error("length must be a positive integer, not " + length);
                 var int = interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
                 return getExchangeOfSecurity(security).then(function(exchange){
                     return postDispatchMessage({
@@ -246,7 +242,6 @@
                         expressions: expressions,
                         interval: int,
                         length: length,
-                        since: since,
                         asof: asof
                     });
                 });

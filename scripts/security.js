@@ -60,104 +60,155 @@ jQuery(function($){
     }
 
     function drawOhlcChartData(security, now) {
-        var interval = screener.getItem("interval", 'm60');
-        var chart = d3.chart().width(document.documentElement.clientWidth).height(600).xPlot('asof');
-        var since = moment().subtract(Math.max(+screener.getItem("time-width", 30*24*60*60*1000), 24*60*60*1000), 'ms');
-        chart.x(chart.x().domain([since, new Date()]));
-        var v = d3.scale.linear().range(chart.y().range());
-        chart.series("volume", d3.chart.series.bar('volume').y(v));
+        var interval = screener.getItem("security-chart-interval", 'm60');
+        var chart = d3.chart().width(document.documentElement.clientWidth).height(800).xPlot('asof');
+        var since = moment().subtract(Math.max(+screener.getItem("security-chart-duration", 30*24*60*60*1000), 24*60*60*1000), 'ms').toDate();
+        chart.x(chart.x().domain([since, now]));
+        chart.series("volume", d3.chart.series.bar('volume').y(d3.scale.linear().range(chart.y().range())));
         chart.series("price", d3.chart.series.ohlc('open', 'high', 'low', 'close'));
-        var redrawCounter = 0;
         $(window).resize(function(){
             chart.width(document.documentElement.clientWidth);
             d3.select('#ohlc-div').call(chart);
         });
-        var drawing = screener.load(security, ['asof',
-                'POC(8)','HIGH_VALUE(8)','LOW_VALUE(8)'], 'm15', 1024, new Date()).then(function(rows){
-            chart.series("poc poc0", d3.chart.series.line('POC(8)').xPlot('asof').datum(rows));
-            chart.series("band band0", d3.chart.series.band('HIGH_VALUE(8)', 'LOW_VALUE(8)').xPlot('asof').datum(rows));
+        chart.series("poc poc0", d3.chart.series.line('POC(12)').xPlot('asof').datum([]));
+        chart.series("band band0", d3.chart.series.band('HIGH_VALUE(12)', 'LOW_VALUE(12)').xPlot('asof').datum([]));
+        chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum([]));
+        chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum([]));
+        chart.series("poc poc2", d3.chart.series.line('POC(64)').xPlot('asof').datum([]));
+        chart.series("band band2", d3.chart.series.band('HIGH_VALUE(64)', 'LOW_VALUE(64)').xPlot('asof').datum([]));
+        chart.series("poc poc3", d3.chart.series.line('POC(20)').xPlot('asof').datum([]));
+        chart.series("band band3", d3.chart.series.band('HIGH_VALUE(20)', 'LOW_VALUE(20)').xPlot('asof').datum([]));
+        var loaded = now;
+        var redrawCounter = 0;
+        var redraw = _.debounce(function(){
+            var begin = chart.x().invert(0);
+            var end = chart.x().invert(chart.innerWidth());
+            var data = chart.datum();
+            var i = Math.max(Math.min(_.sortedIndex(data, {asof: begin}, 'asof'), data.length-10),0);
+            var j = Math.max(Math.min(_.sortedIndex(data, {asof: end}, 'asof'), data.length-1),0);
+            var x = _.compose(chart.x(), chart.xPlot());
+            var width = x(data[j], j) - x(data[i], i);
+            var int = optimalInterval(interval, j - i, width);
+            screener.setItem("security-chart-interval", interval);
+            if (j > i) screener.setItem("security-chart-length", j - i);
+            if (begin.valueOf() < end.valueOf()) screener.setItem("security-chart-duration", end.valueOf() - begin.valueOf());
+            if (!data.length || int != interval ||
+                    begin.valueOf() < data[0].asof.valueOf() ||
+                    loaded.valueOf() < end.valueOf()) {
+                var counter = ++redrawCounter;
+                drawing = drawing.then(function(){
+                    if (counter != redrawCounter) return;
+                    var length = estimateDataLength((j - i) / width * chart.innerWidth(), interval, int) + 100;
+                    console.log("Loading", int, length || data.length, begin);
+                    return loadChartData(chart, security, int, length || data.length, end).then(function(){
+                        interval = int;
+                        loaded = end;
+                        d3.select('#ohlc-div').call(chart);
+                        redraw(); // check if more adjustments are needed
+                    }, function(error){
+                        calli.error(error);
+                    });
+                });
+            }
+        }, 500);
+        var length = Math.max(+screener.getItem("security-chart-length", 256), 10);
+        var drawing = loadChartData(chart, security, interval, length, now).then(function(){
+            var data = chart.datum();
+            if (chart.x()(data[Math.round(data.length/2)].asof) < 0) {
+                chart.x(chart.x().domain([data[0].asof, data[data.length-1].asof]));
+            }
+            return data;
+        }).then(function(){
+            return screener.load(security, ['close'], 'd1', 1, now);
+        }).then(function(data){
+            chart.rule(data[0].close);
+        }).then(function(){
+            d3.select('#ohlc-div').call(chart);
+            redraw();
+        });
+        chart.zoomend(redraw);
+    }
+
+    function loadChartData(chart, security, interval, length, end) {
+        var earliest = {asof: new Date()};
+        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, length, end).then(function(data){
+            if (data.length) earliest.asof = data[0].asof;
+            chart.series("volume").y().domain([_.min(data, 'volume').volume, _.max(data, 'volume').volume]);
+            chart.datum(data);
+            var ppp = chart.innerWidth()/data.length;
+            if (interval.charAt(0) == 'm') {
+                var m = parseInt(interval.substring(1), 10);
+                chart.scaleExtent([Math.min(m/(30 * 60) /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
+            } else {
+                var d = parseInt(interval.substring(1), 10);
+                chart.scaleExtent([Math.min(d/5 /ppp*5,1), Math.max(d*6.5*60 /ppp*5,1)]);
+            }
+        }).then(function(){
+            if (interval.charAt(0) != 'm' || 10 < +interval.substring(1)) return [];
+            return screener.load(security, ['asof',
+                'POC(12)','HIGH_VALUE(12)','LOW_VALUE(12)'
+            ], 'm10', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+        }).then(function(data){
+            return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
+        }).then(function(data){
+            chart.series("poc poc0").datum(data);
+            chart.series("band band0").datum(data);
+        }).then(function(){
+            if (interval.charAt(0) != 'm' || 60 < +interval.substring(1)) return [];
+            return screener.load(security, ['asof',
+                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)'
+            ], 'm30', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+        }).then(function(data){
+            return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
+        }).then(function(data){
+            chart.series("poc poc1").datum(data);
+            chart.series("band band1").datum(data);
+        }).then(function(){
+            if (interval.charAt(0) != 'm') return [];
+            return screener.load(security, ['asof',
+                'POC(64)','HIGH_VALUE(64)','LOW_VALUE(64)'
+            ], 'm60', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+        }).then(function(data){
+            return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
+        }).then(function(data){
+            chart.series("poc poc2").datum(data);
+            chart.series("band band2").datum(data);
         }).then(function(){
             return screener.load(security, ['asof',
-                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)',
-                'POC(128)','HIGH_VALUE(128)','LOW_VALUE(128)'], 'm30', 1024, new Date());
-        }).then(function(rows){
-            chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum(rows));
-            chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum(rows));
-            chart.series("poc poc2", d3.chart.series.line('POC(128)').xPlot('asof').datum(rows));
-            chart.series("band band2", d3.chart.series.band('HIGH_VALUE(128)', 'LOW_VALUE(128)').xPlot('asof').datum(rows));
+                'POC(20)','HIGH_VALUE(20)','LOW_VALUE(20)'
+            ], 'd1', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+        }).then(function(data){
+            return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
+        }).then(function(data){
+            chart.series("poc poc3").datum(data);
+            chart.series("band band3").datum(data);
         }).then(function(){
-            return screener.load(security, ['close'], 'd1', 1, new Date()).then(function(data){
-                chart.rule(data[0].close);
-            });
-        }).then(function(){
-            return loadChartData(security, interval, optimalDataLength(chart) * 4).then(redraw);
+            console.log("Loaded", interval, chart.datum().length, chart.datum()[0] && chart.datum()[0].asof);
         });
-        return drawing;
-        function redraw(rows){
-            v.domain([_.min(rows, 'volume').volume, _.max(rows, 'volume').volume]);
-            chart.datum(rows);
-            var visible = chart.visible();
-            if (visible.length > 1) {
-                screener.setItem("time-width", visible[visible.length-1].asof.valueOf() - visible[0].asof.valueOf());
+    }
+
+    function optimalInterval(interval, size, width) {
+        var intervals = ['m1','m5','m10','m30','m60','m120','d1','d5'];
+        var IntervalMinutes = intervals.map(function(interval){
+            if (interval.charAt(0) == 'm') {
+                return parseInt(interval.substring(1), 10);
+            } else {
+                var d = parseInt(interval.substring(1), 10);
+                return d * 900;
             }
-            var m = parseInt(interval.substring(1), 10);
-            var ppp = Math.max(chart.innerWidth()/(visible.length || rows.length), 5);
-            chart.scaleExtent([Math.min(m/60 /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
-            chart.zoomend(function(){
-                var int = optimalInterval(chart, interval);
-                var len = optimalDataLength(chart);
-                if (interval != int || len > rows.length) {
-                    var counter = ++redrawCounter;
-                    drawing = drawing.then(function(){
-                        if (counter == redrawCounter && int == optimalInterval(chart, interval)) {
-                            console.log("loading", int);
-                            return loadChartData(security, int, optimalDataLength(chart) * 4).then(function(rows){
-                                if (int == optimalInterval(chart, interval)) {
-                                    interval = int;
-                                    screener.setItem("interval", interval);
-                                    console.log("loaded", interval);
-                                    redraw(rows);
-                                }
-                            }, function(error) {
-                                calli.error(error);
-                            });
-                        }
-                    });
-                }
-            });
-            d3.select('#ohlc-div').call(chart);
-        }
-    }
-
-    function optimalInterval(chart, interval) {
-        var intervals = ['m1','m5','m15','m30','m60'];
-        var minutesPerPixel = intervals.map(function(interval){
-            var m = parseInt(interval.substring(1), 10);
-            return m / 5; // minimum minutes per pixel
         });
-        var x = _.compose(chart.x(), chart.xPlot());
-        var datum = chart.visible() || [];
-        if (!datum.length) return interval;
+        if (!size) return interval;
         var index = intervals.indexOf(interval);
-        var minutes = datum.length * parseInt(interval.substring(1), 10);
-        var width = x(datum[datum.length-1], datum.length-1) - x(datum[0], 0);
-        var diff = _.sortedIndex(minutesPerPixel, Math.round(minutes / width)) - index;
-        if (diff === 0) return interval;
-        var i = index + (diff < 0 ? -1 : 1);
-        return intervals[Math.min(Math.max(i, 0), intervals.length-1)];
+        var minutes = size * IntervalMinutes[intervals.indexOf(interval)];
+        var i = _.sortedIndex(IntervalMinutes, Math.round(minutes / width) * 5);
+        var j = Math.min(Math.max(i, index - 1, 0), index + 1, intervals.length-1);
+        return intervals[j];
     }
 
-    function optimalDataLength(chart) {
-        var x = _.compose(chart.x(), chart.xPlot());
-        var datum = chart.datum() || [];
-        var visible = chart.visible() || [];
-        var tail = visible.length ? x(datum[datum.length-1], datum.length-1) - x(visible[visible.length-1], visible.length-1) : 0;
-        var width = chart.innerWidth() + tail;
-        return Math.ceil(width / 5);
-    }
-
-    function loadChartData(security, interval, len) {
-        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, len, new Date());
+    function estimateDataLength(length, interval, newInterval) {
+        var a = +interval.substring(1) * (interval.charAt(0) == 'd' ? 900 : 1);
+        var b = +newInterval.substring(1) * (newInterval.charAt(0) == 'd' ? 900 : 1);
+        return Math.ceil(length * a / b);
     }
 
     function drawDailySecurityData(security, now) {

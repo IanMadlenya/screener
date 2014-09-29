@@ -6,7 +6,7 @@
 
 <> a </callimachus/1.4/types/Concept> , skos:Concept ;
     dcterms:created "2014-03-17T18:51:45.564Z"^^xsd:dateTime ;
-    dcterms:modified "2014-03-17T18:52:03.744Z"^^xsd:dateTime , "2014-03-29T00:57:34.203Z"^^xsd:dateTime , "2014-06-16T15:19:00.845Z"^^xsd:dateTime ;
+    dcterms:modified "2014-03-17T18:52:03.744Z"^^xsd:dateTime , "2014-03-29T00:57:34.203Z"^^xsd:dateTime , "2014-06-16T15:19:00.845Z"^^xsd:dateTime , "2014-09-15T01:38:36.458Z"^^xsd:dateTime , "2014-09-28T20:01:56.449Z"^^xsd:dateTime ;
     skos:prefLabel "Annually" ;
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;

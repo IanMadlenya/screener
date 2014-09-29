@@ -6,10 +6,11 @@
 
 <> a </callimachus/1.4/types/Concept> , skos:Concept ;
     dcterms:created "2014-03-17T18:53:01.845Z"^^xsd:dateTime ;
-    dcterms:modified "2014-03-17T18:53:11.575Z"^^xsd:dateTime , "2014-03-17T19:04:55.790Z"^^xsd:dateTime ;
+    dcterms:modified "2014-03-17T18:53:11.575Z"^^xsd:dateTime , "2014-03-17T19:04:55.790Z"^^xsd:dateTime , "2014-09-28T20:02:19.708Z"^^xsd:dateTime , "2014-09-29T17:03:09.390Z"^^xsd:dateTime ;
     skos:definition "Daily charts represent the price action of a market based on one-day intervals. Daily charts are perhaps the most commonly used chart by traders and investors. These are handy in analyzing the short to intermediate-term time periods, however, many traders use the daily charts for long-term analysis as well. As a rule of thumb, daily charts are commonly used to analyze periods in excess of six weeks." ;
     skos:prefLabel "Daily" ;
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    calli:subscriber </auth/groups/everyone> .
+    calli:subscriber </auth/groups/everyone> ;
+    skos:narrower <m120> .

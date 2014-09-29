@@ -5,10 +5,12 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <> a </callimachus/1.4/types/Concept> , skos:Concept ;
-    dcterms:created "2014-06-16T15:19:06.720Z"^^xsd:dateTime ;
-    dcterms:modified "2014-06-16T15:19:23.850Z"^^xsd:dateTime , "2014-06-16T15:19:34.255Z"^^xsd:dateTime , "2014-09-15T01:38:27.396Z"^^xsd:dateTime , "2014-09-28T20:02:08.431Z"^^xsd:dateTime , "2014-09-28T20:05:36.354Z"^^xsd:dateTime ;
-    skos:prefLabel "Quarterly" ;
+    dcterms:created "2014-09-28T19:12:16.484Z"^^xsd:dateTime ;
+    dcterms:modified "2014-09-28T19:12:27.525Z"^^xsd:dateTime , "2014-09-28T20:02:41.761Z"^^xsd:dateTime ;
+    skos:historyNote "" ;
+    skos:prefLabel "30 minutes" ;
+    skos:scopeNote "" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    skos:narrower <d5> .
+    skos:narrower <m10> .
