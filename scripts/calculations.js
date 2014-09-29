@@ -348,6 +348,36 @@ function getCalculations() {
                 }
             };
         },
+        /* Percent of Value Oscillator */
+        PVO: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high', 'low', 'close'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    var tpos = getTPOCount(points);
+                    var poc = getPointOfControl(tpos);
+                    var bound = getValueRange(tpos, poc); // 70% of trades
+                    var close = _.last(points).close;
+                    if (close < bound[0]) // < 0% is below value
+                        return (close - bound[0]) * 100 / (bound[1] - bound[0]);
+                    if (close < poc) // 0%-50% is low
+                        return (close - bound[0]) * 50 / (poc - bound[0]);
+                    if (close < bound[1]) // 50%-100% is high
+                        return 50 + (close - poc) * 50 / (bound[1] - poc);
+                    // >100% is above value
+                    return 100 + (close - bound[1]) * 100 / (bound[1] - bound[0]);
+                }
+            };
+        },
         POC: function(n) {
             return {
                 getErrorMessage: function() {
@@ -362,13 +392,7 @@ function getCalculations() {
                     return n;
                 },
                 getValue: function(points) {
-                    return computeTPO(points, function(tpos, weight) {
-                        var most = _.max(weight);
-                        var min = tpos[weight.indexOf(most)];
-                        var max = tpos[weight.lastIndexOf(most)];
-                        if (min == max) return min;
-                        return Math.round((min + max) * 10000 / 2) / 10000;
-                    });
+                    return getPointOfControl(getTPOCount(points));
                 }
             };
         },
@@ -386,27 +410,9 @@ function getCalculations() {
                     return n;
                 },
                 getValue: function(points) {
-                    return computeTPO(points, function(tpos, weight) {
-                        var target = 0.7 * sum(weight);
-                        var most = _.max(weight);
-                        var min = weight.indexOf(most);
-                        var max = weight.lastIndexOf(most);
-                        var value = sum(weight.slice(min, max + 1));
-                        while (value < target) {
-                            if (min > 0 && weight[min - 1] > weight[max + 1]) {
-                                value += weight[--min];
-                            } else if (max < weight.length-1 && weight[min -1] < weight[max + 1]) {
-                                value += weight[++max];
-                            } else if (min > 0) {
-                                value += weight[--min];
-                            } else if (max < weight.length-1){
-                                value += weight[++max];
-                            } else {
-                                break;
-                            }
-                        }
-                        return tpos[max];
-                    });
+                    var tpos = getTPOCount(points);
+                    var poc = getPointOfControl(tpos);
+                    return getValueRange(tpos, poc)[1];
                 }
             };
         },
@@ -424,27 +430,9 @@ function getCalculations() {
                     return n;
                 },
                 getValue: function(points) {
-                    return computeTPO(points, function(tpos, weight) {
-                        var target = 0.7 * sum(weight);
-                        var most = _.max(weight);
-                        var min = weight.indexOf(most);
-                        var max = weight.lastIndexOf(most);
-                        var value = sum(weight.slice(min, max + 1));
-                        while (value < target) {
-                            if (min > 0 && weight[min - 1] > weight[max + 1]) {
-                                value += weight[--min];
-                            } else if (max < weight.length-1 && weight[min -1] < weight[max + 1]) {
-                                value += weight[++max];
-                            } else if (min > 0) {
-                                value += weight[--min];
-                            } else if (max < weight.length-1){
-                                value += weight[++max];
-                            } else {
-                                break;
-                            }
-                        }
-                        return tpos[min];
-                    });
+                    var tpos = getTPOCount(points);
+                    var poc = getPointOfControl(tpos);
+                    return getValueRange(tpos, poc)[0];
                 }
             };
         },
@@ -495,33 +483,81 @@ function getCalculations() {
         }
     };
 
-    function computeTPO(points, func) {
-        var tpos = _.uniq(points.reduce(function(tpos, point){
-            tpos.push(point.high * 10000);
-            tpos.push(point.low * 10000);
-            return tpos;
-        }, []).sort(function(a, b) {
-            return Math.round(a - b);
-        }), true);
-        if (tpos.length === 0) return func([], []);
-        if (tpos.length == 1) return func([points[0].high], [points.length]);
-        var step = tpos.slice(1, tpos.length-1).reduce(function(step, tpo, i, tpos) {
-            var d = tpos[i + 1] - tpo;
-            var div = d / step;
-            return Math.round(((div - Math.floor(div)) || 1) * step) || 100;
-        }, tpos[1] - tpos[0]);
-        var range = _.range(tpos[0], tpos[tpos.length - 1] + step, step).map(function(d){
-            return Math.round(d) / 10000;
-        });
-        var weight = points.reduce(function(weight, point){
-            var low = _.sortedIndex(range, point.low);
-            var high = _.sortedIndex(range, point.high);
-            for (var i=low; i<=high && i<weight.length; i++) {
-                weight[i]++;
+    function getValueRange(tpos, poc) {
+        var step = 0.01;
+        var above = _.range(poc+step, tpos[tpos.length-1].price+step, step).reduce(function(above, price){
+            return above + tpoCount(tpos, decimal(price));
+        }, 0);
+        var below = _.range(poc-step, tpos[0].price-step, -step).reduce(function(below, price){
+            return below + tpoCount(tpos, decimal(price));
+        }, 0);
+        var value = tpoCount(tpos, poc);
+        var target = 0.7 * (value + above + below);
+        var max = poc, min = poc;
+        while (value < target) {
+            var up = tpoCount(tpos, decimal(max + step));
+            var down = tpoCount(tpos, decimal(min - step));
+            if (up >= down) {
+                max = decimal(max + step);
+                value += up;
             }
-            return weight;
-        }, range.map(_.constant(0)));
-        return func(range, weight);
+            if (down >= up) {
+                min = decimal(min - step);
+                value += down;
+            }
+        }
+        return [min, max];
+    }
+
+    function tpoCount(tpos, price) {
+        var i = _.sortedIndex(tpos, {price: price}, 'price');
+        if (i == tpos.length) return 0;
+        var tpo = tpos[i];
+        return tpo.price == price ? tpo.count : tpo.lower;
+    }
+
+    function getPointOfControl(tpos) {
+        var most = _.max(tpos, 'count').count;
+        var min = tpos.length-1;
+        var max = 0;
+        tpos.forEach(function(w, i){
+            if (w.count == most) {
+                if (i < min) {
+                    min = i;
+                }
+                if (i > max) {
+                    max = i;
+                }
+            }
+        });
+        if (min == max) return tpos[min].price;
+        var target = decimal((tpos[min].price + tpos[max].price) / 2);
+        return _.range(min+1, max+1).reduce(function(price, i) {
+            if (Math.abs(tpos[i].price - target) < Math.abs(price - target))
+                return tpos[i].price;
+            return price;
+        }, tpos[min].price);
+    }
+
+    function getTPOCount(points) {
+        var prices = points.reduce(function(prices, point){
+            var l = _.sortedIndex(prices, point.low);
+            if (point.low != prices[l]) prices.splice(l, 0, point.low);
+            var h = _.sortedIndex(prices, point.high);
+            if (point.high != prices[h]) prices.splice(h, 0, point.high);
+            return prices;
+        }, []);
+        return points.reduce(function(tpos, point){
+            var low = _.sortedIndex(prices, point.low);
+            var high = _.sortedIndex(prices, point.high);
+            for (var i=low; i<=high && i<tpos.length; i++) {
+                tpos[i].count++;
+                if (i>low) tpos[i].lower++;
+            }
+            return tpos;
+        }, prices.map(function(price){
+            return {price: price, count: 0, lower: 0};
+        }));
     }
 
     function getCalculation(field, args, slice) {
@@ -560,6 +596,10 @@ function getCalculations() {
         return _.reduce(values, function(memo, value, index){
             return a * value + (1 - a) * memo;
         }, sma);
+    }
+
+    function decimal(float) {
+        return Math.round(float * 10000) / 10000;
     }
 
     function sum(values) {
