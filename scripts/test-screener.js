@@ -376,7 +376,7 @@ describe("Screener", function(){
             ['XNYS', 'BRK/A', ['date(asof)', 'open', 'high', 'low', 'close'],
                 1, 'd1', new Date(2014, 1, 1),
                 [
-                    [new Date(2014, 0, 31), 168017.00,    169625.00,    167638.00,	169511.00]
+                    [new Date(2014, 0, 31), 168017.00,    169625.00,    167638.00,    169511.00]
                 ]
             ]
         ], loadQuotes);

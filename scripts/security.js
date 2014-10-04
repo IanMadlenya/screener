@@ -62,22 +62,20 @@ jQuery(function($){
     function drawOhlcChartData(security, now) {
         var interval = screener.getItem("security-chart-interval", 'm60');
         var chart = d3.chart().width(document.documentElement.clientWidth).height(800).xPlot('asof');
-        var since = moment().subtract(Math.max(+screener.getItem("security-chart-duration", 30*24*60*60*1000), 24*60*60*1000), 'ms').toDate();
-        chart.x(chart.x().domain([since, now]));
         chart.series("volume", d3.chart.series.bar('volume').y(d3.scale.linear().range(chart.y().range())));
+        chart.series("poc poc3", d3.chart.series.line('POC(20)').xPlot('asof').datum([]));
+        chart.series("band band3", d3.chart.series.band('HIGH_VALUE(20)', 'LOW_VALUE(20)').xPlot('asof').datum([]));
+        chart.series("poc poc2", d3.chart.series.line('POC(64)').xPlot('asof').datum([]));
+        chart.series("band band2", d3.chart.series.band('HIGH_VALUE(64)', 'LOW_VALUE(64)').xPlot('asof').datum([]));
+        chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum([]));
+        chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum([]));
+        chart.series("poc poc0", d3.chart.series.line('POC(12)').xPlot('asof').datum([]));
+        chart.series("band band0", d3.chart.series.band('HIGH_VALUE(12)', 'LOW_VALUE(12)').xPlot('asof').datum([]));
         chart.series("price", d3.chart.series.ohlc('open', 'high', 'low', 'close'));
         $(window).resize(function(){
             chart.width(document.documentElement.clientWidth);
             d3.select('#ohlc-div').call(chart);
         });
-        chart.series("poc poc0", d3.chart.series.line('POC(12)').xPlot('asof').datum([]));
-        chart.series("band band0", d3.chart.series.band('HIGH_VALUE(12)', 'LOW_VALUE(12)').xPlot('asof').datum([]));
-        chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum([]));
-        chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum([]));
-        chart.series("poc poc2", d3.chart.series.line('POC(64)').xPlot('asof').datum([]));
-        chart.series("band band2", d3.chart.series.band('HIGH_VALUE(64)', 'LOW_VALUE(64)').xPlot('asof').datum([]));
-        chart.series("poc poc3", d3.chart.series.line('POC(20)').xPlot('asof').datum([]));
-        chart.series("band band3", d3.chart.series.band('HIGH_VALUE(20)', 'LOW_VALUE(20)').xPlot('asof').datum([]));
         var loaded = now;
         var redrawCounter = 0;
         var redraw = _.debounce(function(){
@@ -111,12 +109,10 @@ jQuery(function($){
                 });
             }
         }, 500);
-        var length = Math.max(+screener.getItem("security-chart-length", 256), 10);
+        var length = Math.max(+screener.getItem("security-chart-length", 256), 100);
         var drawing = loadChartData(chart, security, interval, length, now).then(function(){
             var data = chart.datum();
-            if (chart.x()(data[Math.round(data.length/2)].asof) < 0) {
-                chart.x(chart.x().domain([data[0].asof, data[data.length-1].asof]));
-            }
+            chart.x(chart.x().domain([data[0].asof, new Date()]));
             return data;
         }).then(function(){
             return screener.load(security, ['close'], 'd1', 1, now);

@@ -29,256 +29,82 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-importScripts('../assets/moment/moment-with-langs.js');
+importScripts('../assets/moment/moment-with-locales.js');
 var window = { moment: moment };
-importScripts('../assets/moment/moment-timezone.js');
-importScripts('../assets/moment/moment-timezone-data.js');
+importScripts('../assets/moment/moment-timezone-with-data-2010-2020.js');
+importScripts('../assets/underscore/underscore.js');
 
-importScripts('utils.js');
-importScripts('calculations.js'); // getCalculations
+importScripts('calculations.js');
+importScripts('intervals.js');
+importScripts('dispatch.js');
 
-self.addEventListener("connect", _.partial(function(calculations, event) {
-    var d1 = {
-        storeName: 'd1',
-        millis: 24 * 60 * 60 * 1000,
-        inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('day');
-            if (start.valueOf() < dateTime.valueOf())
-                return d1.inc(exchange, start, amount + 1);
-            var w = amount > 0 ? Math.floor(amount / 5) : Math.ceil(amount / 5);
-            var d = amount - w * 5;
-            var day = start.add('weeks', w);
-            if (d < 1 || day.isoWeekday() + d < 6) {
-                return day.add('days', d);
-            } else {
-                // skip over weekend
-                return day.add('days', d + 2);
-            }
-        }
-    };
-    var m60 = {
-        storeName: 'm60',
-        millis: 60 * 60 * 1000,
-        inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('hour');
-            if (start.valueOf() < dateTime.valueOf())
-                return m1.inc(exchange, start.add('hours', 1), amount * 60);
-            return m1.inc(exchange, start, amount * 60);
-        }
-    };
-    var m10 = {
-        storeName: 'm10',
-        millis: 10 * 60 * 1000,
-        inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('minute');
-            if (start.valueOf() < dateTime.valueOf()) {
-                start = start.add('minutes', 1);
-            }
-            var minutes = start.minutes();
-            if (minutes % 10 === 0)
-                return m1.inc(exchange, start, amount * 10);
-            if (minutes < 50)
-                return m1.inc(exchange, start.minutes(Math.ceil(minutes/10)*10), amount * 10);
-            return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 10);
-        }
-    };
-    var m1 = {
-        storeName: 'm1',
-        millis: 60 * 1000,
-        inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('minute');
-            var wd = start.isoWeekday();
-            if (wd > 5) {
-                var monday = moment.tz(start.add(8 - wd, 'days').format('YYYY-MM-DD') + 'T' + exchange.marketOpensAt, exchange.tz);
-                console.log('monday', monday.toDate());
-                return m1.inc(exchange, monday, amount);
-            }
-            if (start.valueOf() < dateTime.valueOf())
-                return m1.inc(exchange, start, amount + 1);
-            var offset = start.hour() * 60 + start.minute();
-            var days = amount > 0 ? Math.floor(amount / (6.5 * 60)) : Math.ceil(amount / (6.5 * 60));
-            var m = amount - days * (6.5 * 60);
-            if (days !== 0)
-                return m1.inc(exchange, d1.inc(exchange, start.startOf('day'), days).add('minutes', offset), m);
-            start.add('minutes', m);
-            var opens = moment.tz(start.format('YYYY-MM-DD') + 'T' + exchange.marketOpensAt, exchange.tz);
-            var closes = moment.tz(start.format('YYYY-MM-DD') + 'T' + exchange.marketClosesAt, exchange.tz);
-            var after = start.diff(closes, 'minutes');
-            if (after > 0) {
-                var next = m < 0 ?
-                    opens.subtract(1, 'days').isoWeekday() > 5 ?
-                        opens.subtract(opens.isoWeekday() - 5, 'days') : opens :
-                    opens.add(1, 'days').isoWeekday() > 5 ?
-                        opens.add(8 - opens.isoWeekday(), 'days') : opens;
-                return m1.inc(exchange, next, after);
-            }
-            var before = start.diff(opens, 'minutes');
-            if (before < 0) {
-                var previous = m < 0 ?
-                    closes.subtract(1, 'days').isoWeekday() > 5 ?
-                        closes.subtract(closes.isoWeekday() - 5, 'days') : closes :
-                    closes.add(1, 'days').isoWeekday() > 5 ?
-                        closes.add(8 - closes.isoWeekday(), 'days') : closes;
-                return m1.inc(exchange, previous, before);
-            }
-            return start;
-        }
-    };
-    var intervals = {
-        annual: {
-            storeName: 'annual',
-            millis: 365 * 24 * 60 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('year');
-                if (start.valueOf() < dateTime.valueOf())
-                    return start.add('years', amount + 1);
-                return start.add('years', amount);
-            }
-        },
-        quarter: {
-            storeName: 'quarter',
-            millis: 3 * 31 * 24 * 60 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('quarter');
-                if (start.valueOf() < dateTime.valueOf())
-                    return start.add('months', 3 * (amount + 1));
-                return start.add('months', 3 * amount);
-            }
-        },
-        d1: d1,
-        m10: m10,
-        m1: m1,
-        d5: {
-            derivedFrom: d1,
-            storeName: 'd5',
-            aggregate: 5,
-            millis: 7 * 24 * 60 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('isoweek');
-                if (start.valueOf() < dateTime.valueOf())
-                    return start.add('weeks', amount + 1);
-                return start.add('weeks', amount);
-            }
-        },
-        m120: {
-            derivedFrom: m60,
-            storeName: 'm120',
-            aggregate: 2,
-            millis: 120 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('hour');
-                if (start.valueOf() < dateTime.valueOf())
-                    return m1.inc(exchange, start.add('hours', 2 - (start.hour() % 2)), amount * 120);
-                return m1.inc(exchange, start.add('hours', (start.hour() % 2)), amount * 120);
-            }
-        },
-        m60: m60,
-        m30: {
-            derivedFrom: m10,
-            storeName: 'm30',
-            aggregate: 3,
-            millis: 30 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
-                if (start.valueOf() < dateTime.valueOf()) {
-                    start = start.add('minutes', 1);
-                }
-                var minutes = start.minutes();
-                if (minutes % 30 === 0)
-                    return m1.inc(exchange, start, amount * 30);
-                if (minutes < 30)
-                    return m1.inc(exchange, start.minutes(30), amount * 30);
-                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 30);
-            }
-        },
-        m5: {
-            derivedFrom: m1,
-            storeName: 'm5',
-            aggregate: 5,
-            millis: 5 * 60 * 1000,
-            inc: function(exchange, dateTime, amount) {
-                var start = moment(dateTime).tz(exchange.tz).startOf('minute');
-                if (start.valueOf() < dateTime.valueOf()) {
-                    start = start.add('minutes', 1);
-                }
-                var minutes = start.minutes();
-                if (minutes % 5 === 0)
-                    return m1.inc(exchange, start, amount * 5);
-                if (minutes < 55)
-                    return m1.inc(exchange, start.minutes(Math.ceil(minutes/5)*5), amount * 5);
-                return m1.inc(exchange, start.minutes(0).add('hours', 1), amount * 5);
-            }
-        }
-    };
-    var open = _.partial(openSymbolDatabase, indexedDB, _.map(intervals, 'storeName'));
-    event.ports[0].onmessage = _.partial(dispatch, {
+var open = _.partial(openSymbolDatabase, indexedDB, _.map(intervals, 'storeName'));
+dispatch({
+    close: function(event) {
+        self.close();
+    },
 
-        close: function(event) {
-            self.close();
-        },
+    ping: function() {
+        return 'pong';
+    },
 
-        ping: function() {
-            return 'pong';
-        },
-
-        fields: function(event) {
-            var calcs = asCalculation(calculations, event.data.expressions);
-            var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
-            if (!errorMessage) {
-                return _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
-            } else {
-                event.data.expressions.forEach(function(expression){
-                    var calc = getCalculation(calculations, [expression])[0];
-                    var msg = calc.getErrorMessage();
-                    if (msg)
-                        throw new Error(msg + ' in ' + expression);
-                });
-            }
-        },
-        validate: function(event) {
-            return validateExpressions(calculations, intervals, event.data);
-        },
-        increment: function(event) {
-            var data = event.data;
-            var interval = intervals[data.interval];
-            return data.exchanges.reduce(function(memo, exchange){
-                var next = interval.inc(exchange, data.asof, data.increment || 1);
-                if (memo && memo.valueOf() < next.valueOf()) return memo;
-                return next.toDate();
-            }, null);
-        },
-
-        'import': function(event) {
-            return importData(open, intervals[event.data.period], Date.now(), event.data);
-        },
-        reset: function(event) {
-            return Promise.all(intervals.map(function(interval){
-                return open(event.data.security, interval, "readwrite", function(store, resolve, reject) {
-                    return resolve(store.clear());
-                });
-            })).then(function(){
-                return {
-                    status: 'success'
-                };
+    fields: function(event) {
+        var calcs = asCalculation(calculations, event.data.expressions);
+        var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
+        if (!errorMessage) {
+            return _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
+        } else {
+            event.data.expressions.forEach(function(expression){
+                var calc = getCalculation(calculations, [expression])[0];
+                var msg = calc.getErrorMessage();
+                if (msg)
+                    throw new Error(msg + ' in ' + expression);
             });
-        },
-        load: function(event) {
-            var data = event.data;
-            var now = Date.now();
-            var interval = intervals[data.interval];
-            return loadData(calculations, open, data.failfast, data.security, data.exchange,
-                interval, data.length, data.asof, now, data.expressions
-            );
-        },
-        screen: function(event){
-            var data = event.data;
-            var now = Date.now();
-            var load = loadFilteredPoint.bind(this, calculations, open, now,
-                data.failfast, data.asof);
-            return filterSecurity(intervals, load, data.exchange, data.security, data.screens);
         }
-    });
-}, getCalculations()), false);
+    },
+    validate: function(event) {
+        return validateExpressions(calculations, intervals, event.data);
+    },
+    increment: function(event) {
+        var data = event.data;
+        var interval = intervals[data.interval];
+        return data.exchanges.reduce(function(memo, exchange){
+            var next = interval.inc(exchange, data.asof, data.increment || 1);
+            if (memo && memo.valueOf() < next.valueOf()) return memo;
+            return next.toDate();
+        }, null);
+    },
+
+    'import': function(event) {
+        return importData(open, intervals[event.data.period], Date.now(), event.data);
+    },
+    reset: function(event) {
+        return Promise.all(intervals.map(function(interval){
+            return open(event.data.security, interval, "readwrite", function(store, resolve, reject) {
+                return resolve(store.clear());
+            });
+        })).then(function(){
+            return {
+                status: 'success'
+            };
+        });
+    },
+    load: function(event) {
+        var data = event.data;
+        var now = Date.now();
+        var interval = intervals[data.interval];
+        return loadData(calculations, open, data.failfast, data.security, data.exchange,
+            interval, data.length, data.asof, now, data.expressions
+        );
+    },
+    screen: function(event){
+        var data = event.data;
+        var now = Date.now();
+        var load = loadFilteredPoint.bind(this, calculations, open, now,
+            data.failfast, data.asof);
+        return filterSecurity(intervals, load, data.exchange, data.security, data.screens);
+    }
+});
 
 function validateExpressions(calculations, intervals, data) {
     var calcs = asCalculation(calculations, [data.expression]);
@@ -439,8 +265,7 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
     }).then(function(result){
         return result.reverse();
     }).then(function(result){
-        var inc = interval.inc.bind(interval, exchange);
-        var next = result.length ? inc(result[result.length - 1].asof, 1) : null;
+        var next = result.length ? interval.inc(exchange, result[result.length - 1].asof, 1) : null;
         var ticker = decodeURI(security.substring(exchange.iri.length + 1));
         if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
             // result complete
@@ -469,12 +294,12 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
 }
 
 function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
-    var ceil = _.partial(interval.inc, exchange, _, 0);
-    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.inc(exchange, asof, -1).toDate();
+    var ceil = interval.ceil.bind(interval, exchange);
+    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.floor(exchange, asof).toDate();
     var size = interval.aggregate * length + 1;
     return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end, now).then(function(data){
         var idx = since && _.sortedIndex(data.result, {
-            asof: interval.inc(exchange, since, -1).toDate()
+            asof: interval.floor(exchange, since).toDate()
         }, 'asof');
         if (!idx) return data;
         return _.extend(data, {
@@ -521,8 +346,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
         return result.reverse();
     }).then(function(result){
         var conclude = failfast ? Promise.reject.bind(Promise) : Promise.resolve.bind(Promise);
-        var inc = period.inc.bind(period, exchange);
-        var next = result.length ? inc(result[result.length - 1].asof, 1) : null;
+        var next = result.length ? period.inc(exchange, result[result.length - 1].asof, 1) : null;
         var ticker = decodeURI(security.substring(exchange.iri.length + 1));
         if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
             // result complete
@@ -551,7 +375,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                         ticker: ticker,
                         period: period.storeName,
                         result: result,
-                        start: inc(result[result.length - 1].asof, -1).format(),
+                        start: moment(result[result.length - 1].asof).format(),
                         end: moment(now).tz(exchange.tz).format()
                     }]
                 });
@@ -564,8 +388,8 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                 ticker: ticker,
                 period: period.storeName,
                 result: result,
-                start: inc(result[0].asof, -2 * (length - result.length)).format(),
-                end: inc(result[0].asof, -1).format()
+                start: period.dec(exchange, result[0].asof, 2 * (length - result.length)).format(),
+                end: moment(result[0].asof).format()
             }];
             if (next.valueOf() < asof.valueOf()) {
                 quote.push({
@@ -573,7 +397,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                     exchange: exchange,
                     ticker: ticker,
                     period: period.storeName,
-                    start: inc(result[result.length - 1].asof, -1).format(),
+                    start: moment(result[result.length - 1].asof).format(),
                     end: moment(now).tz(exchange.tz).format()
                 });
             }
@@ -591,8 +415,8 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                 cursor.onsuccess = collect(1, resolve, reject);
             }).then(function(arrayOfOne){
                 var earliest = arrayOfOne.length ? arrayOfOne[0] : null;
-                var d1 = inc(asof, -length);
-                var d2 = earliest ? inc(earliest.asof, -1) : d1;
+                var d1 = period.dec(exchange, asof, length);
+                var d2 = earliest ? moment(earliest.asof) : d1;
                 var start = d1.valueOf() < d2.valueOf() ? d1 : d2;
                 return Promise.reject({
                     status: 'error',

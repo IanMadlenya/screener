@@ -29,7 +29,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-function getCalculations() {
+var calculations = (function(_) {
     var calculations;
     return calculations = {
         unknown: function(expression) {
@@ -611,4 +611,4 @@ function getCalculations() {
     function isPositiveInteger(n) {
         return n > 0 && _.isNumber(n) && Math.round(n) == n;
     }
-}
+})(_);

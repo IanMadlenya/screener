@@ -29,81 +29,79 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-importScripts('../assets/moment/moment-with-langs.js');
+importScripts('../assets/moment/moment-with-locales.js');
 var window = { moment: moment };
-importScripts('../assets/moment/moment-timezone.js');
-importScripts('../assets/moment/moment-timezone-data.js');
+importScripts('../assets/moment/moment-timezone-with-data-2010-2020.js');
+importScripts('../assets/underscore/underscore.js');
 
-importScripts('utils.js');
+importScripts('dispatch.js');
 
-self.addEventListener("connect", _.partial(function(hit, event) {
-    event.ports[0].onmessage = _.partial(dispatch, {
+var hit = openHIT();
+dispatch({
+    close: function(event) {
+        hit('close');
+    },
 
-        close: function(event) {
-            hit('close');
-        },
+    ping: function() {
+        return 'pong';
+    },
 
-        ping: function() {
-            return 'pong';
-        },
+    validate: function(event) {
+        if ('m1' != event.data.period && 'm15' != event.data.period)
+            return Promise.reject({status: 'error'});
+        return event.data.fields.reduce(function(memo, field){
+            if (['open','high','low','close','volume','total_volume'].indexOf(field) >= 0)
+                return memo;
+            throw new Error("Unknown field: " + field);
+        }, {status: 'success'});
+    },
 
-        validate: function(event) {
-            if ('m1' != event.data.period && 'm15' != event.data.period)
-                return Promise.reject({status: 'error'});
-            return event.data.fields.reduce(function(memo, field){
-                if (['open','high','low','close','volume','total_volume'].indexOf(field) >= 0)
-                    return memo;
-                throw new Error("Unknown field: " + field);
-            }, {status: 'success'});
-        },
+    reset: function(event) {
+        return {status: 'success'};
+    },
 
-        reset: function(event) {
-            return {status: 'success'};
-        },
-
-        quote: function(event) {
-            var data = event.data;
-            var period = data.period;
-            if (period != 'm1' && period != 'm10' && period != 'm60') return {status: 'success', result: []};
-            var interval = period == 'm1' ? 60 : period == 'm10' ? 600 : 3600;
-            var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
-            var asof = Date.now();
-            return hit({
-                symbol: symbol,
-                interval: interval,
-                begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
-                end: moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
-            }).then(function(lines){
-                var results = lines.map(function(line){
-                    var row = line.split(',');
-                    return {
-                        symbol: symbol,
-                        dateTime: moment.tz(row[1], 'America/New_York').tz(data.exchange.tz).format(),
-                        high: parseFloat(row[2]),
-                        low: parseFloat(row[3]),
-                        open: parseFloat(row[4]),
-                        close: parseFloat(row[5]),
-                        total_volume: parseFloat(row[6]),
-                        volume: parseFloat(row[7])
-                    };
-                });
-                if (results.length && moment(results[0].dateTime).valueOf() > asof - (interval * 1000)) {
-                    results = results.slice(1); // first line might yet be incomplete
-                }
+    quote: function(event) {
+        var data = event.data;
+        var period = data.period;
+        if (period != 'm1' && period != 'm10' && period != 'm60') return {status: 'success', result: []};
+        var interval = period == 'm1' ? 60 : period == 'm10' ? 600 : 3600;
+        var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
+        var asof = Date.now();
+        return hit({
+            symbol: symbol,
+            interval: interval,
+            begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
+            end: moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
+        }).then(function(lines){
+            var results = lines.map(function(line){
+                var row = line.split(',');
                 return {
-                    status: 'success',
-                    exchange: data.exchange,
-                    ticker: data.ticker,
                     symbol: symbol,
-                    period: period,
-                    start: data.start,
-                    end: data.end,
-                    result: results
+                    dateTime: moment.tz(row[1], 'America/New_York').tz(data.exchange.tz).format(),
+                    high: parseFloat(row[2]),
+                    low: parseFloat(row[3]),
+                    open: parseFloat(row[4]),
+                    close: parseFloat(row[5]),
+                    total_volume: parseFloat(row[6]),
+                    volume: parseFloat(row[7])
                 };
             });
-        }
-    });
-}, openHIT()), false);
+            if (results.length && moment(results[0].dateTime).valueOf() > asof - (interval * 1000)) {
+                results = results.slice(1); // first line might yet be incomplete
+            }
+            return {
+                status: 'success',
+                exchange: data.exchange,
+                ticker: data.ticker,
+                symbol: symbol,
+                period: period,
+                start: data.start,
+                end: data.end,
+                result: results
+            };
+        });
+    }
+});
 
 function openHIT(){
     var pending = {};

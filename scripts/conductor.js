@@ -33,121 +33,121 @@
  * builds requested dataset based on sub messages sent to other workers
  */
 
-importScripts('utils.js');
+importScripts('../assets/underscore/underscore.js');
 
-self.addEventListener("connect", _.partial(function(services, event) {
-    event.ports[0].onmessage = _.partial(dispatch, {
+importScripts('dispatch.js');
 
-        close: function(event) {
-            self.close();
-        },
+var services = {list: {}, quote: {}, mentat: {}};
+dispatch({
+    close: function(event) {
+        self.close();
+    },
 
-        ping: function() {
-            return 'pong';
-        },
+    ping: function() {
+        return 'pong';
+    },
 
-        register: (function(services, event) {
-            console.log("Registering service", event.data.name);
-            if (!services[event.data.service]) {
-                services[event.data.service] = {};
-            }
-            services[event.data.service][event.data.name] = event.ports[0];
-        }).bind(this, services),
+    register: (function(services, event) {
+        console.log("Registering service", event.data.name);
+        if (!services[event.data.service]) {
+            services[event.data.service] = {};
+        }
+        services[event.data.service][event.data.name] = event.ports[0];
+    }).bind(this, services),
 
-        validate: (function(services, event){
-            var interval = event.data.interval;
-            var i = interval && interval.charAt(0);
-            var period = i == 'd' ? 'd1' : i == 'm' ? 'm1' : interval;
-            var key = getWorker(services.mentat, event.data.expression);
-            return promiseMessage({
-                cmd: 'fields',
-                expressions: [event.data.expression]
-            }, services.mentat[key], key).then(function(fields){
-                return Promise.all(_.map(services.quote, function(quote, key){
-                    return promiseMessage({
-                        cmd: 'validate',
-                        period: period,
-                        fields: _.without(fields, 'asof')
-                    }, quote, key).catch(Promise.resolve.bind(Promise));
-                }));
-            }).then(function(results){
-                return results.filter(function(result){
-                    return result.status == 'success' || result.message;
-                });
-            }).then(function(results){
-                if (!results.length) throw new Error("Unknown interval: " + event.data.interval);
-                return results;
-            }).then(function(results){
-                if (_.every(results, function(result){
-                    return result.status != 'success';
-                })) return results[0];
-                return results.filter(function(result){
-                    return result.status == 'success';
-                })[0];
+    validate: (function(services, event){
+        var interval = event.data.interval;
+        var i = interval && interval.charAt(0);
+        var period = i == 'd' ? 'd1' : i == 'm' ? 'm1' : interval;
+        var key = getWorker(services.mentat, event.data.expression);
+        return promiseMessage({
+            cmd: 'fields',
+            expressions: [event.data.expression]
+        }, services.mentat[key], key).then(function(fields){
+            return Promise.all(_.map(services.quote, function(quote, key){
+                return promiseMessage({
+                    cmd: 'validate',
+                    period: period,
+                    fields: _.without(fields, 'asof')
+                }, quote, key).catch(Promise.resolve.bind(Promise));
+            }));
+        }).then(function(results){
+            return results.filter(function(result){
+                return result.status == 'success' || result.message;
             });
-        }).bind(this, services),
+        }).then(function(results){
+            if (!results.length) throw new Error("Unknown interval: " + event.data.interval);
+            return results;
+        }).then(function(results){
+            if (_.every(results, function(result){
+                return result.status != 'success';
+            })) return results[0];
+            return results.filter(function(result){
+                return result.status == 'success';
+            })[0];
+        });
+    }).bind(this, services),
 
-        increment: function(event) {
-            var data = event.data;
-            var worker = getWorker(services.mentat, data.asof.toString());
-            return promiseMessage(data, services.mentat[worker], worker);
-        },
+    increment: function(event) {
+        var data = event.data;
+        var worker = getWorker(services.mentat, data.asof.toString());
+        return promiseMessage(data, services.mentat[worker], worker);
+    },
 
-        'exchange-list': _.memoize(function() {
-            return promiseJSON('../queries/exchange-list.rq?tqx=out:table')
-                .then(tableToObjectArray)
-                .then(function(result){
-                    return result;
-                });
-        }, _.constant(0)),
-
-        'sector-list': serviceMessage.bind(this, services, 'list'),
-
-        'security-list': serviceMessage.bind(this, services, 'list'),
-
-        'indicator-list': _.memoize(function() {
-            return promiseJSON('../queries/indicator-list.rq?tqx=out:table')
-                .then(tableToObjectArray)
-                .then(function(result){
-                    return result;
+    'exchange-list': _.memoize(function() {
+        return promiseJSON('../queries/exchange-list.rq?tqx=out:table')
+            .then(tableToObjectArray)
+            .then(function(result){
+                return result;
             });
-        }, _.constant(0)),
+    }, _.constant(0)),
 
-        load: (function(services, event) {
-            var data = event.data;
-            var worker = getWorker(services.mentat, data.security);
-            return retryAfterImport(services, data, services.mentat[worker], worker).then(function(data){
-                return data.result;
+    'sector-list': serviceMessage.bind(this, services, 'list'),
+
+    'security-list': serviceMessage.bind(this, services, 'list'),
+
+    'indicator-list': _.memoize(function() {
+        return promiseJSON('../queries/indicator-list.rq?tqx=out:table')
+            .then(tableToObjectArray)
+            .then(function(result){
+                return result;
+        });
+    }, _.constant(0)),
+
+    load: (function(services, event) {
+        var data = event.data;
+        var worker = getWorker(services.mentat, data.security);
+        return retryAfterImport(services, data, services.mentat[worker], worker).then(function(data){
+            return data.result;
+        });
+    }).bind(this, services),
+
+    'watch-list': function(event) {
+        var url = '../queries/watch-list.rq?tqx=out:table';
+        return promiseJSON(url)
+            .then(tableToObjectArray)
+            .then(function(result){
+                return result;
             });
-        }).bind(this, services),
+    },
 
-        'watch-list': function(event) {
-            var url = '../queries/watch-list.rq?tqx=out:table';
-            return promiseJSON(url)
-                .then(tableToObjectArray)
-                .then(function(result){
-                    return result;
-                });
-        },
+    'screen-list': function(event) {
+        var url = '../queries/screen-list.rq?tqx=out:table';
+        return promiseJSON(url)
+            .then(tableToObjectArray)
+            .then(function(result){
+                return result;
+            });
+    },
 
-        'screen-list': function(event) {
-            var url = '../queries/screen-list.rq?tqx=out:table';
-            return promiseJSON(url)
-                .then(tableToObjectArray)
-                .then(function(result){
-                    return result;
-                });
-        },
+    reset: (function(services, event) {
+        var m = serviceMessage(services, 'mentat', event);
+        var q = serviceMessage(services, 'quote', event);
+        return Promise.all([m, q]).then(combineResult);
+    }).bind(this, services),
 
-        reset: (function(services, event) {
-            var m = serviceMessage(services, 'mentat', event);
-            var q = serviceMessage(services, 'quote', event);
-            return Promise.all([m, q]).then(combineResult);
-        }).bind(this, services),
-
-        screen: screenSecurities.bind(this, services)
-    });
-}, {list: {}, quote: {}, mentat: {}}), false);
+    screen: screenSecurities.bind(this, services)
+});
 
 function screenSecurities(services, event) {
     var data = event.data;
