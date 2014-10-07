@@ -68,6 +68,7 @@ dispatch({
     increment: function(event) {
         var data = event.data;
         var interval = intervals[data.interval];
+        if (!interval) throw Error("Unknown interval: " + data.interval);
         return data.exchanges.reduce(function(memo, exchange){
             var next = interval.inc(exchange, data.asof, data.increment || 1);
             if (memo && memo.valueOf() < next.valueOf()) return memo;
@@ -76,7 +77,9 @@ dispatch({
     },
 
     'import': function(event) {
-        return importData(open, intervals[event.data.period], Date.now(), event.data);
+        var interval = intervals[event.data.period];
+        if (!interval) throw Error("Unknown interval: " + data.interval);
+        return importData(open, interval, Date.now(), event.data);
     },
     reset: function(event) {
         return Promise.all(intervals.map(function(interval){
@@ -93,6 +96,7 @@ dispatch({
         var data = event.data;
         var now = Date.now();
         var interval = intervals[data.interval];
+        if (!interval) throw Error("Unknown interval: " + data.interval);
         return loadData(calculations, open, data.failfast, data.security, data.exchange,
             interval, data.length, data.asof, now, data.expressions
         );
@@ -180,6 +184,7 @@ function reduceFilters(intervals, filters, iterator, memo){
     var getInterval = _.compose(_.property('interval'), _.property('indicator'));
     var byInterval = _.groupBy(filters, getInterval);
     var sorted = _.sortBy(_.keys(byInterval), function(interval) {
+        if (!intervals[interval]) throw Error("Unknown interval: " + interval);
         return intervals[interval].millis;
     }).reverse();
     return _.reduce(sorted, function(memo, interval){
