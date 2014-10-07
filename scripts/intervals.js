@@ -60,7 +60,7 @@ var intervals = (function(_, moment) {
             var untilClose = closes.diff(start, 'minutes');
             if (untilClose < amount)
                 return m1.inc(exchange, opens.add(1, 'days'), amount - untilClose);
-            return start.add('minutes', amount);
+            return start.add(amount, 'minutes');
         },
         dec: function(exchange, dateTime, amount) {
             if (amount < 0) throw Error("Amount must be >= 0");
@@ -80,7 +80,7 @@ var intervals = (function(_, moment) {
             var sinceOpen = start.diff(opens, 'minutes');
             if (sinceOpen < amount)
                 return m1.dec(exchange, closes.subtract(1, 'days'), amount - sinceOpen);
-            return start.subtract('minutes', amount);
+            return start.subtract(amount, 'minutes');
         }
     };
     var m5 = {
@@ -235,16 +235,18 @@ var intervals = (function(_, moment) {
             return moment(dateTime).tz(exchange.tz).startOf('quarter');
         },
         ceil: function(exchange, dateTime) {
-            var start = d1.floor(exchange, dateTime);
-            if (start.valueOf() < dateTime())
+            var start = quarter.floor(exchange, dateTime);
+            if (start.valueOf() < dateTime.valueOf())
                 return start.add(3, 'months');
             return start;
         },
         inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('quarter');
-            if (start.valueOf() < dateTime.valueOf())
-                return start.add('months', 3 * (amount + 1));
-            return start.add('months', 3 * amount);
+            var start = quarter.ceil(exchange, dateTime);
+            return start.add(3 * amount, 'months');
+        },
+        dec: function(exchange, dateTime, amount) {
+            var start = quarter.floor(exchange, dateTime);
+            return start.subtract(3 * amount, 'months');
         }
     };
     var annual = {
@@ -254,16 +256,18 @@ var intervals = (function(_, moment) {
             return moment(dateTime).tz(exchange.tz).startOf('year');
         },
         ceil: function(exchange, dateTime) {
-            var start = d1.floor(exchange, dateTime);
-            if (start.valueOf() < dateTime())
+            var start = annual.floor(exchange, dateTime);
+            if (start.valueOf() < dateTime.valueOf())
                 return start.add(1, 'years');
             return start;
         },
         inc: function(exchange, dateTime, amount) {
-            var start = moment(dateTime).tz(exchange.tz).startOf('year');
-            if (start.valueOf() < dateTime.valueOf())
-                return start.add('years', amount + 1);
-            return start.add('years', amount);
+            var start = annual.ceil(exchange, dateTime);
+            return start.add(amount, 'years');
+        },
+        dec: function(exchange, dateTime, amount) {
+            var start = annual.floor(exchange, dateTime);
+            return start.subtract(amount, 'years');
         }
     };
     return {
