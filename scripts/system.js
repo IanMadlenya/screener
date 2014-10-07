@@ -140,7 +140,7 @@ jQuery(function($){
             var screens = $('[rel="screener:screen"]').toArray().map(function(screen){
                 return screen.getAttribute("resource");
             });
-            return screener.screen(lists, screens, asof).next().value.then(function(result){
+            return screener.screen(lists, screens, asof).then(function(result){
                 $('#sector-security-list').empty().append(result.map(function(point){
                     var exchange = exchanges.filter(function(exchange){
                         return point.security.indexOf(exchange.iri) === 0;

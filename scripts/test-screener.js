@@ -294,14 +294,16 @@ describe("Screener", function(){
                 ]
             ]
         ], loadQuotes);
-        these("should return 15 minute intervals", [
+        these("should return 10 minute intervals", [
             ['XNYS', 'IBM', ['asof', 'high', 'low', 'open', 'close'],
-                4, 'm15', new Date('2014-03-03T11:00:00-0500'),
+                6, 'm10', new Date('2014-03-03T11:00:00-0500'),
                 [
-                    [new Date('2014-03-03T10:15:00-0500'),184.1700,183.4300,183.9800,183.6000],
-                    [new Date('2014-03-03T10:30:00-0500'),183.9400,183.4000,183.5400,183.8300],
-                    [new Date('2014-03-03T10:45:00-0500'),184.2900,183.8300,183.8510,184.2000],
-                    [new Date('2014-03-03T11:00:00-0500'),184.2740,183.9500,184.2000,184.2250]
+                    [new Date('2014-03-03T10:10:00-0500'),184.1700,183.5600,183.9800,183.8000],
+                    [new Date('2014-03-03T10:20:00-0500'),183.8300,183.4000,183.8043,183.6600],
+                    [new Date('2014-03-03T10:30:00-0500'),183.9400,183.5600,183.6700,183.8300],
+                    [new Date('2014-03-03T10:40:00-0500'),184.0500,183.8300,183.8510,184.0500],
+                    [new Date('2014-03-03T10:50:00-0500'),184.2900,183.9500,183.9800,183.9600],
+                    [new Date('2014-03-03T11:00:00-0500'),184.2740,183.9600,183.9600,184.2250]
                 ]
             ]
         ], loadQuotes);
@@ -457,7 +459,7 @@ describe("Screener", function(){
                     },
                     min:"500000"
                 }]
-            }],new Date(2014, 3, 4)).next().value.then(function(result){
+            }],new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['SMA(60,volume)']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -474,7 +476,7 @@ describe("Screener", function(){
                         interval: "annual"
                     }
                 }]
-            }],new Date(2014, 3, 4)).next().value.then(function(result){
+            }],new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
                 expect(result[0]['F-Score()']).not.toBeUndefined();
             }).then(done, unexpected(done));
@@ -487,11 +489,11 @@ describe("Screener", function(){
                 includes:""
             }],
             [],
-            new Date(2014, 3, 4)).next().value.then(function(result){
+            new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
             }).then(done, unexpected(done));
         });
-        these("should iterate 18 days", [
+        xthese("should iterate 18 days", [
             ["NASDAQ Global Select Market", "YHOO", ['date(asof)', 'open', 'high', 'low', 'close'],
                 18, 'd1',new Date(2014,0,3),
                 [
@@ -512,7 +514,7 @@ describe("Screener", function(){
                 ]
             ]
         ], screenIterator);
-        these("should iterate 21 days", [
+        xthese("should iterate 21 days", [
             ["NASDAQ Global Select Market", "YHOO", ['date(asof)', 'open', 'high', 'low', 'close'],
                 21, 'd1',new Date(2014,0,3),
                 [

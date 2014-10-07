@@ -100,7 +100,7 @@ jQuery(function($){
         $('#results').data({list: list});
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, !!load).next().value.catch(function(error){
+                return screener.screen([list], [{filters: filters}], asof, !!load).catch(function(error){
                     if (error.status == 'warning' && !load) {
                         queue.push(backtest(list, true));
                         return error.result;

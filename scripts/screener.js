@@ -257,27 +257,11 @@
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
             screen: function(watchLists, screens, asof, load) {
-                var next = 0;
-                var iterating = [asof];
-                var promise = Promise.resolve();
-                var message = inlineScreenMessage(watchLists, screens, load);
-                var push = pushIncrementedAsof.bind(this, message, postDispatchMessage, [], iterating);
-                return {
-                    next: function(){
-                        var index = next++;
-                        promise = promise.catch(function(){
-                            // ignore previous errors
-                        }).then(function(){
-                            return message.then(function(data){
-                                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
-                            });
-                        });
-                        return {
-                            value: promise,
-                            done: false
-                        };
-                    }
-                };
+                return inlineScreenMessage(watchLists, screens, load).then(function(message){
+                    return postDispatchMessage(_.extend(message, {
+                        asof: asof
+                    }));
+                });
             }
 
         });
@@ -310,64 +294,6 @@
                     screens: screens,
                     load: load
                 };
-            });
-        });
-    }
-
-    function pushIncrementedAsof(message, postDispatchMessage, exchanges, iterating, asof, result){
-        return message.then(function(data){
-            if (!exchanges.length) {
-                _.values(_.indexBy(_.pluck(data.watchLists, 'exchange'), 'iri')).reduce(function(exchanges, exchange){
-                    exchanges.push(exchange);
-                }, exchanges);
-            }
-        }).then(function(){
-            return postDispatchMessage({
-                cmd: 'increment',
-                asof: result && result.length && result[0].asof || asof,
-                interval: 'd1',
-                exchanges: exchanges
-            });
-        }).then(function(incremented){
-            if (incremented.valueOf() > asof.valueOf()) {
-                iterating.push(incremented);
-                return Promise.resolve(result);
-            }
-            return postDispatchMessage({
-                cmd: 'increment',
-                asof: asof,
-                interval: 'd1',
-                exchanges: exchanges
-            }).then(function(incremented){
-                iterating[iterating.length - 1] = incremented;
-            }).then(function(){
-                return Promise.reject(result);
-            });
-        });
-    }
-
-    function postThenPush(postDispatchMessage, push, load, data, iterating, index){
-        var asof = iterating[index];
-        return new Promise(function(callback){
-            var now = Date.now();
-            if (asof.valueOf() <= now) return callback();
-            setTimeout(callback, asof.valueOf() - now);
-        }).then(function(){
-            return postDispatchMessage(_.extend({
-                asof: asof
-            }, data));
-        }).then(function(result){
-            return push(asof, result).catch(function(){
-                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
-            });
-        }, function(error){
-            return push(asof, error).then(function(error){
-                if (error.status == 'warning' && load !== false)
-                    return error.result;
-                // tell caller to try again with load = true
-                return Promise.reject(error);
-            }, function(){
-                return postThenPush(postDispatchMessage, push, load, data, iterating, index);
             });
         });
     }
