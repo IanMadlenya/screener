@@ -96,7 +96,7 @@ jQuery(function($){
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
                     if (counter != redrawCounter) return;
-                    var length = estimateDataLength((j - i) / width * chart.innerWidth(), interval, int) + 100;
+                    var length = estimateDataLength((j - i) / width * chart.innerWidth(), interval, int) + 500;
                     console.log("Loading", int, length || data.length, begin);
                     return loadChartData(chart, security, int, length || data.length, end).then(function(){
                         interval = int;
@@ -185,7 +185,7 @@ jQuery(function($){
 
     function optimalInterval(interval, size, width) {
         var intervals = ['m1','m5','m10','m30','m60','m120','d1','d5'];
-        var IntervalMinutes = intervals.map(function(interval){
+        var intervalMinutes = intervals.map(function(interval){
             if (interval.charAt(0) == 'm') {
                 return parseInt(interval.substring(1), 10);
             } else {
@@ -195,8 +195,10 @@ jQuery(function($){
         });
         if (!size) return interval;
         var index = intervals.indexOf(interval);
-        var minutes = size * IntervalMinutes[intervals.indexOf(interval)];
-        var i = _.sortedIndex(IntervalMinutes, Math.round(minutes / width) * 5);
+        var minutes = size * intervalMinutes[intervals.indexOf(interval)];
+        var value = Math.round(minutes / width) * 5;
+        var i = _.sortedIndex(intervalMinutes, value);
+        if (i > 0 && value - intervalMinutes[i-1] < intervalMinutes[i] - value) i--;
         var j = Math.min(Math.max(i, index - 1, 0), index + 1, intervals.length-1);
         return intervals[j];
     }
