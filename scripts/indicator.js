@@ -199,7 +199,7 @@ jQuery(function($){
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return expressions.map(function(expression){
+                return columns.map(function(expression){
                     return result[expression];
                 });
             });
@@ -232,7 +232,7 @@ jQuery(function($){
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return expressions.map(function(expression){
+                return columns.map(function(expression){
                     return result[expression];
                 });
             });
@@ -278,7 +278,7 @@ jQuery(function($){
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return expressions.map(function(expression){
+                return columns.map(function(expression){
                     return result[expression];
                 });
             });
