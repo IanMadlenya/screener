@@ -378,6 +378,100 @@ var calculations = (function(_) {
                 }
             };
         },
+        /* Parabolic SAR */
+        PSAR: function(factor, limit, n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    if (!_.isNumber(factor) || factor <= 0)
+                        return "Must be a positive number: " + factor;
+                    if (!_.isNumber(limit) || limit <= 0)
+                        return "Must be a positive number: " + limit;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    var up = function(point) {
+                        var a = point.high <= this.ep ? this.af :
+                            Math.min(this.af + factor, limit);
+                        var ep = Math.max(this.ep, point.high);
+                        var stop = this.stop + a * (ep - this.stop);
+                        return (point.low >= stop) ? {
+                            trend: up,
+                            stop: stop,
+                            ep: ep,
+                            af: a
+                        } : {
+                            trend: down,
+                            stop: ep - factor * (ep - point.low),
+                            ep: point.low,
+                            af: factor
+                        };
+                    };
+                    var down = function(point) {
+                        var a = point.low >= this.ep ? this.af :
+                            Math.min(this.af + factor, limit);
+                        var ep = Math.min(point.low, this.ep);
+                        var stop = this.stop - a * (this.stop - ep);
+                        return (point.high <= stop) ? {
+                            trend: down,
+                            stop: stop,
+                            ep: ep,
+                            af: a
+                        } : {
+                            trend: up,
+                            stop: ep + factor * (point.high -ep),
+                            ep: point.high,
+                            af: factor
+                        };
+                    };
+                    return points.reduce(function(sar, point) {
+                        return sar.trend(point);
+                    }, {
+                        trend: down,
+                        stop: points[0].high,
+                        ep: points[0].low,
+                        af: factor
+                    }).stop;
+                }
+            };
+        },
+        TPOC: function(n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    var tpos = getTPOCount(points);
+                    var poc = getPointOfControl(tpos);
+                    var bottom = 0, top = tpos.length-1;
+                    while (tpos[bottom].count <= 1) bottom++;
+                    while (tpos[top].count <= 1) top--;
+                    var step = 0.01;
+                    var above = _.range(poc+step, tpos[top].price+step, step).reduce(function(above, price){
+                        return above + tpoCount(tpos, decimal(price));
+                    }, 0);
+                    var below = _.range(poc-step, tpos[bottom].price-step, -step).reduce(function(below, price){
+                        return below + tpoCount(tpos, decimal(price));
+                    }, 0);
+                    return (above - below) / Math.min(above, below) *100;
+                }
+            };
+        },
         POC: function(n) {
             return {
                 getErrorMessage: function() {
@@ -532,11 +626,12 @@ var calculations = (function(_) {
         });
         if (min == max) return tpos[min].price;
         var target = decimal((tpos[min].price + tpos[max].price) / 2);
-        return _.range(min+1, max+1).reduce(function(price, i) {
+        var poc = _.range(min+1, max+1).reduce(function(price, i) {
             if (Math.abs(tpos[i].price - target) < Math.abs(price - target))
                 return tpos[i].price;
             return price;
         }, tpos[min].price);
+        return Math.round(poc * 100) / 100;
     }
 
     function getTPOCount(points) {
