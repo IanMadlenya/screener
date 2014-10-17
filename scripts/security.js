@@ -65,10 +65,10 @@ jQuery(function($){
         chart.series("volume", d3.chart.series.bar('volume').y(d3.scale.linear().range(chart.y().range())));
         chart.series("poc poc3", d3.chart.series.line('POC(20)').xPlot('asof').datum([]));
         chart.series("band band3", d3.chart.series.band('HIGH_VALUE(20)', 'LOW_VALUE(20)').xPlot('asof').datum([]));
-        chart.series("poc poc2", d3.chart.series.line('POC(64)').xPlot('asof').datum([]));
-        chart.series("band band2", d3.chart.series.band('HIGH_VALUE(64)', 'LOW_VALUE(64)').xPlot('asof').datum([]));
-        chart.series("poc poc1", d3.chart.series.line('POC(16)').xPlot('asof').datum([]));
-        chart.series("band band1", d3.chart.series.band('HIGH_VALUE(16)', 'LOW_VALUE(16)').xPlot('asof').datum([]));
+        chart.series("poc poc2", d3.chart.series.line('POC(32)').xPlot('asof').datum([]));
+        chart.series("band band2", d3.chart.series.band('HIGH_VALUE(32)', 'LOW_VALUE(32)').xPlot('asof').datum([]));
+        chart.series("poc poc1", d3.chart.series.line('POC(12)').xPlot('asof').datum([]));
+        chart.series("band band1", d3.chart.series.band('HIGH_VALUE(12)', 'LOW_VALUE(12)').xPlot('asof').datum([]));
         chart.series("poc poc0", d3.chart.series.line('POC(12)').xPlot('asof').datum([]));
         chart.series("band band0", d3.chart.series.band('HIGH_VALUE(12)', 'LOW_VALUE(12)').xPlot('asof').datum([]));
         chart.series("price", d3.chart.series.ohlc('open', 'high', 'low', 'close'));
@@ -78,7 +78,7 @@ jQuery(function($){
         });
         var loaded = now;
         var redrawCounter = 0;
-        var redraw = _.debounce(function(){
+        var redraw = _.debounce(function(delay){
             var begin = chart.x().invert(0);
             var end = chart.x().invert(chart.innerWidth());
             var data = chart.datum();
@@ -102,7 +102,9 @@ jQuery(function($){
                         interval = int;
                         loaded = end;
                         d3.select('#ohlc-div').call(chart);
-                        redraw(); // check if more adjustments are needed
+                        _.delay(function(){
+                            redraw((delay || 500)*2); // check if more adjustments are needed
+                        }, delay || 100);
                     }, function(error){
                         calli.error(error);
                     });
@@ -140,19 +142,19 @@ jQuery(function($){
                 chart.scaleExtent([Math.min(d/5 /ppp*5,1), Math.max(d*6.5*60 /ppp*5,1)]);
             }
         }).then(function(){
-            if (interval.charAt(0) != 'm' || 10 < +interval.substring(1)) return [];
+            if (interval.charAt(0) != 'm' || 5 < +interval.substring(1)) return [];
             return screener.load(security, ['asof',
                 'POC(12)','HIGH_VALUE(12)','LOW_VALUE(12)'
-            ], 'm10', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+            ], 'm5', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
             chart.series("poc poc0").datum(data);
             chart.series("band band0").datum(data);
         }).then(function(){
-            if (interval.charAt(0) != 'm' || 60 < +interval.substring(1)) return [];
+            if (interval.charAt(0) != 'm' || 30 < +interval.substring(1)) return [];
             return screener.load(security, ['asof',
-                'POC(16)','HIGH_VALUE(16)','LOW_VALUE(16)'
+                'POC(12)','HIGH_VALUE(12)','LOW_VALUE(12)'
             ], 'm30', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
@@ -162,13 +164,14 @@ jQuery(function($){
         }).then(function(){
             if (interval.charAt(0) != 'm') return [];
             return screener.load(security, ['asof',
-                'POC(64)','HIGH_VALUE(64)','LOW_VALUE(64)'
+                'POC(32)','HIGH_VALUE(32)','LOW_VALUE(32)'
             ], 'm60', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
             chart.series("poc poc2").datum(data);
             chart.series("band band2").datum(data);
+        }).then(function(){
         }).then(function(){
             return screener.load(security, ['asof',
                 'POC(20)','HIGH_VALUE(20)','LOW_VALUE(20)'

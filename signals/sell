@@ -5,11 +5,11 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <> a </callimachus/1.4/types/Concept> , skos:Concept ;
-    dcterms:created "2014-08-01T19:09:41.505Z"^^xsd:dateTime ;
-    skos:definition "Securities are expected to decrease in price per share" ;
-    skos:prefLabel "Down" ;
-    calli:administrator </auth/groups/admin> ;
+    dcterms:created "2014-10-16T15:23:07.521Z"^^xsd:dateTime ;
+    skos:definition "Securities with this signal are expected to decrease in price per share" ;
+    skos:historyNote "" ;
+    skos:prefLabel "Sell" ;
+    skos:scopeNote "" ;
+    calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
-    calli:reader </auth/groups/public> , </auth/groups/system> ;
-    calli:subscriber </auth/groups/everyone> ;
-    skos:related <up> .
+    calli:reader </auth/groups/public> , </auth/groups/system> .

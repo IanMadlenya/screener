@@ -275,7 +275,7 @@ jQuery(function($){
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof, !!load).next().value;
+            return screener.screen([list], [{filters: excludedFilters}], asof, !!load);
         }).catch(function(error){
             if (error.status == 'warning' && !load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));

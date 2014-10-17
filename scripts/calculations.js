@@ -247,7 +247,7 @@ var calculations = (function(_) {
                     return n + calc.getDataLength();
                 },
                 getValue: function(points) {
-                    var lowest = _.min(_.pluck(points, 'low'));
+                    var lowest = _.min(_.pluck(points.slice(-n), 'low'));
                     var value = getValue(calc, points);
                     return (value - lowest) * 100 / lowest;
                 }

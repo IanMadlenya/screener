@@ -172,11 +172,12 @@
                     return _.groupBy(list, 'iri');
                 }).then(function(grouped){
                     return _.map(grouped, function(filters){
-                        var dir = filters[0].forDirection;
+                        var signal = filters[0].forSignal;
                         return {
                             iri: filters[0].iri,
                             label: filters[0].label,
-                            direction: dir.substring(dir.lastIndexOf('/') + 1),
+                            signal: signal.substring(signal.lastIndexOf('/') + 1),
+                            forSignal: signal,
                             filters: filters
                         };
                     });
@@ -257,44 +258,99 @@
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
             screen: function(watchLists, screens, asof, load) {
-                return inlineScreenMessage(watchLists, screens, load).then(function(message){
-                    return postDispatchMessage(_.extend(message, {
-                        asof: asof
-                    }));
-                });
-            }
+                return inlineWatchLists(watchLists).then(function(watchLists) {
+                    return inlineScreens(screens).then(function(screens){
+                        return {
+                            cmd: 'screen',
+                            asof: asof,
+                            load: load,
+                            watchLists: watchLists,
+                            screens: screens
+                        };
+                    });
+                }).then(postDispatchMessage);
+            },
 
+            /*
+             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
+             * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
+             * asof: new Date()
+            */
+            signal: function(watchLists, entry, exit, begin, end) {
+                return inlineWatchLists(watchLists).then(function(watchLists) {
+                    return inlineScreens(entry).then(function(entry){
+                        return inlineScreens(exit).then(function(exit){
+                            return {
+                                cmd: 'signal',
+                                begin: begin,
+                                end: end,
+                                watchLists: watchLists,
+                                entry: entry,
+                                exit: exit
+                            };
+                        });
+                    });
+                }).then(postDispatchMessage);
+            }
         });
     })(synchronized(postMessage.bind(this, _.once(createDispatchPort))));
 
-    function inlineScreenMessage(watchLists, screens, load) {
-        return Promise.all(watchLists.map(inlineWatchList)).then(function(watchLists) {
-            return Promise.all(watchLists.map(inlineExchangeIncludeExclude));
-        }).then(function(watchLists) {
-            return Promise.all(screens.map(inlineScreen)).then(function(screens){
-                return Promise.all(screens.map(inlineIndicator));
-            }).then(function(screens){
-                var filters = ['asof', 'open', 'close'].map(function(expression){
-                    return {
-                        indicator: {
-                            expression: expression,
-                            interval: 'd1'
-                        }
-                    };
-                });
-                return screens.map(function(screen){
+    function inlineScreens(screens) {
+        return Promise.all(screens.map(function(screen) {
+            return screener.screenLookup()(screen).then(onlyOne(screen));
+        })).then(function(screens){
+            return Promise.all(screens.map(function(screen) {
+                return Promise.all(screen.filters.map(function(filter){
+                    var indicator = filter.indicator || filter.forIndicator;
+                    return screener.indicatorLookup()(indicator).then(onlyOne(indicator)).then(function(indicator){
+                        var int = indicator.hasInterval;
+                        var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
+                        var min = indicator.min;
+                        var max = indicator.max;
+                        return _.extend({}, filter, {
+                            indicator: _.extend({
+                                interval: interval
+                            }, indicator, {
+                                min: _.isString(min) ? parseInt(min, 10) : min,
+                                max: _.isString(max) ? parseInt(max, 10) : max
+                            })
+                        });
+                    });
+                })).then(function(filters){
                     return _.extend({}, screen, {
-                        filters: [].concat(screen.filters, filters)
+                        filters: filters
                     });
                 });
-            }).then(function(screens){
-                return {
-                    cmd: 'screen',
-                    watchLists: watchLists,
-                    screens: screens,
-                    load: load
-                };
-            });
+            }));
+        });
+    }
+
+    function inlineWatchLists(watchLists) {
+        return Promise.all(watchLists.map(function(hasWatchList) {
+            return screener.watchListLookup()(hasWatchList).then(onlyOne(hasWatchList));
+        })).then(function(watchLists) {
+            return Promise.all(watchLists.map(function(watchList) {
+                if (!watchList.ofExchange && !watchList.exchange) throw Error("No watch list exchange: " + JSON.stringify(watchList));
+                return getExchange(watchList.exchange || watchList.ofExchange).then(function(exchange){
+                    var s = watchList.includeSectors;
+                    var sectors = s ? _.isString(s) ? _.compact(s.split('\t')) : s : [];
+                    var i = watchList.includes;
+                    var includes = i ? _.isString(i) ? _.compact(i.split(' ')) : i : [];
+                    var e = watchList.excludes;
+                    var excludes = e ? _.isString(e) ? _.compact(e.split(' ')) : e : [];
+                    var prefix = function(security){
+                        if (security.indexOf('://') > 0) return security;
+                        return exchange.iri + '/' + encodeURI(security);
+                    };
+                    return _.extend({}, watchList, {
+                        exchange: exchange,
+                        includeSectors: sectors,
+                        includes: includes.map(prefix),
+                        excludes: excludes.map(prefix)
+                    });
+                });
+            }));
         });
     }
 
@@ -310,60 +366,6 @@
             if (filtered.length == 1) return filtered[0];
             if (filtered.length) throw Error("Security matches too many exchanges: " + filtered);
             throw Error("Unknown security: " + security);
-        });
-    }
-
-    function inlineWatchList(hasWatchList) {
-        return screener.watchListLookup()(hasWatchList).then(onlyOne(hasWatchList));
-    }
-
-    function inlineExchangeIncludeExclude(watchList) {
-        if (!watchList.ofExchange && !watchList.exchange) throw Error("No watch list exchange: " + JSON.stringify(watchList));
-        return getExchange(watchList.exchange || watchList.ofExchange).then(function(exchange){
-            var s = watchList.includeSectors;
-            var sectors = s ? _.isString(s) ? _.compact(s.split('\t')) : s : [];
-            var i = watchList.includes;
-            var includes = i ? _.isString(i) ? _.compact(i.split(' ')) : i : [];
-            var e = watchList.excludes;
-            var excludes = e ? _.isString(e) ? _.compact(e.split(' ')) : e : [];
-            var prefix = function(security){
-                if (security.indexOf('://') > 0) return security;
-                return exchange.iri + '/' + encodeURI(security);
-            };
-            return _.extend({}, watchList, {
-                exchange: exchange,
-                includeSectors: sectors,
-                includes: includes.map(prefix),
-                excludes: excludes.map(prefix)
-            });
-        });
-    }
-
-    function inlineScreen(screen) {
-        return screener.screenLookup()(screen).then(onlyOne(screen));
-    }
-
-    function inlineIndicator(screen) {
-        return Promise.all(screen.filters.map(function(filter){
-            var indicator = filter.indicator || filter.forIndicator;
-            return screener.indicatorLookup()(indicator).then(onlyOne(indicator)).then(function(indicator){
-                var int = indicator.hasInterval;
-                var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
-                var min = indicator.min;
-                var max = indicator.max;
-                return _.extend({}, filter, {
-                    indicator: _.extend({
-                        interval: interval
-                    }, indicator, {
-                        min: _.isString(min) ? parseInt(min, 10) : min,
-                        max: _.isString(max) ? parseInt(max, 10) : max
-                    })
-                });
-            });
-        })).then(function(filters){
-            return _.extend({}, screen, {
-                filters: filters
-            });
         });
     }
 

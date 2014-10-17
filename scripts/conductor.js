@@ -33,8 +33,12 @@
  * builds requested dataset based on sub messages sent to other workers
  */
 
+importScripts('../assets/moment/moment-with-locales.js');
+var window = { moment: moment };
+importScripts('../assets/moment/moment-timezone-with-data-2010-2020.js');
 importScripts('../assets/underscore/underscore.js');
 
+importScripts('intervals.js');
 importScripts('dispatch.js');
 
 var services = {list: {}, quote: {}, mentat: {}};
@@ -146,16 +150,77 @@ dispatch({
         return Promise.all([m, q]).then(combineResult);
     }).bind(this, services),
 
-    screen: screenSecurities.bind(this, services)
+    screen: function(event) {
+        var data = event.data;
+        return screenSecurities(services, data.watchLists, data.screens, data.asof, data.load);
+    },
+
+    signal: function(event){
+        var data = event.data;
+        return signal(services, intervals, data.watchLists, data.entry, data.exit, data.begin, data.end);
+    }
 });
 
-function screenSecurities(services, event) {
-    var data = event.data;
-    var load = data.load;
-    var byExchange = _.groupBy(data.watchLists, _.compose(_.property('iri'), _.property('exchange')));
+function signal(services, intervals, watchLists, entry, exit, begin, end) {
+    var byExchange = _.groupBy(watchLists, _.compose(_.property('iri'), _.property('exchange')));
     return Promise.all(_.map(byExchange, function(watchLists) {
         var exchange = watchLists[0].exchange;
-        var filter = filterSecurity.bind(this, services, data.screens, data.asof, load, exchange);
+        var signals = findSignals.bind(this, services, exchange);
+        return findAllSecuritiesByWeek(services, intervals, exchange, watchLists, entry, begin, end).then(function(securities){
+            return Promise.all(securities.map(function(security){
+                return signals(security, entry, exit, begin, end);
+            }));
+        });
+    })).then(_.flatten);
+}
+
+function findAllSecuritiesByWeek(services, intervals, exchange, watchLists, screens, begin, end) {
+    var d5 = intervals.d5;
+    var weeklyScreener = screens.map(function(screen) {
+        return _.extend({}, screen, {
+            filters: screen.filters.filter(function(filter){
+                return intervals[filter.indicator.interval].millis >= d5.millis;
+            })
+        });
+    });
+    var weeks = intervalRange(exchange, d5.floor(exchange, begin), d5.ceil(exchange, end), d5);
+    return Promise.all(weeks.map(function(week){
+        return screenSecurities(services, watchLists, weeklyScreener, week).then(function(data){
+            return data.result.map(_.property('security'));
+        });
+    })).then(_.flatten).then(_.uniq);
+}
+
+function intervalRange(exchange, begin, end, interval) {
+    var result = [];
+    var date = interval.ceil(exchange, begin);
+    while (date.valueOf() <= end.valueOf()) {
+        result.push(date.toDate());
+        date = interval.inc(exchange, date, 1);
+    }
+    return result;
+}
+
+function findSignals(services, exchange, security, entry, exit, begin, end) {
+    var worker = getWorker(services.mentat, security);
+    return retryAfterImport(services, {
+        cmd: 'signal',
+        begin: begin,
+        end: end,
+        entry: entry,
+        exit: exit,
+        exchange: exchange,
+        security: security
+    }, services.mentat[worker], worker).then(function(data){
+        return data.result;
+    });
+}
+
+function screenSecurities(services, watchLists, screens, asof, load) {
+    var byExchange = _.groupBy(watchLists, _.compose(_.property('iri'), _.property('exchange')));
+    return Promise.all(_.map(byExchange, function(watchLists) {
+        var exchange = watchLists[0].exchange;
+        var filter = filterSecurity.bind(this, services, screens, asof, load, exchange);
         return listSecurities(services, watchLists).then(function(securities) {
             return Promise.all(securities.map(filter));
         });
@@ -168,7 +233,10 @@ function screenSecurities(services, event) {
         return _.extend({
             status: success ? 'success' : warning ? 'warning' : 'error',
             message: groups.error && _.uniq(_.pluck(groups.error, 'message').sort(), true).join('\n')
-        }, groups);
+        }, success ? {result: []} : {}, groups);
+    }).then(function(data){
+        if (data.status != 'error' && data.result) return data;
+        return Promise.reject(data);
     });
 }
 

@@ -107,8 +107,57 @@ dispatch({
         var load = loadFilteredPoint.bind(this, calculations, open, now,
             data.failfast, data.asof);
         return filterSecurity(intervals, load, data.exchange, data.security, data.screens);
+    },
+    signal: function(event){
+        var data = event.data;
+        var interval = [].concat(data.entry, data.exit).reduce(function(smallest, screen){
+            return screen.filters.reduce(function(smallest, filter){
+                var int = intervals[filter.indicator.interval];
+                if (int.millis < smallest.millis) return int;
+                else return smallest;
+            }, smallest);
+        }, intervals.d5);
+        var inc = function(date){
+            return interval.inc(data.exchange, date, 1).toDate();
+        };
+        var screenSecurity = function(screen, asof){
+            var load = loadFilteredPoint.bind(this, calculations, open, data.end,
+                data.failfast, asof);
+            return filterSecurity(intervals, load, data.exchange, data.security, screen);
+        };
+        return findSignals(screenSecurity, data.entry, data.exit, inc, data.begin, data.end).then(function(results){
+            var statuses = _.uniq(results.map(_.property('status')));
+            var message = _.uniq(_.compact(results.map(_.property('message'))).sort(), true).join('\n');
+            return {
+                status: statuses.length == 1 ? statuses[0] : 'warning',
+                message: message,
+                begin: data.begin,
+                end: data.end,
+                falifast: data.failfast,
+                result: results.map(_.property('result')),
+                quote: _.flatten(results.map(_.property('quote')))
+            };
+        });
     }
 });
+
+function findSignals(screenSecurity, entry, exit, inc, begin, end) {
+    return findNextSignal(screenSecurity, entry, inc, inc(begin), end).then(function(first){
+        if (!first) return null;
+        return findSignals(screenSecurity, exit, entry, inc, first.result.asof, end).then(function(rest){
+            if (!rest) return [first];
+            return [first].concat(rest);
+        });
+    });
+}
+
+function findNextSignal(screenSecurity, screen, inc, asof, until) {
+    if (asof.valueOf() > until.valueOf()) return null;
+    return screenSecurity(screen, asof).then(function(data){
+        if (data.result) return data;
+        return findNextSignal(screenSecurity, screen, inc, inc(asof), until);
+    });
+}
 
 function validateExpressions(calculations, intervals, data) {
     var calcs = asCalculation(calculations, [data.expression]);
@@ -161,19 +210,26 @@ function filterSecurity(intervals, load, exchange, security, screens){
                         status: !memo.status || memo.status == point.status ? point.status : 'warning',
                         quote: _.compact(_.flatten([memo.quote, point.quote])),
                         result: _.extend(memo.result || {
-                            security: security
+                            security: security,
+                            signal: screen.signal
                         }, point.result)
                     };
                 });
             });
-        }, Promise.resolve({}));
+        }, Promise.resolve({
+            status: 'success',
+            result: {
+                security: security,
+                signal: screen.signal
+            }
+        }));
     })).then(function(orResults) {
         return orResults.reduce(function(memo, point) {
             return memo || point;
         }, null);
     }).then(function(point){
         // if no screens are provide, just return the security
-        return !_.isEmpty(point) && point || screens.length === 0 && {
+        return point && point.status && point || screens.length === 0 && {
             status: 'success',
             result: {security: security}
         } || {status: 'success'};
