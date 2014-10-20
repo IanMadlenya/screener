@@ -48,7 +48,7 @@
         var grid = d3.selectAll([]);
         var pane = d3.selectAll([]);
         var axis = d3.selectAll([]);
-        var x_orig = d3.time.scale().domain([moment().subtract('years',1).toDate(), new Date()]).range([0,width-margin.left-margin.right]);
+        var x_orig = d3.time.scale().domain([moment().subtract(1,'years').toDate(), new Date()]).range([0,width-margin.left-margin.right]);
         var x = x_orig.copy();
         var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis().ticks(30);
@@ -207,13 +207,22 @@
         chart.x = function(_x) {
             if (!arguments.length) return x;
             x = _x;
+            var domain = x.domain();
+            var range = x.range();
+            var duration = moment(domain[domain.length-1]).diff(domain[0]);
+            var earlier = moment(domain[0]).subtract(duration/6, 'ms');
+            var later = moment(domain[domain.length-1]).add(duration/6, 'ms');
+            var width = range[range.length-1] - range[0];
+            var left = range[0] - width;
+            var right = range[range.length-1] + width;
+            x.domain([].concat(earlier, domain, later)).range([].concat(left, range, right));
             x_orig = x.copy();
             var x_trim = x.copy();
-            if (x_trim.range().length > 2) {
-                var start = _.sortedIndex(x_trim.range(), 0);
-                var end = _.sortedIndex(x_trim.range(), chart.innerWidth()+1);
+            if (range.length > 2) {
+                var start = _.sortedIndex(range, 0);
+                var end = _.sortedIndex(range, chart.innerWidth()+1);
                 if (start < end - 1) {
-                    x_trim.domain(x_trim.domain().slice(start, end)).range(x_trim.range().slice(start, end));
+                    x_trim.domain(domain.slice(start, end)).range(range.slice(start, end));
                 }
             }
             zoom.x(x_trim);
@@ -374,8 +383,8 @@
             iteratee = _.iteratee(iteratee);
             var series = buildSeries(function(g){
                 var x = series.x(), y = series.y(), datum = series.datum(), xIteratee = series.xPlot();
-                var range = x.range();
-                var width = Math.max(Math.floor((range[range.length-1]-range[0]) / datum.length), 2);
+                var range = x(xIteratee(datum[datum.length-1],datum.length-1)) - x(xIteratee(datum[0],0));
+                var width = Math.max(Math.floor((range) / datum.length), 2);
                 updateAll(g, "rect", "bar", datum).attr("x", function(d, i){
                     return x(xIteratee(d,i)) - width / 2;
                 }).attr("y", _.compose(y, iteratee)).attr("width", width).attr("height", function(d,i){
