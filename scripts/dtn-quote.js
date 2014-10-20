@@ -71,7 +71,7 @@ dispatch({
             symbol: symbol,
             interval: interval,
             begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
-            end: moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
+            end: data.end && moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
         }).then(function(lines){
             var results = lines.map(function(line){
                 var row = line.split(',');
@@ -180,7 +180,7 @@ function openHIT(){
             cmd.push(options.symbol);
             cmd.push(options.interval);
             cmd.push(options.begin);
-            cmd.push(options.end);
+            cmd.push(options.end || '');
             cmd.push(options.maxDatapoints || '');
             cmd.push(options.beginFilterTime || '');
             cmd.push(options.endFilterTime || '');
