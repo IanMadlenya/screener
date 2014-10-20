@@ -232,8 +232,9 @@
                 });
             },
 
-            load: function(security, expressions, interval, length, asof) {
-                if (length <= 0 || length != Math.round(length)) throw Error("length must be a positive integer, not " + length);
+            load: function(security, expressions, interval, length, lower, upper) {
+                if (length < 0 || length != Math.round(length)) throw Error("length must be a non-negative integer, not " + length);
+                if (!interval) throw Error("interval is required, not " + interval);
                 var int = interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
                 return getExchangeOfSecurity(security).then(function(exchange){
                     return postDispatchMessage({
@@ -243,7 +244,8 @@
                         expressions: expressions,
                         interval: int,
                         length: length,
-                        asof: asof
+                        lower: lower,
+                        upper: upper || lower
                     });
                 });
             },
@@ -283,6 +285,29 @@
                         return inlineScreens(exit).then(function(exit){
                             return {
                                 cmd: 'signal',
+                                begin: begin,
+                                end: end,
+                                watchLists: watchLists,
+                                entry: entry,
+                                exit: exit
+                            };
+                        });
+                    });
+                }).then(postDispatchMessage);
+            },
+
+            /*
+             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
+             * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
+             * asof: new Date()
+            */
+            performance: function(watchLists, entry, exit, begin, end) {
+                return inlineWatchLists(watchLists).then(function(watchLists) {
+                    return inlineScreens(entry).then(function(entry){
+                        return inlineScreens(exit).then(function(exit){
+                            return {
+                                cmd: 'performance',
                                 begin: begin,
                                 end: end,
                                 watchLists: watchLists,

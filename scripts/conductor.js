@@ -158,8 +158,49 @@ dispatch({
     signal: function(event){
         var data = event.data;
         return signal(services, intervals, data.watchLists, data.entry, data.exit, data.begin, data.end);
+    },
+
+    performance: function(event){
+        var data = event.data;
+        return signal(services, intervals, data.watchLists, data.entry, data.exit, data.begin, data.end).then(function(signals){
+            var returns = _.reduce(_.groupBy(signals, 'security'), function(returns, signals, security){
+                var entry = null;
+                return signals.reduce(function(returns, exit, i, signals){
+                    if (!entry && (exit.signal == 'buy' || exit.signal == 'sell')) {
+                        entry = exit;
+                    } else if (entry.signal == 'sell' && exit.signal == 'buy') {
+                        returns.push((entry.close - exit.close) / entry.close);
+                        entry = null;
+                    } else if (entry.signal == 'buy' && exit.signal == 'sell') {
+                        returns.push((exit.close - entry.close) / entry.close);
+                        entry = null;
+                    }
+                    return returns;
+                }, returns);
+            }, []);
+            var rate = sum(returns);
+            var avg = rate / returns.length;
+            var sd = Math.sqrt(sum(returns.map(function(num){
+                var diff = num - avg;
+                return diff * diff;
+            })) / returns.length);
+            return {
+                status: 'success',
+                result: {
+                    rate: rate,
+                    sd: sd,
+                    amount: returns.length
+                }
+            };
+        });
     }
 });
+
+function sum(numbers) {
+    return numbers.reduce(function(sum, num){
+        return sum + num;
+    }, 0);
+}
 
 function signal(services, intervals, watchLists, entry, exit, begin, end) {
     var byExchange = _.groupBy(watchLists, _.compose(_.property('iri'), _.property('exchange')));

@@ -79,7 +79,7 @@ dispatch({
     'import': function(event) {
         var interval = intervals[event.data.period];
         if (!interval) throw Error("Unknown interval: " + data.interval);
-        return importData(open, interval, Date.now(), event.data);
+        return importData(open, interval, event.data);
     },
     reset: function(event) {
         return Promise.all(intervals.map(function(interval){
@@ -94,19 +94,16 @@ dispatch({
     },
     load: function(event) {
         var data = event.data;
-        var now = Date.now();
         var interval = intervals[data.interval];
         if (!interval) throw Error("Unknown interval: " + data.interval);
         return loadData(calculations, open, data.failfast, data.security, data.exchange,
-            interval, data.length, data.asof, now, data.expressions
+            data.length, data.lower, data.upper, interval, data.expressions
         );
     },
     screen: function(event){
         var data = event.data;
-        var now = Date.now();
-        var load = loadFilteredPoint.bind(this, calculations, open, now,
-            data.failfast, data.asof);
-        return filterSecurity(intervals, load, data.exchange, data.security, data.screens);
+        var load = pointLoad(calculations, open, data.failfast, data.security, data.exchange, data.screens, data.asof, data.asof);
+        return filterSecurity(intervals, load, data.security, data.screens, data.asof);
     },
     signal: function(event){
         var data = event.data;
@@ -120,11 +117,8 @@ dispatch({
         var inc = function(date){
             return interval.inc(data.exchange, date, 1).toDate();
         };
-        var screenSecurity = function(screen, asof){
-            var load = loadFilteredPoint.bind(this, calculations, open, data.end,
-                data.failfast, asof);
-            return filterSecurity(intervals, load, data.exchange, data.security, screen);
-        };
+        var load = pointLoad(calculations, open, data.failfast, data.security, data.exchange, [].concat(data.entry, data.exit), data.begin, data.end);
+        var screenSecurity = filterSecurity.bind(this, intervals, load, data.security);
         return findSignals(screenSecurity, data.entry, data.exit, inc, data.begin, data.end).then(function(results){
             var statuses = _.uniq(results.map(_.property('status')));
             var message = _.uniq(_.compact(results.map(_.property('message'))).sort(), true).join('\n');
@@ -141,21 +135,50 @@ dispatch({
     }
 });
 
+function pointLoad(calculations, open, failfast, security, exchange, screens, lower, upper) {
+    var datasets = {};
+    var exprs = screens.reduce(function(exprs, screen){
+        return screen.filters.reduce(function(exprs, filter){
+            var expr = filter.indicator.expression;
+            var interval = filter.indicator.interval;
+            if (!exprs[interval]) exprs[interval] = [];
+            if (exprs[interval].indexOf(expr) < 0) exprs[interval].push(expr);
+            return exprs;
+        }, exprs);
+    }, {});
+    return function(asof, interval) {
+        if (!datasets[interval.storeName]) {
+            datasets[interval.storeName] = loadData(calculations, open, failfast, security, exchange,
+                1, lower, upper, interval, exprs[interval.storeName]);
+        }
+        return datasets[interval.storeName].then(function(data){
+            var idx = _.sortedIndex(data.result, {
+                asof: asof
+            }, 'asof');
+            var i = data.result[idx] && data.result[idx].asof.valueOf() <= asof.valueOf() ? idx : idx - 1;
+            return _.extend({}, data, {
+                result: data.result[i]
+            });
+        });
+    };
+}
+
 function findSignals(screenSecurity, entry, exit, inc, begin, end) {
     return findNextSignal(screenSecurity, entry, inc, inc(begin), end).then(function(first){
         if (!first) return null;
         return findSignals(screenSecurity, exit, entry, inc, first.result.asof, end).then(function(rest){
             if (!rest) return [first];
-            return [first].concat(rest);
+            rest.unshift(first);
+            return rest;
         });
     });
 }
 
-function findNextSignal(screenSecurity, screen, inc, asof, until) {
-    if (asof.valueOf() > until.valueOf()) return null;
-    return screenSecurity(screen, asof).then(function(data){
+function findNextSignal(screenSecurity, screens, inc, asof, until) {
+    if (asof.valueOf() > until.valueOf()) return Promise.resolve(null);
+    return screenSecurity(screens, asof).then(function(data){
         if (data.result) return data;
-        return findNextSignal(screenSecurity, screen, inc, inc(asof), until);
+        return findNextSignal(screenSecurity, screens, inc, inc(asof), until);
     });
 }
 
@@ -173,7 +196,8 @@ function validateExpressions(calculations, intervals, data) {
     }
 }
 
-function importData(open, interval, now, data) {
+function importData(open, interval, data) {
+    var now = Date.now();
     var points = data.points.map(function(point){
         var obj = {};
         var tz = point.tz || data.exchange.tz;
@@ -199,12 +223,12 @@ function importData(open, interval, now, data) {
     });
 }
 
-function filterSecurity(intervals, load, exchange, security, screens){
+function filterSecurity(intervals, load, security, screens, asof){
     return Promise.all(screens.map(function(screen) {
         return reduceFilters(intervals, screen.filters, function(promise, filters, interval){
             return promise.then(function(memo){
                 if (!memo) return memo;
-                return load(exchange, security, filters, interval).then(function(point){
+                return loadFilteredPoint(load, asof, interval, filters).then(function(point){
                     if (!point) return point;
                     return {
                         status: !memo.status || memo.status == point.status ? point.status : 'warning',
@@ -248,21 +272,18 @@ function reduceFilters(intervals, filters, iterator, memo){
     }, memo);
 }
 
-function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, security, filters, interval) {
+function loadFilteredPoint(load, asof, interval, filters) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return loadData(calculations, open, failfast, security, exchange, interval, 1, asof, now, expressions).then(function(data){
-        if (data.result.length < 1) return Promise.reject(_.extend(data, {
+    return load(asof, interval, expressions).then(function(data){
+        if (!data.result) return Promise.reject(_.extend(data, {
             status: 'error',
             message: "No results for interval: " + interval.storeName,
             interval: interval.storeName
         }));
-        return _.extend(data, {
-            result: data.result[data.result.length - 1]
-        });
+        return data;
     }).then(function(data){
-        var pass = _.reduce(filters, function(pass, filter) {
-            if (!pass)
-                return false;
+        var pass =_.reduce(filters, function(pass, filter) {
+            if (!pass) return false;
             var value = data.result[filter.indicator.expression];
             if (filter.min || filter.min === 0) {
                 if (isNaN(value) || value < +filter.min)
@@ -282,14 +303,14 @@ function loadFilteredPoint(calculations, open, now, failfast, asof, exchange, se
     });
 }
 
-function loadData(calculations, open, failfast, security, exchange, interval, length, asof, now, expressions) {
+function loadData(calculations, open, failfast, security, exchange, length, lower, upper, interval, expressions) {
     var calcs = asCalculation(calculations, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
     if (errorMessage) throw Error(errorMessage);
-    return collectIntervalRange(open, failfast, security, exchange, interval, length + n - 1, asof, now).then(function(data) {
+    return collectIntervalRange(open, failfast, security, exchange, interval, length + n - 1, lower, upper).then(function(data) {
         var updates = [];
-        var startIndex = Math.max(data.result.length - length, 0);
+        var startIndex = Math.max(lengthBelow(data.result, lower) - length, 0);
         var result = _.map(startIndex ? data.result.slice(startIndex) : data.result, function(result, i) {
             var updated = false;
             var point = _.reduce(calcs, function(point, calc, c){
@@ -316,29 +337,23 @@ function loadData(calculations, open, failfast, security, exchange, interval, le
     });
 }
 
-function collectIntervalRange(open, failfast, security, exchange, interval, length, asof, now) {
+function collectIntervalRange(open, failfast, security, exchange, interval, length, lower, upper) {
     if (!interval.derivedFrom)
-        return collectRawRange(open, failfast, security, exchange, interval, length, asof, now);
-    return open(security, interval, 'readonly', function(store, resolve, reject){
-        var cursor = store.openCursor(IDBKeyRange.upperBound(asof), "prev");
-        cursor.onerror = reject;
-        cursor.onsuccess = collect(length, resolve, reject);
-    }).then(function(result){
-        return result.reverse();
-    }).then(function(result){
+        return collectRawRange(open, failfast, security, exchange, interval, length, lower, upper);
+    return open(security, interval, 'readonly', collect.bind(this, length, lower, upper)).then(function(result){
         var next = result.length ? interval.inc(exchange, result[result.length - 1].asof, 1) : null;
         var ticker = decodeURI(security.substring(exchange.iri.length + 1));
-        if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
+        var below = lengthBelow(result, lower);
+        if (below >= length && next && (next.valueOf() > upper.valueOf() || next.valueOf() > Date.now())) {
             // result complete
             return {
                 status: 'success',
                 result: result
             };
-        } else if (result.length >= length) {
+        } else if (result.length && below >= length) {
             // need to update with newer data
             var last = result[result.length - 1];
-            var size = Math.ceil((asof.valueOf() - last.asof.valueOf()) / interval.millis);
-            return collectAggregateRange(open, failfast, security, exchange, interval, size, last.asof, asof, now).then(function(aggregated){
+            return collectAggregateRange(open, failfast, security, exchange, interval, 0, last.asof, upper).then(function(aggregated){
                 return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
             }).then(function(aggregated){
                 return _.extend(aggregated, {
@@ -347,26 +362,19 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
             });
         } else {
             // no data available
-            return collectAggregateRange(open, failfast, security, exchange, interval, length, undefined, asof, now).then(function(aggregated){
+            var floored = interval.floor(exchange, lower).toDate();
+            return collectAggregateRange(open, failfast, security, exchange, interval, length, floored, upper).then(function(aggregated){
                 return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
             });
         }
     });
 }
 
-function collectAggregateRange(open, failfast, security, exchange, interval, length, since, asof, now) {
+function collectAggregateRange(open, failfast, security, exchange, interval, length, lower, upper) {
     var ceil = interval.ceil.bind(interval, exchange);
-    var end = ceil(asof).valueOf() == asof.valueOf() ? asof : interval.floor(exchange, asof).toDate();
+    var end = ceil(upper).valueOf() == upper.valueOf() ? upper : interval.floor(exchange, upper).toDate();
     var size = interval.aggregate * length + 1;
-    return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, end, now).then(function(data){
-        var idx = since && _.sortedIndex(data.result, {
-            asof: interval.floor(exchange, since).toDate()
-        }, 'asof');
-        if (!idx) return data;
-        return _.extend(data, {
-            result: data.result.slice(idx)
-        });
-    }).then(function(data){
+    return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, lower, end).then(function(data){
         if (!data.result.length) return data;
         var upper, count, discard = ceil(data.result[0].asof).valueOf();
         var result = data.result.reduce(function(result, point){
@@ -398,30 +406,21 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
     });
 }
 
-function collectRawRange(open, failfast, security, exchange, period, length, asof, now) {
-    return open(security, period, 'readonly', function(store, resolve, reject){
-        var cursor = store.openCursor(IDBKeyRange.upperBound(asof), "prev");
-        cursor.onerror = reject;
-        cursor.onsuccess = collect(length, resolve, reject);
-    }).then(function(result){
-        return result.reverse();
-    }).then(function(result){
+function collectRawRange(open, failfast, security, exchange, period, length, lower, upper) {
+    return open(security, period, 'readonly', collect.bind(this, length, lower, upper)).then(function(result){
         var conclude = failfast ? Promise.reject.bind(Promise) : Promise.resolve.bind(Promise);
         var next = result.length ? period.inc(exchange, result[result.length - 1].asof, 1) : null;
         var ticker = decodeURI(security.substring(exchange.iri.length + 1));
-        if (result.length >= length && (next.valueOf() > asof.valueOf() || next.valueOf() > now)) {
+        var below = lengthBelow(result, lower);
+        if (below >= length && next && (next.valueOf() > upper.valueOf() || next.valueOf() > Date.now())) {
             // result complete
             return {
                 status: 'success',
                 result: result
             };
-        } else if (result.length >= length) {
-            return open(security, period, 'readonly', function(store, resolve, reject){
-                var cursor = store.openCursor(IDBKeyRange.lowerBound(asof), "next");
-                cursor.onerror = reject;
-                cursor.onsuccess = collect(1, resolve, reject);
-            }).then(function(newer){
-                if (newer.length) return { // result complete
+        } else if (result.length && below >= length) {
+            return open(security, period, 'readonly', nextItem.bind(this, upper)).then(function(newer){
+                if (newer) return { // result complete
                     status: 'success',
                     result: result
                 };
@@ -436,12 +435,12 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                         ticker: ticker,
                         period: period.storeName,
                         result: result,
-                        start: moment(result[result.length - 1].asof).format(),
-                        end: moment(now).tz(exchange.tz).format()
+                        start: moment(result[result.length - 1].asof).format()
                     }]
                 });
             });
-        } else if (result.length && result.length < length) {
+        } else if (result.length && below < length) {
+            var earliest = lower.valueOf() < result[0].asof.valueOf() ? lower : result[0].asof;
             // need more historic data
             var quote = [{
                 security: security,
@@ -449,17 +448,16 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                 ticker: ticker,
                 period: period.storeName,
                 result: result,
-                start: period.dec(exchange, result[0].asof, 2 * (length - result.length)).format(),
+                start: period.dec(exchange, earliest, 2 * (length - below)).format(),
                 end: moment(result[0].asof).format()
             }];
-            if (next.valueOf() < asof.valueOf()) {
+            if (next.valueOf() < upper.valueOf()) {
                 quote.push({
                     security: security,
                     exchange: exchange,
                     ticker: ticker,
                     period: period.storeName,
-                    start: moment(result[result.length - 1].asof).format(),
-                    end: moment(now).tz(exchange.tz).format()
+                    start: moment(result[result.length - 1].asof).format()
                 });
             }
             return conclude({
@@ -470,13 +468,8 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
             });
         } else {
             // no data available
-            return open(security, period, 'readonly', function(store, resolve, reject){
-                var cursor = store.openCursor();
-                cursor.onerror = reject;
-                cursor.onsuccess = collect(1, resolve, reject);
-            }).then(function(arrayOfOne){
-                var earliest = arrayOfOne.length ? arrayOfOne[0] : null;
-                var d1 = period.dec(exchange, asof, length);
+            return open(security, period, 'readonly', nextItem.bind(this, null)).then(function(earliest){
+                var d1 = period.dec(exchange, lower, length);
                 var d2 = earliest ? moment(earliest.asof) : d1;
                 var start = d1.valueOf() < d2.valueOf() ? d1 : d2;
                 return Promise.reject({
@@ -487,8 +480,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, aso
                         exchange: exchange,
                         ticker: ticker,
                         period: period.storeName,
-                        start: start.format(),
-                        end: moment(now).tz(exchange.tz).format()
+                        start: start.format()
                     }]
                 });
             });
@@ -543,22 +535,53 @@ function openSymbolDatabase(indexedDB, storeNames, security, interval, mode, cal
     });
 }
 
-function collect(n, callback, catcher) {
-    return _.partial(function(results, event) {
+function collect(below, lower, upper, store, resolve, reject) {
+    var results = [];
+    var between = 0;
+    var cursor = store.openCursor(IDBKeyRange.upperBound(upper), "prev");
+    cursor.onerror = reject;
+    cursor.onsuccess = function(event) {
         try {
             var cursor = event.target.result;
             if (cursor) {
-                results.push(cursor.value);
-                if (!_.isNumber(n) || results.length < n) {
+                if (cursor.value.asof.valueOf() > lower.valueOf()) {
+                    between = results.length + 1;
+                }
+                if (results.length < below + between) {
+                    results.push(cursor.value);
                     cursor.continue();
                     return;
                 }
             }
-            callback(results);
+            resolve(results.reverse());
         } catch (e) {
-            catcher(e);
+            reject(e);
         }
-    }, []);
+    };
+}
+
+function lengthBelow(result, lower) {
+    var below = _.sortedIndex(result, {
+        asof: lower
+    }, 'asof');
+    return below < result.length && result[below].asof.valueOf() <= lower.valueOf() ? below +1 : below;
+}
+
+function nextItem(lower, store, resolve, reject) {
+    var cursor = lower ? store.openCursor(IDBKeyRange.lowerBound(lower), "next") : store.openCursor();
+    cursor.onerror = reject;
+    cursor.onsuccess = function(event) {
+        try {
+            var cursor = event.target.result;
+            if (cursor) {
+                resolve(cursor.value);
+            } else {
+                resolve(null);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    };
 }
 
 function findIndex(array, predicate) {

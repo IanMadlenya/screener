@@ -82,29 +82,25 @@ jQuery(function($){
             var begin = chart.x().invert(0);
             var end = chart.x().invert(chart.innerWidth());
             var data = chart.datum();
-            var i = Math.max(Math.min(_.sortedIndex(data, {asof: begin}, 'asof'), data.length-10),0);
-            var j = Math.max(Math.min(_.sortedIndex(data, {asof: end}, 'asof'), data.length-1),0);
-            var x = _.compose(chart.x(), chart.xPlot());
-            var width = x(data[j], j) - x(data[i], i);
-            var int = optimalInterval(interval, j - i, width);
+            var int = optimalInterval(interval, chart);
             screener.setItem("security-chart-interval", interval);
-            if (j > i) screener.setItem("security-chart-length", j - i);
-            if (begin.valueOf() < end.valueOf()) screener.setItem("security-chart-duration", end.valueOf() - begin.valueOf());
+            screener.setItem("security-chart-length", data.length);
             if (!data.length || int != interval ||
                     begin.valueOf() < data[0].asof.valueOf() ||
                     loaded.valueOf() < end.valueOf()) {
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
                     if (counter != redrawCounter) return;
-                    var length = estimateDataLength((j - i) / width * chart.innerWidth(), interval, int) + 500;
-                    console.log("Loading", int, length || data.length, begin);
-                    return loadChartData(chart, security, int, length || data.length, end).then(function(){
+                    console.log("Loading", int, begin, end);
+                    return loadChartData(chart, security, int, begin, end).then(function(){
                         interval = int;
                         loaded = end;
-                        d3.select('#ohlc-div').call(chart);
+                        if (delay || int == optimalInterval(int, chart)) {
+                            d3.select('#ohlc-div').call(chart);
+                        }
                         _.delay(function(){
                             redraw((delay || 500)*2); // check if more adjustments are needed
-                        }, delay || 100);
+                        }, delay || 0);
                     }, function(error){
                         calli.error(error);
                     });
@@ -112,9 +108,11 @@ jQuery(function($){
             }
         }, 500);
         var length = Math.max(+screener.getItem("security-chart-length", 256), 100);
-        var drawing = loadChartData(chart, security, interval, length, now).then(function(){
+        var drawing = screener.load(security, ['asof'], interval, length, now).then(function(data){
+            return loadChartData(chart, security, interval, data[0].asof, data[data.length-1].asof);
+        }).then(function(){
             var data = chart.datum();
-            chart.x(chart.x().domain([data[0].asof, new Date()]));
+            chart.x(chart.x().domain([data[0].asof, new Date()]).range([0,chart.innerWidth()]));
             return data;
         }).then(function(){
             return screener.load(security, ['close'], 'd1', 1, now);
@@ -127,9 +125,9 @@ jQuery(function($){
         chart.zoomend(redraw);
     }
 
-    function loadChartData(chart, security, interval, length, end) {
+    function loadChartData(chart, security, interval, lower, upper) {
         var earliest = {asof: new Date()};
-        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, length, end).then(function(data){
+        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, 1, lower, upper).then(function(data){
             if (data.length) earliest.asof = data[0].asof;
             chart.series("volume").y().domain([_.min(data, 'volume').volume, _.max(data, 'volume').volume]);
             chart.datum(data);
@@ -145,7 +143,7 @@ jQuery(function($){
             if (interval.charAt(0) != 'm' || 5 < +interval.substring(1)) return [];
             return screener.load(security, ['asof',
                 'POC(12)','HIGH_VALUE(12)','LOW_VALUE(12)'
-            ], 'm5', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+            ], 'm5',  1, lower, upper);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
@@ -155,7 +153,7 @@ jQuery(function($){
             if (interval.charAt(0) != 'm' || 30 < +interval.substring(1)) return [];
             return screener.load(security, ['asof',
                 'POC(12)','HIGH_VALUE(12)','LOW_VALUE(12)'
-            ], 'm30', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+            ], 'm30',  1, lower, upper);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
@@ -165,7 +163,7 @@ jQuery(function($){
             if (interval.charAt(0) != 'm') return [];
             return screener.load(security, ['asof',
                 'POC(32)','HIGH_VALUE(32)','LOW_VALUE(32)'
-            ], 'm60', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+            ], 'm60',  1, lower, upper);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
@@ -175,7 +173,7 @@ jQuery(function($){
         }).then(function(){
             return screener.load(security, ['asof',
                 'POC(20)','HIGH_VALUE(20)','LOW_VALUE(20)'
-            ], 'd1', Math.max(estimateDataLength(length, interval, 'd1'), length), end);
+            ], 'd1',  1, lower, upper);
         }).then(function(data){
             return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
         }).then(function(data){
@@ -186,7 +184,15 @@ jQuery(function($){
         });
     }
 
-    function optimalInterval(interval, size, width) {
+    function optimalInterval(interval, chart) {
+        var begin = chart.x().invert(0);
+        var end = chart.x().invert(chart.innerWidth());
+        var data = chart.datum();
+        var i = Math.max(Math.min(_.sortedIndex(data, {asof: begin}, 'asof'), data.length-10),0);
+        var j = Math.max(Math.min(_.sortedIndex(data, {asof: end}, 'asof'), data.length-1),0);
+        var size = j - i;
+        var x = _.compose(chart.x(), chart.xPlot());
+        var width = x(data[j], j) - x(data[i], i);
         var intervals = ['m1','m5','m10','m30','m60','m120','d1','d5'];
         var intervalMinutes = intervals.map(function(interval){
             if (interval.charAt(0) == 'm') {
@@ -202,14 +208,7 @@ jQuery(function($){
         var value = Math.round(minutes / width) * 5;
         var i = _.sortedIndex(intervalMinutes, value);
         if (i > 0 && value - intervalMinutes[i-1] < intervalMinutes[i] - value) i--;
-        var j = Math.min(Math.max(i, index - 1, 0), index + 1, intervals.length-1);
-        return intervals[j];
-    }
-
-    function estimateDataLength(length, interval, newInterval) {
-        var a = +interval.substring(1) * (interval.charAt(0) == 'd' ? 900 : 1);
-        var b = +newInterval.substring(1) * (newInterval.charAt(0) == 'd' ? 900 : 1);
-        return Math.ceil(length * a / b);
+        return intervals[Math.min(Math.max(i,0),intervalMinutes.length-1)];
     }
 
     function drawDailySecurityData(security, now) {
