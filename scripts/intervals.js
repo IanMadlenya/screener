@@ -193,7 +193,7 @@ var intervals = (function(_, moment) {
             var wd = start.isoWeekday();
             if (wd > 5)
                 return d1.inc(exchange, start.add(8 - wd, 'days'), amount);
-            var w = Math.floor((wd + amount) / 5);
+            var w = Math.floor((wd -1 + amount) / 5);
             return start.isoWeek(start.isoWeek() + w).isoWeekday(wd + amount - w * 5);
         },
         dec: function(exchange, dateTime, amount) {
@@ -201,7 +201,7 @@ var intervals = (function(_, moment) {
             var wd = start.isoWeekday();
             if (wd > 5)
                 return d1.dec(exchange, start.subtract(wd - 5, 'days'), amount);
-            var w = Math.floor((wd - amount) / 5);
+            var w = Math.floor((wd -1 - amount) / 5);
             return start.isoWeek(start.isoWeek() + w).isoWeekday(wd - amount - w * 5);
         }
     };

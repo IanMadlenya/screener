@@ -65,6 +65,18 @@ describe("intervals.js", function(){
             });
         });
         describe("inc", function() {
+            it("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                var amount = 1;
+                var date = new Date("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT)");
+                var inc = intervals.d1.inc(exchange, date, amount);
+                expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
+            });
+            it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                var amount = 1;
+                var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
+                var inc = intervals.d1.inc(exchange, date, amount);
+                expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
+            });
             var dates = datesBetween(new Date(2010,0,1), new Date(2015,0,1), 60 *60 *1000);
             var numbers = numbersBetween(0, 500, dates.length);
             dates.forEach(function(date,i,dates){
@@ -80,6 +92,18 @@ describe("intervals.js", function(){
             });
         });
         describe("dec", function() {
+            it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                var amount = 1;
+                var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
+                var dec = intervals.d1.dec(exchange, date, amount);
+                expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
+            });
+            it("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                var amount = 1;
+                var date = new Date("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT)");
+                var dec = intervals.d1.dec(exchange, date, amount);
+                expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
+            });
             var dates = datesBetween(new Date(2010,0,1), new Date(2015,0,1), 60 *60 *1000);
             var numbers = numbersBetween(0, 500, dates.length);
             dates.forEach(function(date,i,dates){
