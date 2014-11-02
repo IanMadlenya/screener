@@ -208,21 +208,41 @@
             if (!arguments.length) return x;
             x = _x;
             var domain = x.domain();
+            var earliest = domain[0];
+            var latest = domain[domain.length-1];
+            var d = moment(latest).diff(earliest);
             var range = x.range();
-            var duration = moment(domain[domain.length-1]).diff(domain[0]);
-            var earlier = moment(domain[0]).subtract(duration/6, 'ms');
-            var later = moment(domain[domain.length-1]).add(duration/6, 'ms');
-            var width = range[range.length-1] - range[0];
-            var left = range[0] - width;
-            var right = range[range.length-1] + width;
-            x.domain([].concat(earlier, domain, later)).range([].concat(left, range, right));
+            var left = range[0];
+            var right = range[range.length-1];
+            var width = right - left;
+            x.domain([].concat(
+                moment(earliest).subtract(d*1.25,'ms').toDate(),
+                moment(earliest).subtract(d/4,'ms').toDate(),
+                domain,
+                moment(latest).add(d/4,'ms').toDate(),
+                moment(latest).add(d*1.25,'ms').toDate()
+            )).range([].concat(
+                left - width*1.5,
+                left - width/2,
+                range,
+                right + width/2,
+                right + width*1.5
+            ));
             x_orig = x.copy();
             var x_trim = x.copy();
             if (range.length > 2) {
                 var start = _.sortedIndex(range, 0);
                 var end = _.sortedIndex(range, chart.innerWidth()+1);
                 if (start < end - 1) {
-                    x_trim.domain(domain.slice(start, end)).range(range.slice(start, end));
+                    x_trim.domain([].concat(
+                        x.invert(0),
+                        domain.slice(start, end),
+                        x.invert(chart.innerWidth())
+                    )).range([].concat(
+                        0,
+                        range.slice(start, end),
+                        chart.innerWidth()
+                    ));
                 }
             }
             zoom.x(x_trim);
