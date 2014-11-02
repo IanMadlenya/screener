@@ -4,12 +4,12 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "This figure represents the quarterly rate of net-income-per-share growth over the trailing quarter for the stocks held by a fund." ;
-    rdfs:label "Quarterly Earnings per Share Growth Percentage" ;
-    screener:expression "PPO(1,diluted_earnings_per_share)" ;
+    rdfs:comment "Positive number indicates more trades below the Point Of Control, while a negative number indicates more trades above the POC in the past 20 trading days." ;
+    rdfs:label "Time Price Opportunity Percentage for Month" ;
+    screener:expression "TPOC(20)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/quarter> ;
+    screener:hasInterval <../../intervals/d1> ;
     screener:hasUnit <../../units/relative> ;
-    screener:isDerivedFrom <diluted_earnings_per_share> , <net_income> .
+    screener:isDerivedFrom <poc(20)> .

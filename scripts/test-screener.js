@@ -358,7 +358,7 @@ describe("Screener", function(){
             ]
         ], loadQuotes);
         these("should return year over year", [
-            ['XNGS', 'MORN', ['date(asof)', 'PPO(1,earnings_per_share)'],
+            ['XNGS', 'MORN', ['date(asof)', 'PCO(1,earnings_per_share)'],
                 1, 'annual', new Date(2013, 3, 1),
                 [
                     // annual financials are expected at the end of the following two months

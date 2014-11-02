@@ -163,8 +163,8 @@ var calculations = (function(_) {
                 }
             };
         },
-        /* Percentage Previous Oscillator */
-        PPO: function(n, field) {
+        /* Percentage Change Oscillator */
+        PCO: function(n, field) {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
@@ -174,7 +174,7 @@ var calculations = (function(_) {
                 },
                 getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
-                    return n + calc.getDataLength();
+                    return n + calc.getDataLength() - 1;
                 },
                 getValue: function(points) {
                     if (points.length <= n) return undefined;
@@ -207,27 +207,6 @@ var calculations = (function(_) {
                     if (max > 0)
                         return (value - max) * 100 / max;
                     return 0;
-                }
-            };
-        },
-        /* Percentage Open Oscillator */
-        POO: function(n) {
-            return {
-                getErrorMessage: function() {
-                    if (!isPositiveInteger(n))
-                        return "Must be a positive integer: " + n;
-                    return null;
-                },
-                getFields: function() {
-                    return ['open', 'close'];
-                },
-                getDataLength: function() {
-                    return n;
-                },
-                getValue: function(points) {
-                    var open = _.first(points).open;
-                    var close = _.last(points).close;
-                    return (close - open) * 100 / open;
                 }
             };
         },
@@ -348,8 +327,47 @@ var calculations = (function(_) {
                 }
             };
         },
-        /* Percent of Value Oscillator */
-        PVO: function(n) {
+        /* Relative Strength Index */
+        RSI: function(n, field) {
+            var calc = getCalculation(field, arguments, 2);
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return calc.getFields();
+                },
+                getDataLength: function() {
+                    return n +250 + calc.getDataLength();
+                },
+                getValue: function(points) {
+                    var values = getValues(n +250, calc, points);
+                    var gains = values.map(function(value, i, values){
+                        var change = value - values[i-1];
+                        if (change > 0) return change;
+                        return 0;
+                    }).slice(1);
+                    var losses = values.map(function(value, i, values){
+                        var change = value - values[i-1];
+                        if (change < 0) return change;
+                        return 0;
+                    }).slice(1);
+                    var firstGains = gains.slice(0, n);
+                    var firstLosses = losses.slice(0, n);
+                    var gain = gains.slice(n).reduce(function(smoothed, gain){
+                        return (smoothed * (n-1) + gain) / n;
+                    }, sum(firstGains) / firstGains.length);
+                    var loss = losses.slice(n).reduce(function(smoothed, loss){
+                        return (smoothed * (n-1) + loss) / n;
+                    }, sum(firstLosses) / firstLosses.length);
+                    if (loss === 0) return 100;
+                    return 100 - (100 / (1 - (gain / loss)));
+                }
+            };
+        },
+        ATR: function(n) {
             return {
                 getErrorMessage: function() {
                     if (!isPositiveInteger(n))
@@ -357,24 +375,91 @@ var calculations = (function(_) {
                     return null;
                 },
                 getFields: function() {
-                    return ['high', 'low', 'close'];
+                    return ['high', 'low','close'];
                 },
                 getDataLength: function() {
-                    return n;
+                    return n + 250;
                 },
                 getValue: function(points) {
-                    var tpos = getTPOCount(points);
-                    var poc = getPointOfControl(tpos);
-                    var bound = getValueRange(tpos, poc); // 70% of trades
+                    var ranges = points.map(function(point,i,points) {
+                        var previous = points[i-1];
+                        if (!previous) return point.high - point.low;
+                        return Math.max(
+                            point.high - point.low,
+                            Math.abs(point.high - previous.close),
+                            Math.abs(point.low - previous.close)
+                        );
+                    });
+                    var first = ranges.slice(0,n);
+                    return ranges.slice(n).reduce(function(atr, range){
+                        return (atr * (n-1) + range) / n;
+                    }, sum(first) / first.length);
+                }
+            };
+        },
+        /* Difference over ATR */
+        DATR: function(n, field) {
+            var ATR = getCalculation('ATR', arguments, 0);
+            var calc = getCalculation(field, arguments, 2);
+            return {
+                getErrorMessage: function() {
+                    return ATR.getErrorMessage() || calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return ['close'].concat(ATR.getFields(), calc.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(ATR.getDataLength(), calc.getDataLength());
+                },
+                getValue: function(points) {
+                    var value = getValue(calc, points);
                     var close = _.last(points).close;
-                    if (close < bound[0]) // < 0% is below value
-                        return (close - bound[0]) * 100 / (bound[1] - bound[0]);
-                    if (close < poc) // 0%-50% is low
-                        return (close - bound[0]) * 50 / (poc - bound[0]);
-                    if (close < bound[1]) // 50%-100% is high
-                        return 50 + (close - poc) * 50 / (bound[1] - poc);
-                    // >100% is above value
-                    return 100 + (close - bound[1]) * 100 / (bound[1] - bound[0]);
+                    var atr = getValue(ATR, points);
+                    return (close - value) / atr;
+                }
+            };
+        },
+        /* Keltner Channel */
+        KELT: function(factor, n, field) {
+            var ATR = getCalculation('ATR', arguments, 1);
+            var calc = getCalculation(field, arguments, 3);
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(factor))
+                        return "Must be a positive integer: " + factor;
+                    return ATR.getErrorMessage() || calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return [].concat(ATR.getFields(), calc.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(ATR.getDataLength(), calc.getDataLength());
+                },
+                getValue: function(points) {
+                    var value = getValue(calc, points);
+                    var atr = getValue(ATR, points);
+                    return value + factor * atr;
+                }
+            };
+        },
+        /* ATR Percent of field value */
+        ATRPercent: function(n, field) {
+            var ATR = getCalculation('ATR', arguments, 0);
+            var calc = getCalculation(field, arguments, 2);
+            return {
+                getErrorMessage: function() {
+                    return ATR.getErrorMessage() || calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return [].concat(ATR.getFields(), calc.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(ATR.getDataLength(), calc.getDataLength());
+                },
+                getValue: function(points) {
+                    var atr = getValue(ATR, points);
+                    var value = getValue(calc, points);
+                    return atr *100 / value;
                 }
             };
         },
@@ -442,6 +527,101 @@ var calculations = (function(_) {
                 }
             };
         },
+        /* Stop And Buy */
+        SAB: function(factor, limit, n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    if (!_.isNumber(factor) || factor <= 0)
+                        return "Must be a positive number: " + factor;
+                    if (!_.isNumber(limit) || limit <= 0)
+                        return "Must be a positive number: " + limit;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    var down = function(point) {
+                        var a = point.low >= this.ep ? this.af :
+                            Math.min(this.af + factor, limit);
+                        var ep = Math.min(point.low, this.ep);
+                        var stop = this.stop - a * (this.stop - ep);
+                        return (point.high <= stop) ? {
+                            trend: down,
+                            stop: stop,
+                            ep: ep,
+                            af: a
+                        } : {
+                            trend: down,
+                            stop: point.high - factor * (point.high - point.low),
+                            ep: point.low,
+                            af: factor
+                        };
+                    };
+                    return points.reduce(function(sar, point) {
+                        return sar.trend(point);
+                    }, {
+                        trend: down,
+                        stop: points[0].high,
+                        ep: points[0].low,
+                        af: factor
+                    }).stop;
+                }
+            };
+        },
+        /* Stop And Sell */
+        SAS: function(factor, limit, n) {
+            return {
+                getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    if (!_.isNumber(factor) || factor <= 0)
+                        return "Must be a positive number: " + factor;
+                    if (!_.isNumber(limit) || limit <= 0)
+                        return "Must be a positive number: " + limit;
+                    return null;
+                },
+                getFields: function() {
+                    return ['high','low'];
+                },
+                getDataLength: function() {
+                    return n;
+                },
+                getValue: function(points) {
+                    var up = function(point) {
+                        var a = point.high <= this.ep ? this.af :
+                            Math.min(this.af + factor, limit);
+                        var ep = Math.max(this.ep, point.high);
+                        var stop = this.stop + a * (ep - this.stop);
+                        return (point.low >= stop) ? {
+                            trend: up,
+                            stop: stop,
+                            ep: ep,
+                            af: a
+                        } : {
+                            trend: up,
+                            stop: point.low + factor * (point.high - point.low),
+                            ep: point.high,
+                            af: factor
+                        };
+                    };
+                    return points.reduce(function(sar, point) {
+                        return sar.trend(point);
+                    }, {
+                        trend: up,
+                        stop: points[0].low,
+                        ep: points[0].high,
+                        af: factor
+                    }).stop;
+                }
+            };
+        },
+        /* Time Price Oppertunity Count percentage */
         TPOC: function(n) {
             return {
                 getErrorMessage: function() {
@@ -459,8 +639,12 @@ var calculations = (function(_) {
                     var tpos = getTPOCount(points);
                     var poc = getPointOfControl(tpos);
                     var bottom = 0, top = tpos.length-1;
-                    while (tpos[bottom].count <= 1) bottom++;
-                    while (tpos[top].count <= 1) top--;
+                    while (tpos[bottom].count <= 1 && bottom < top) bottom++;
+                    while (tpos[top].count <= 1 && top > bottom) top--;
+                    if (bottom >= top) {
+                        bottom = 0;
+                        top = tpos.length-1;
+                    }
                     var step = 0.01;
                     var above = _.range(poc+step, tpos[top].price+step, step).reduce(function(above, price){
                         return above + tpoCount(tpos, decimal(price));
@@ -472,6 +656,7 @@ var calculations = (function(_) {
                 }
             };
         },
+        /* Point Of Control */
         POC: function(n) {
             return {
                 getErrorMessage: function() {

@@ -4,12 +4,12 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "Positive value indicates simple move average of daily close over 50 trading days has risen over the least 10 trading days" ;
-    rdfs:label "50-day SMA as Percent of 10-days Ago" ;
-    screener:expression "PPO(10,SMA,50,close)" ;
+    rdfs:comment "Minimum quarter over quarter earnings per share growth percentage of last five quarters" ;
+    rdfs:label "5 Quarter Minium Quarter over Quarter Growth" ;
+    screener:expression "MIN(5,PCO,1,PCO,1,diluted_earnings_per_share)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/d1> ;
+    screener:hasInterval <../../intervals/quarter> ;
     screener:hasUnit <../../units/relative> ;
-    screener:isDerivedFrom <sma(50,close)> .
+    screener:isDerivedFrom <pco(1,diluted_earnings_per_share)> .

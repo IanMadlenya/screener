@@ -4,12 +4,11 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "Minimum earnings per share growth percentage of last five quarters" ;
-    rdfs:label "5 Quarter Minium Growth" ;
-    screener:expression "MIN(5,PPO,1,diluted_earnings_per_share)" ;
+    rdfs:comment "It is a trend-following (lagging) indicator and may be used to set a trailing stop loss or determine entry or exit points based on prices tending to stay within a parabolic curve during a strong trend." ;
+    rdfs:label "Daily Parabolic SAR" ;
+    screener:expression "PSAR(0.02,0.2,100)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/quarter> ;
-    screener:hasUnit <../../units/relative> ;
-    screener:isDerivedFrom <ppo(1,diluted_earnings_per_share)> .
+    screener:hasInterval <../../intervals/d1> ;
+    screener:hasUnit <../../units/price> .
