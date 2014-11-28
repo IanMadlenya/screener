@@ -47,7 +47,7 @@ dispatch({
     },
 
     validate: function(event) {
-        if ('m1' != event.data.period && 'm15' != event.data.period)
+        if ('m1' != event.data.interval && 'm15' != event.data.interval)
             return Promise.reject({status: 'error'});
         return event.data.fields.reduce(function(memo, field){
             if (['open','high','low','close','volume','total_volume'].indexOf(field) >= 0)
@@ -62,14 +62,14 @@ dispatch({
 
     quote: function(event) {
         var data = event.data;
-        var period = data.period;
-        if (period != 'm1' && period != 'm10' && period != 'm60') return {status: 'success', result: []};
-        var interval = period == 'm1' ? 60 : period == 'm10' ? 600 : 3600;
+        var interval = data.interval;
+        if (interval != 'm1' && interval != 'm10' && interval != 'm60') return {status: 'success', result: []};
+        var seconds = interval == 'm1' ? 60 : interval == 'm10' ? 600 : 3600;
         var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
         var asof = Date.now();
         return hit({
             symbol: symbol,
-            interval: interval,
+            seconds: seconds,
             begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
             end: data.end && moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
         }).then(function(lines){
@@ -94,7 +94,7 @@ dispatch({
                 exchange: data.exchange,
                 ticker: data.ticker,
                 symbol: symbol,
-                period: period,
+                interval: interval,
                 start: data.start,
                 end: data.end,
                 result: results
@@ -178,7 +178,7 @@ function openHIT(){
             var id = ++seq;
             var cmd = ["HIT"];
             cmd.push(options.symbol);
-            cmd.push(options.interval);
+            cmd.push(options.seconds);
             cmd.push(options.begin);
             cmd.push(options.end || '');
             cmd.push(options.maxDatapoints || '');
@@ -187,7 +187,7 @@ function openHIT(){
             cmd.push(options.dataDirection || '0');
             cmd.push(id);
             cmd.push(options.datapointsPerSend || '');
-            cmd.push(options.intervalType || 's');
+            cmd.push('s');
             var msg = cmd.join(',');
             pending[id] = {
                 cmd: msg,

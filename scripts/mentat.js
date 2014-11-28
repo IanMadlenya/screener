@@ -34,7 +34,7 @@ var window = { moment: moment };
 importScripts('../assets/moment/moment-timezone-with-data-2010-2020.js');
 importScripts('../assets/underscore/underscore.js');
 
-importScripts('calculations.js');
+importScripts('calculations.js'); // parseCalculation
 importScripts('intervals.js');
 importScripts('dispatch.js');
 
@@ -49,13 +49,13 @@ dispatch({
     },
 
     fields: function(event) {
-        var calcs = asCalculation(calculations, event.data.expressions);
+        var calcs = asCalculation(parseCalculation, event.data.expressions);
         var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
         if (!errorMessage) {
             return _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
         } else {
             event.data.expressions.forEach(function(expression){
-                var calc = getCalculation(calculations, [expression])[0];
+                var calc = parseCalculation(expression);
                 var msg = calc.getErrorMessage();
                 if (msg)
                     throw new Error(msg + ' in ' + expression);
@@ -63,23 +63,23 @@ dispatch({
         }
     },
     validate: function(event) {
-        return validateExpressions(calculations, intervals, event.data);
+        return validateExpressions(parseCalculation, intervals, event.data);
     },
     increment: function(event) {
         var data = event.data;
-        var interval = intervals[data.interval];
-        if (!interval) throw Error("Unknown interval: " + data.interval);
+        if (!intervals[interval]) throw Error("Unknown interval: " + data.interval);
         return data.exchanges.reduce(function(memo, exchange){
-            var next = interval.inc(exchange, data.asof, data.increment || 1);
+            var period = createPeriod(intervals, data.interval, exchange);
+            var next = period.inc(data.asof, data.increment || 1);
             if (memo && memo.valueOf() < next.valueOf()) return memo;
             return next.toDate();
         }, null);
     },
 
     'import': function(event) {
-        var interval = intervals[event.data.period];
-        if (!interval) throw Error("Unknown interval: " + data.interval);
-        return importData(open, interval, event.data);
+        var period = createPeriod(intervals, event.data.interval, event.data.exchange);
+        if (!period) throw Error("Unknown interval: " + data.interval);
+        return importData(open, period, event.data.security, event.data.points);
     },
     reset: function(event) {
         return Promise.all(intervals.map(function(interval){
@@ -94,48 +94,28 @@ dispatch({
     },
     load: function(event) {
         var data = event.data;
-        var interval = intervals[data.interval];
-        if (!interval) throw Error("Unknown interval: " + data.interval);
-        return loadData(calculations, open, data.failfast, data.security, data.exchange,
-            data.length, data.lower, data.upper, interval, data.expressions
+        var period = createPeriod(intervals, data.interval, data.exchange);
+        if (!period) throw Error("Unknown interval: " + data.interval);
+        return loadData(parseCalculation, open, data.failfast, data.security,
+            data.length, data.lower, data.upper, period, data.expressions
         );
     },
     screen: function(event){
         var data = event.data;
-        var load = pointLoad(calculations, open, data.failfast, data.security, data.exchange, data.screens, data.asof, data.asof);
-        return filterSecurity(intervals, load, data.security, data.screens, data.asof);
+        var load = pointLoad(parseCalculation, open, data.failfast, data.security, data.screens, data.begin, data.end);
+        var periods = screenPeriods(intervals, data.exchange, data.screens);
+        return screenSecurity(periods, load, data.security, data.screens, data.begin, data.end);
     },
     signal: function(event){
         var data = event.data;
-        var interval = [].concat(data.entry, data.exit).reduce(function(smallest, screen){
-            return screen.filters.reduce(function(smallest, filter){
-                var int = intervals[filter.indicator.interval];
-                if (int.millis < smallest.millis) return int;
-                else return smallest;
-            }, smallest);
-        }, intervals.d5);
-        var inc = function(date){
-            return interval.inc(data.exchange, date, 1).toDate();
-        };
-        var load = pointLoad(calculations, open, data.failfast, data.security, data.exchange, [].concat(data.entry, data.exit), data.begin, data.end);
-        var screenSecurity = filterSecurity.bind(this, intervals, load, data.security);
-        return findSignals(screenSecurity, data.entry, data.exit, inc, data.begin, data.end).then(function(results){
-            var statuses = _.uniq(results.map(_.property('status')));
-            var message = _.uniq(_.compact(results.map(_.property('message'))).sort(), true).join('\n');
-            return {
-                status: statuses.length == 1 ? statuses[0] : 'warning',
-                message: message,
-                begin: data.begin,
-                end: data.end,
-                falifast: data.failfast,
-                result: results.map(_.property('result')),
-                quote: _.flatten(results.map(_.property('quote')))
-            };
-        });
+        var screens = [].concat(data.entry, data.exit);
+        var load = pointLoad(parseCalculation, open, data.failfast, data.security, screens, data.begin, data.end);
+        var periods = screenPeriods(intervals, data.exchange, screens);
+        return findSignals(periods, load, data.security, data.entry, data.exit, data.begin, data.end);
     }
 });
 
-function pointLoad(calculations, open, failfast, security, exchange, screens, lower, upper) {
+function pointLoad(parseCalculation, open, failfast, security, screens, lower, upper) {
     var datasets = {};
     var exprs = screens.reduce(function(exprs, screen){
         return screen.filters.reduce(function(exprs, filter){
@@ -146,139 +126,147 @@ function pointLoad(calculations, open, failfast, security, exchange, screens, lo
             return exprs;
         }, exprs);
     }, {});
-    return function(asof, interval) {
-        if (!datasets[interval.storeName]) {
-            datasets[interval.storeName] = loadData(calculations, open, failfast, security, exchange,
-                1, lower, upper, interval, exprs[interval.storeName]);
+    return function(asof, period) {
+        if (!datasets[period.interval]) {
+            datasets[period.interval] = loadData(parseCalculation, open, failfast, security,
+                1, lower, upper, period, exprs[period.interval]);
         }
-        return datasets[interval.storeName].then(function(data){
+        return datasets[period.interval].then(function(data){
             var idx = _.sortedIndex(data.result, {
                 asof: asof
             }, 'asof');
-            var i = data.result[idx] && data.result[idx].asof.valueOf() <= asof.valueOf() ? idx : idx - 1;
+            var i = !idx || data.result[idx] && data.result[idx].asof.valueOf() <= asof.valueOf() ? idx : idx - 1;
             return _.extend({}, data, {
-                result: data.result[i]
+                result: _.clone(data.result[i])
             });
         });
     };
 }
 
-function findSignals(screenSecurity, entry, exit, inc, begin, end) {
-    return findNextSignal(screenSecurity, entry, inc, inc(begin), end).then(function(first){
-        if (!first) return null;
-        return findSignals(screenSecurity, exit, entry, inc, first.result.asof, end).then(function(rest){
-            if (!rest) return [first];
-            rest.unshift(first);
-            return rest;
+function screenPeriods(intervals, exchange, screens) {
+    var used = _.sortBy(_.uniq(_.flatten(screens.map(function(screen) {
+        return _.uniq(screen.filters.map(function(filter){
+            return filter.indicator.interval;
+        }));
+    }))), function(interval) {
+        if (!intervals[interval]) throw Error("Unknown interval: " + interval);
+        return intervals[interval].millis * -1;
+    });
+    return used.reduce(function(periods, interval){
+        periods[interval] = createPeriod(intervals, interval, exchange);
+        return periods;
+    }, {});
+}
+
+function findSignals(periods, load, security, entry, exit, begin, end) {
+    return screenSecurity(periods, load, security, entry, begin, end).then(function(first){
+        if (!first.result) return _.extend(first, {
+            result: []
+        });
+        return findSignals(periods, load, security, exit, entry, first.until, end).then(function(rest){
+            rest.result.unshift(first.result);
+            return _.extend(rest, {
+                status: first.status == rest.status ? first.status : 'warning',
+                message: first.message || rest.message,
+                quote: first.quote && rest.quote ? first.quote.concat(rest.quote) : first.quote || rest.quote,
+                begin: begin,
+                end: end
+            });
         });
     });
 }
 
-function findNextSignal(screenSecurity, screens, inc, asof, until) {
-    if (asof.valueOf() > until.valueOf()) return Promise.resolve(null);
-    return screenSecurity(screens, asof).then(function(data){
-        if (data.result) return data;
-        return findNextSignal(screenSecurity, screens, inc, inc(asof), until);
-    });
-}
-
-function validateExpressions(calculations, intervals, data) {
-    var calcs = asCalculation(calculations, [data.expression]);
-    var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
-    if (errorMessage) {
-        throw new Error(errorMessage);
-    } else if (!data.interval || intervals[data.interval]) {
-        return {
-            status: 'success'
-        };
-    } else {
-        throw new Error("Invalid interval: " + data.interval);
-    }
-}
-
-function importData(open, interval, data) {
-    var now = Date.now();
-    var points = data.points.map(function(point){
-        var obj = {};
-        var tz = point.tz || data.exchange.tz;
-        if (point.dateTime) {
-            obj.asof = moment.tz(point.dateTime, tz).toDate();
-        } else if (point.date) {
-            var time = point.date + ' ' + data.exchange.marketClosesAt;
-            obj.asof = moment.tz(time, tz).toDate();
-        }
-        for (var prop in point) {
-            if (_.isNumber(point[prop]))
-                obj[prop] = point[prop];
-        }
-        return obj;
-    }).filter(function(point){
-        // Yahoo provides weekly/month-to-date data
-        return point.asof.valueOf() <= now;
-    });
-    return storeData(open, data.security, interval, points).then(function(){
-        return {
-            status: 'success'
-        };
-    });
-}
-
-function filterSecurity(intervals, load, security, screens, asof){
-    return Promise.all(screens.map(function(screen) {
-        return reduceFilters(intervals, screen.filters, function(promise, filters, interval){
-            return promise.then(function(memo){
-                if (!memo) return memo;
-                return loadFilteredPoint(load, asof, interval, filters).then(function(point){
-                    if (!point) return point;
-                    return {
-                        status: !memo.status || memo.status == point.status ? point.status : 'warning',
-                        quote: _.compact(_.flatten([memo.quote, point.quote])),
-                        result: _.extend(memo.result || {
-                            security: security,
-                            signal: screen.signal
-                        }, point.result)
-                    };
+function screenSecurity(periods, load, security, screens, begin, end){
+    return screens.reduce(function(promise, screen){
+        return promise.then(function(data){
+            if (data) return data;
+            if (!screen.filters.length) return {
+                status: 'success',
+                result: {
+                    security: security,
+                    signal: screen.signal
+                }
+            };
+            var getInterval = _.compose(_.property('interval'), _.property('indicator'));
+            var byInterval = _.groupBy(screen.filters, getInterval);
+            var sorted = _.sortBy(_.keys(byInterval), function(interval) {
+                if (!periods[interval]) throw Error("Unknown interval: " + interval);
+                return periods[interval].millis * -1;
+            });
+            return filterSecurityByPeriods(load, sorted.map(function(interval) {
+                return {
+                    period: periods[interval],
+                    filters: byInterval[interval]
+                };
+            }), begin, begin, end).then(function(data){
+                if (!data) return data;
+                else return _.extend(data, {
+                    result: _.extend(data.result, {
+                        security: security,
+                        signal: screen.signal
+                    })
                 });
             });
-        }, Promise.resolve({
-            status: 'success',
-            result: {
-                security: security,
-                signal: screen.signal
-            }
-        }));
-    })).then(function(orResults) {
-        return orResults.reduce(function(memo, point) {
-            return memo || point;
-        }, null);
-    }).then(function(point){
-        // if no screens are provide, just return the security
-        return point && point.status && point || screens.length === 0 && {
-            status: 'success',
-            result: {security: security}
-        } || {status: 'success'};
+        });
+    }, Promise.resolve()).then(function(data){
+        return data || {status: 'success'};
     });
 }
 
-function reduceFilters(intervals, filters, iterator, memo){
-    var getInterval = _.compose(_.property('interval'), _.property('indicator'));
-    var byInterval = _.groupBy(filters, getInterval);
-    var sorted = _.sortBy(_.keys(byInterval), function(interval) {
-        if (!intervals[interval]) throw Error("Unknown interval: " + interval);
-        return intervals[interval].millis;
-    }).reverse();
-    return _.reduce(sorted, function(memo, interval){
-        return iterator(memo, byInterval[interval], intervals[interval]);
-    }, memo);
+function filterSecurityByPeriods(load, periodsAndFilters, lower, begin, upper) {
+    var first = _.first(periodsAndFilters);
+    var rest = _.rest(periodsAndFilters);
+    if (first.period.ceil(upper).valueOf() < first.period.floor(begin).valueOf())
+        return Promise.resolve(null);
+    return findNextActiveFilter(load, first.period, first.filters, begin, upper).then(function(data){
+        if (!data || data.result.asof.valueOf() > upper.valueOf()) return null;
+        else if (!rest.length) return data;
+        var start = maxDate(lower, data.result.asof);
+        return filterSecurityByPeriods(load, rest, start, start, minDate(upper, data.until)).then(function(child){
+            if (child) return {
+                status: !data.status || data.status == child.status ? child.status : 'warning',
+                quote: _.compact(_.flatten([data.quote, child.quote])),
+                result: _.extend(data.result, child.result),
+                until:  child.until
+            };
+            var inc = first.period.inc(maxDate(begin, data.result.asof), 1);
+            return filterSecurityByPeriods(load, periodsAndFilters, lower, inc, upper);
+        });
+    });
 }
 
-function loadFilteredPoint(load, asof, interval, filters) {
+function findNextActiveFilter(load, period, filters, begin, until) {
+    if (period.ceil(until).valueOf() < period.floor(begin).valueOf())
+        return Promise.resolve(null);
+    return loadFilteredPoint(load, period, filters, minDate(begin,until)).then(function(data){
+        var inc = period.inc(begin, 1);
+        if (data.status == 'failure')
+            return findNextActiveFilter(load, period, filters, inc, until);
+        else return loadFilteredPoint(load, period, filters, inc).then(function(data){
+            return data.result.asof;
+        }).then(function(next){
+            return _.extend(data, {
+                until: next.valueOf() <= begin.valueOf() ? inc : next
+            });
+        });
+    });
+}
+
+function minDate(d1, d2) {
+    return d1 && d1.valueOf() < d2.valueOf() || !d2 ? d1 : d2;
+}
+
+function maxDate(d1, d2) {
+    return d1 && d1.valueOf() > d2.valueOf() || !d2 ? d1 : d2;
+}
+
+function loadFilteredPoint(load, period, filters, asof) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
-    return load(asof, interval, expressions).then(function(data){
+    return load(asof, period, expressions).then(function(data){
         if (!data.result) return Promise.reject(_.extend(data, {
             status: 'error',
-            message: "No results for interval: " + interval.storeName,
-            interval: interval.storeName
+            message: "No results for interval: " + period.interval,
+            interval: period.interval
         }));
         return data;
     }).then(function(data){
@@ -298,17 +286,19 @@ function loadFilteredPoint(load, asof, interval, filters) {
         if (pass) {
             return data;
         } else {
-            return null;
+            return _.extend(data, {
+                status: 'failure'
+            });
         }
     });
 }
 
-function loadData(calculations, open, failfast, security, exchange, length, lower, upper, interval, expressions) {
-    var calcs = asCalculation(calculations, expressions);
+function loadData(parseCalculation, open, failfast, security, length, lower, upper, period, expressions) {
+    var calcs = asCalculation(parseCalculation, expressions);
     var n = _.max(_.invoke(calcs, 'getDataLength'));
     var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
     if (errorMessage) throw Error(errorMessage);
-    return collectIntervalRange(open, failfast, security, exchange, interval, length + n - 1, lower, upper).then(function(data) {
+    return collectIntervalRange(open, failfast, security, period, length + n - 1, lower, upper).then(function(data) {
         var updates = [];
         var startIndex = Math.max(lengthBelow(data.result, lower) - length, 0);
         var result = _.map(startIndex ? data.result.slice(startIndex) : data.result, function(result, i) {
@@ -316,8 +306,11 @@ function loadData(calculations, open, failfast, security, exchange, length, lowe
             var point = _.reduce(calcs, function(point, calc, c){
                 if (_.isUndefined(point[expressions[c]])) {
                     var points = preceding(data.result, calc.getDataLength(), startIndex + i);
-                    point[expressions[c]] = calc.getValue(points);
-                    updated = true;
+                    var value = calc.getValue(points);
+                    if (_.isNumber(value)) {
+                        point[expressions[c]] = value;
+                        updated = true;
+                    }
                 }
                 return point;
             }, result);
@@ -327,7 +320,7 @@ function loadData(calculations, open, failfast, security, exchange, length, lowe
             return point;
         });
         if (updates.length) {
-            return storeData(open, security, interval, updates).then(_.constant(_.extend(data, {
+            return storeData(open, security, period, updates).then(_.constant(_.extend(data, {
                 result: result
             })));
         }
@@ -337,12 +330,11 @@ function loadData(calculations, open, failfast, security, exchange, length, lowe
     });
 }
 
-function collectIntervalRange(open, failfast, security, exchange, interval, length, lower, upper) {
-    if (!interval.derivedFrom)
-        return collectRawRange(open, failfast, security, exchange, interval, length, lower, upper);
-    return open(security, interval, 'readonly', collect.bind(this, length, lower, upper)).then(function(result){
-        var next = result.length ? interval.inc(exchange, result[result.length - 1].asof, 1) : null;
-        var ticker = decodeURI(security.substring(exchange.iri.length + 1));
+function collectIntervalRange(open, failfast, security, period, length, lower, upper) {
+    if (!period.derivedFrom)
+        return collectRawRange(open, failfast, security, period, length, lower, upper);
+    return open(security, period, 'readonly', collect.bind(this, length, lower, upper)).then(function(result){
+        var next = result.length ? period.inc(result[result.length - 1].asof, 1) : null;
         var below = lengthBelow(result, lower);
         if (below >= length && next && (next.valueOf() > upper.valueOf() || next.valueOf() > Date.now())) {
             // result complete
@@ -353,8 +345,8 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
         } else if (result.length && below >= length) {
             // need to update with newer data
             var last = result[result.length - 1];
-            return collectAggregateRange(open, failfast, security, exchange, interval, 0, last.asof, upper).then(function(aggregated){
-                return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
+            return collectAggregateRange(open, failfast, security, period, 0, last.asof, upper).then(function(aggregated){
+                return storeData(open, security, period, aggregated.result).then(_.constant(aggregated));
             }).then(function(aggregated){
                 return _.extend(aggregated, {
                     result: result.concat(aggregated.result)
@@ -362,19 +354,19 @@ function collectIntervalRange(open, failfast, security, exchange, interval, leng
             });
         } else {
             // no data available
-            var floored = interval.floor(exchange, lower).toDate();
-            return collectAggregateRange(open, failfast, security, exchange, interval, length, floored, upper).then(function(aggregated){
-                return storeData(open, security, interval, aggregated.result).then(_.constant(aggregated));
+            var floored = period.floor(lower);
+            return collectAggregateRange(open, failfast, security, period, length, floored, upper).then(function(aggregated){
+                return storeData(open, security, period, aggregated.result).then(_.constant(aggregated));
             });
         }
     });
 }
 
-function collectAggregateRange(open, failfast, security, exchange, interval, length, lower, upper) {
-    var ceil = interval.ceil.bind(interval, exchange);
-    var end = ceil(upper).valueOf() == upper.valueOf() ? upper : interval.floor(exchange, upper).toDate();
-    var size = interval.aggregate * length + 1;
-    return collectRawRange(open, failfast, security, exchange, interval.derivedFrom, size, lower, end).then(function(data){
+function collectAggregateRange(open, failfast, security, period, length, lower, upper) {
+    var ceil = period.ceil;
+    var end = ceil(upper).valueOf() == upper.valueOf() ? upper : period.floor(upper);
+    var size = period.aggregate * length + 1;
+    return collectRawRange(open, failfast, security, period.derivedFrom, size, lower, end).then(function(data){
         if (!data.result.length) return data;
         var upper, count, discard = ceil(data.result[0].asof).valueOf();
         var result = data.result.reduce(function(result, point){
@@ -389,11 +381,10 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
                     asof: point.asof,
                     open: preceding.open,
                     close: point.close,
-                    adj_close: point.adj_close,
                     total_volume: point.total_volume,
                     high: Math.max(preceding.high, point.high),
                     low: Math.min(preceding.low, point.low),
-                    volume: interval.storeName.charAt(0) == 'd' ?
+                    volume: period.interval.charAt(0) == 'd' ?
                         Math.round((preceding.volume * count + point.volume) / (++count)) :
                         (preceding.volume + point.volume)
                 };
@@ -406,11 +397,10 @@ function collectAggregateRange(open, failfast, security, exchange, interval, len
     });
 }
 
-function collectRawRange(open, failfast, security, exchange, period, length, lower, upper) {
+function collectRawRange(open, failfast, security, period, length, lower, upper) {
     return open(security, period, 'readonly', collect.bind(this, length, lower, upper)).then(function(result){
         var conclude = failfast ? Promise.reject.bind(Promise) : Promise.resolve.bind(Promise);
-        var next = result.length ? period.inc(exchange, result[result.length - 1].asof, 1) : null;
-        var ticker = decodeURI(security.substring(exchange.iri.length + 1));
+        var next = result.length ? period.inc(result[result.length - 1].asof, 1) : null;
         var below = lengthBelow(result, lower);
         if (below >= length && next && (next.valueOf() > upper.valueOf() || next.valueOf() > Date.now())) {
             // result complete
@@ -431,11 +421,9 @@ function collectRawRange(open, failfast, security, exchange, period, length, low
                     result: result,
                     quote: [{
                         security: security,
-                        exchange: exchange,
-                        ticker: ticker,
-                        period: period.storeName,
+                        interval: period.interval,
                         result: result,
-                        start: moment(result[result.length - 1].asof).format()
+                        start: period.format(result[result.length - 1].asof)
                     }]
                 });
             });
@@ -444,20 +432,15 @@ function collectRawRange(open, failfast, security, exchange, period, length, low
             // need more historic data
             var quote = [{
                 security: security,
-                exchange: exchange,
-                ticker: ticker,
-                period: period.storeName,
-                result: result,
-                start: period.dec(exchange, earliest, 2 * (length - below)).format(),
-                end: moment(result[0].asof).format()
+                interval: period.interval,
+                start: period.format(period.dec(earliest, 2 * (length - below))),
+                end: period.format(result[0].asof)
             }];
             if (next.valueOf() < upper.valueOf()) {
                 quote.push({
                     security: security,
-                    exchange: exchange,
-                    ticker: ticker,
-                    period: period.storeName,
-                    start: moment(result[result.length - 1].asof).format()
+                    interval: period.interval,
+                    start: period.format(result[result.length - 1].asof)
                 });
             }
             return conclude({
@@ -469,7 +452,7 @@ function collectRawRange(open, failfast, security, exchange, period, length, low
         } else {
             // no data available
             return open(security, period, 'readonly', nextItem.bind(this, null)).then(function(earliest){
-                var d1 = period.dec(exchange, lower, length);
+                var d1 = period.dec(lower, length);
                 var d2 = earliest ? moment(earliest.asof) : d1;
                 var start = d1.valueOf() < d2.valueOf() ? d1 : d2;
                 return Promise.reject({
@@ -477,10 +460,8 @@ function collectRawRange(open, failfast, security, exchange, period, length, low
                     message: 'No data points available',
                     quote: [{
                         security: security,
-                        exchange: exchange,
-                        ticker: ticker,
-                        period: period.storeName,
-                        start: start.format()
+                        interval: period.interval,
+                        start: period.format(start)
                     }]
                 });
             });
@@ -488,10 +469,37 @@ function collectRawRange(open, failfast, security, exchange, period, length, low
     });
 }
 
-function storeData(open, security, interval, data) {
+function importData(open, period, security, result) {
+    var now = Date.now();
+    var points = result.map(function(point){
+        var obj = {};
+        var tz = point.tz || period.tz;
+        if (point.dateTime) {
+            obj.asof = moment.tz(point.dateTime, tz).toDate();
+        } else if (point.date) {
+            var time = point.date + ' ' + period.marketClosesAt;
+            obj.asof = moment.tz(time, tz).toDate();
+        }
+        for (var prop in point) {
+            if (_.isNumber(point[prop]))
+                obj[prop] = point[prop];
+        }
+        return obj;
+    }).filter(function(point){
+        // Yahoo provides weekly/month-to-date data
+        return point.asof.valueOf() <= now;
+    });
+    return storeData(open, security, period, points).then(function(){
+        return {
+            status: 'success'
+        };
+    });
+}
+
+function storeData(open, security, period, data) {
     if (!data.length) return Promise.resolve(data);
-    console.log("Storing", data.length, interval.storeName, security, data[data.length-1]);
-    return open(security, interval, "readwrite", function(store, resolve, reject){
+    console.log("Storing", data.length, period.interval, security, data[data.length-1]);
+    return open(security, period, "readwrite", function(store, resolve, reject){
         var counter = 0;
         var onsuccess = function(){
             if (++counter >= data.length) {
@@ -506,7 +514,7 @@ function storeData(open, security, interval, data) {
     });
 }
 
-function openSymbolDatabase(indexedDB, storeNames, security, interval, mode, callback) {
+function openSymbolDatabase(indexedDB, storeNames, security, period, mode, callback) {
     return new Promise(function(resolve, reject) {
         var request = indexedDB.open(security, 5);
         request.onerror = reject;
@@ -526,8 +534,8 @@ function openSymbolDatabase(indexedDB, storeNames, security, interval, mode, cal
         request.onsuccess = function(event) {
             try {
                 var db = event.target.result;
-                var trans = db.transaction(interval.storeName, mode);
-                return callback(trans.objectStore(interval.storeName), resolve, reject);
+                var trans = db.transaction(period.storeName, mode);
+                return callback(trans.objectStore(period.storeName), resolve, reject);
             } catch(e) {
                 reject(e);
             }
@@ -602,29 +610,49 @@ function preceding(array, len, endIndex) {
     return list;
 }
 
-function asCalculation(calculations, expressions) {
+function validateExpressions(parseCalculation, intervals, data) {
+    var calc = parseCalculation(data.expression);
+    var errorMessage = calc.getErrorMessage();
+    if (errorMessage) {
+        throw new Error(errorMessage);
+    } else if (!data.interval || intervals[data.interval]) {
+        return {
+            status: 'success'
+        };
+    } else {
+        throw new Error("Invalid interval: " + data.interval);
+    }
+}
+
+function asCalculation(parseCalculation, expressions) {
     return _.map(expressions, function(expr){
-        if (!expr.match(/^[A-Za-z\-_]+\([0-9A-Za-z\.\-_, ]*\)$/)) {
-            if (expr.indexOf('(') > 0)
-                return calculations.unknown(expr); // incomplete function
-            return calculations.identity(expr); // field
+        return parseCalculation(expr);
+    });
+}
+
+function createPeriod(intervals, interval, exchange) {
+    if (!exchange || !exchange.tz) throw Error("Missing exchange");
+    var period = intervals[interval];
+    var self = {};
+    return period && _.extend(self, period, {
+        interval: period.storeName,
+        tz: exchange.tz,
+        marketClosesAt: exchange.marketClosesAt,
+        derivedFrom: period.derivedFrom && createPeriod(intervals, period.derivedFrom.storeName, exchange),
+        floor: function(date) {
+            return period.floor(exchange, date).toDate();
+        },
+        ceil: function(date) {
+            return period.ceil(exchange, date).toDate();
+        },
+        inc: function(date, n) {
+            return period.inc(exchange, date, n).toDate();
+        },
+        dec: function(date, n) {
+            return period.dec(exchange, date, n).toDate();
+        },
+        format: function(date) {
+            return moment.tz(date, exchange.tz).format();
         }
-        var idx = expr.indexOf('(');
-        var func = expr.substring(0, idx);
-        if (!calculations[func])
-            return calculations.unknown(expr); // unknown function
-        var params = expr.substring(idx + 1, expr.length - 1);
-        var args = _.reduceRight(_.map(params.split(/\s*,\s*/), function(value){
-            if (value.match(/^\d+$/))
-                return parseInt(value, 10);
-            if (value.match(/^[0-9\.]+$/))
-                return parseFloat(value);
-            return value;
-        }), function(memo, value){
-            if (memo.length || value !== '')
-                memo.unshift(value);
-            return memo;
-        }, []);
-        return calculations[func].apply(calculations[func], args);
     });
 }

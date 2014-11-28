@@ -29,16 +29,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-var calculations = (function(_) {
-    var calculations;
-    return calculations = {
+var parseCalculation = (function(_) {
+    var calculations = {
         unknown: function(expression) {
             return {
                 getErrorMessage: function() {
                     return "Expression is unknown: " + expression;
                 },
                 getFields: function() {
-                    return null;
+                    return [];
                 },
                 getDataLength: function() {
                     return 0;
@@ -56,7 +55,7 @@ var calculations = (function(_) {
                     return null;
                 },
                 getFields: function() {
-                    return field;
+                    return [field];
                 },
                 getDataLength: function() {
                     return 1;
@@ -74,7 +73,7 @@ var calculations = (function(_) {
                     return null;
                 },
                 getFields: function(){
-                    return asof;
+                    return [asof];
                 },
                 getDataLength: function() {
                     return 1;
@@ -119,6 +118,46 @@ var calculations = (function(_) {
                 },
                 getValue: function(points) {
                     return _.min(getValues(n, calc, points));
+                }
+            };
+        },
+        /* Returns the sign of a number. Returns 1 if the number is positive, -1 if negative and 0 if zero. */
+        SIGN: function(field) {
+            var calc = getCalculation(field, arguments, 1);
+            return {
+                getErrorMessage: function() {
+                    return calc.getErrorMessage();
+                },
+                getFields: calc.getFields.bind(calc),
+                getDataLength: function() {
+                    return calc.getDataLength();
+                },
+                getValue: function(points) {
+                    var value = calc.getValue(points);
+                    if (value > 0) return 1;
+                    if (value < 0) return -1;
+                    else return value;
+                }
+            };
+        },
+        /* Percent ratio */
+        Percent: function(numerator, denominator) {
+            var n = getCalculation(numerator);
+            var d = getCalculation(denominator);
+            return {
+                getErrorMessage: function() {
+                    return n.getErrorMessage() || d.getErrorMessage();
+                },
+                getFields: function() {
+                    return n.getFields().concat(d.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(n.getDataLength(), d.getDataLength());
+                },
+                getValue: function(points) {
+                    var num = getValue(n, points);
+                    var den = getValue(d, points);
+                    return num * 100 / den;
                 }
             };
         },
@@ -174,7 +213,7 @@ var calculations = (function(_) {
                 },
                 getFields: calc.getFields.bind(calc),
                 getDataLength: function() {
-                    return n + calc.getDataLength() - 1;
+                    return n + calc.getDataLength();
                 },
                 getValue: function(points) {
                     if (points.length <= n) return undefined;
@@ -210,7 +249,7 @@ var calculations = (function(_) {
                 }
             };
         },
-        /* Percentage of Low */
+        /* Percentage above Low */
         PLOW: function(n, field) {
             var calc = getCalculation(field, arguments, 2);
             return {
@@ -254,7 +293,11 @@ var calculations = (function(_) {
                     var p2 = _.range(s2).map(function(i) {
                         var p1 = _.range(s1).map(function(j){
                             var end = points.length - i - j;
-                            return sto(points.slice(Math.max(end - n, 0), end));
+                            var sliced = points.slice(Math.max(end - n, 0), end);
+                            var highest = _.max(_.pluck(sliced, 'high'));
+                            var lowest = _.min(_.pluck(sliced, 'low'));
+                            var close = _.last(sliced).close;
+                            return (close - lowest) * 100 / (highest - lowest);
                         });
                         return sum(p1) / p1.length;
                     });
@@ -295,7 +338,15 @@ var calculations = (function(_) {
                     return n * 10 + calc.getDataLength() - 1;
                 },
                 getValue: function(points) {
-                    return ema(n, getValues(n * 10, calc, points));
+                    var values = getValues(n * 10, calc, points);
+                    var a = 2 / (n + 1);
+                    var firstN = values.slice(0, n);
+                    var sma = _.reduce(firstN, function(memo, value, index){
+                        return memo + value;
+                    }, 0) / firstN.length;
+                    return _.reduce(values.slice(n), function(memo, value, index){
+                        return a * value + (1 - a) * memo;
+                    }, sma);
                 }
             };
         },
@@ -308,7 +359,7 @@ var calculations = (function(_) {
                     return null;
                 },
                 getFields: function() {
-                    return 'volume';
+                    return ['volume','close'];
                 },
                 getDataLength: function() {
                     return n * 10;
@@ -419,35 +470,63 @@ var calculations = (function(_) {
                 }
             };
         },
-        /* Keltner Channel */
-        KELT: function(factor, n, field) {
-            var ATR = getCalculation('ATR', arguments, 1);
-            var calc = getCalculation(field, arguments, 3);
-            return {
-                getErrorMessage: function() {
-                    if (!isPositiveInteger(factor))
-                        return "Must be a positive integer: " + factor;
-                    return ATR.getErrorMessage() || calc.getErrorMessage();
-                },
-                getFields: function() {
-                    return [].concat(ATR.getFields(), calc.getFields());
-                },
-                getDataLength: function() {
-                    return Math.max(ATR.getDataLength(), calc.getDataLength());
-                },
-                getValue: function(points) {
-                    var value = getValue(calc, points);
-                    var atr = getValue(ATR, points);
-                    return value + factor * atr;
-                }
-            };
-        },
-        /* ATR Percent of field value */
-        ATRPercent: function(n, field) {
-            var ATR = getCalculation('ATR', arguments, 0);
+        /* Standard Deviation */
+        SD: function(n, field) {
             var calc = getCalculation(field, arguments, 2);
             return {
                 getErrorMessage: function() {
+                    if (!isPositiveInteger(n))
+                        return "Must be a positive integer: " + n;
+                    return calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return calc.getFields();
+                },
+                getDataLength: function() {
+                    return n - 1 + calc.getDataLength();
+                },
+                getValue: function(points) {
+                    var prices = getValues(n, calc, points);
+                    var avg = sum(prices) / prices.length;
+                    var sd = Math.sqrt(sum(prices.map(function(num){
+                        var diff = num - avg;
+                        return diff * diff;
+                    })) / Math.max(prices.length,1));
+                    return sd || 1;
+                }
+            };
+        },
+        /* Keltner Channel */
+        KELT: function(centre, multiplier, unit) {
+            var ATR = getCalculation(unit, arguments, 3);
+            var calc = getCalculation(centre);
+            return {
+                getErrorMessage: function() {
+                    if (!_.isNumber(multiplier) || multiplier != Math.round(multiplier))
+                        return "Must be an integer: " + multiplier;
+                    return ATR.getErrorMessage() || calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return ['close'].concat(ATR.getFields(), calc.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(ATR.getDataLength(), calc.getDataLength());
+                },
+                getValue: function(points) {
+                    var value = getValue(calc, points);
+                    var atr = getValue(ATR, points);
+                    return value + multiplier * atr;
+                }
+            };
+        },
+        /* Bollinger BandWidth */
+        BBWidth: function(centre, multiplier, unit) {
+            var ATR = getCalculation(unit, arguments, 3);
+            var calc = getCalculation(centre);
+            return {
+                getErrorMessage: function() {
+                    if (!_.isNumber(multiplier) || multiplier != Math.round(multiplier))
+                        return "Must be an integer: " + multiplier;
                     return ATR.getErrorMessage() || calc.getErrorMessage();
                 },
                 getFields: function() {
@@ -457,9 +536,38 @@ var calculations = (function(_) {
                     return Math.max(ATR.getDataLength(), calc.getDataLength());
                 },
                 getValue: function(points) {
-                    var atr = getValue(ATR, points);
                     var value = getValue(calc, points);
-                    return atr *100 / value;
+                    var atr = getValue(ATR, points);
+                    var close = _.last(points).close;
+                    var lowerBB = value - multiplier * atr;
+                    var upperBB = value + multiplier * atr;
+                    return 100 * (upperBB - lowerBB) / value;
+                }
+            };
+        },
+        /* %B */
+        PercentB: function(centre, multiplier, unit) {
+            var ATR = getCalculation(unit, arguments, 3);
+            var calc = getCalculation(centre);
+            return {
+                getErrorMessage: function() {
+                    if (!_.isNumber(multiplier) || multiplier != Math.round(multiplier))
+                        return "Must be an integer: " + multiplier;
+                    return ATR.getErrorMessage() || calc.getErrorMessage();
+                },
+                getFields: function() {
+                    return [].concat(ATR.getFields(), calc.getFields());
+                },
+                getDataLength: function() {
+                    return Math.max(ATR.getDataLength(), calc.getDataLength());
+                },
+                getValue: function(points) {
+                    var value = getValue(calc, points);
+                    var atr = getValue(ATR, points);
+                    var close = _.last(points).close;
+                    var lowerBB = value - multiplier * atr;
+                    var upperBB = value + multiplier * atr;
+                    return (close - lowerBB) / (upperBB - lowerBB);
                 }
             };
         },
@@ -652,7 +760,7 @@ var calculations = (function(_) {
                     var below = _.range(poc-step, tpos[bottom].price-step, -step).reduce(function(below, price){
                         return below + tpoCount(tpos, decimal(price));
                     }, 0);
-                    return (above - below) / Math.min(above, below) *100;
+                    return (above - below) / Math.max(Math.min(above, below),1) *100;
                 }
             };
         },
@@ -715,7 +823,7 @@ var calculations = (function(_) {
                 }
             };
         },
-        /* Piotroski F-Score */
+        /* Annual Piotroski F-Score */
         'F-Score': function() {
             function long_term_debt_to_asset_ratio(point) {
                 if (!point['long-term_debt']) return 0;
@@ -748,19 +856,108 @@ var calculations = (function(_) {
                     var past = points[points.length - 1];
                     var previous = points[points.length - 2];
                     return (past.return_on_assets > 0 ? 1 : 0) +
-                        (past.operating_cash_flowd_mil > 0 ? 1 : 0) +
+                        (past.operating_cash_flow_mil > 0 ? 1 : 0) +
                         (past.return_on_assets > previous.return_on_assets ? 1 : 0) +
                         (past.operating_cash_flow_mil > past.net_income_mil ? 1 : 0) + // FIXME taxes?
-                        (long_term_debt_to_asset_ratio(past) < long_term_debt_to_asset_ratio(previous) ? 1 : 0) +
+                        (long_term_debt_to_asset_ratio(past) <= long_term_debt_to_asset_ratio(previous) ? 1 : 0) +
                         (past.current_ratio > previous.current_ratio ? 1 : 0) +
-                        (past.shares_mil < previous.shares_mil ? 1 : 0) +
+                        (past.shares_mil <= previous.shares_mil ? 1 : 0) +
                         (past.gross_margin > previous.gross_margin ? 1 : 0) +
                         (past.asset_turnover > previous.asset_turnover ? 1 : 0)
                     ;
                 }
             };
+        },
+        /* Quarter Piotroski F-Score */
+        FQScore: function() {
+            return {
+                getErrorMessage: function() {
+                    return null;
+                },
+                getFields: function() {
+                    return [
+                    ];
+                },
+                getDataLength: function() {
+                    return 2;
+                },
+                getValue: function(points) {
+                    if (points.length < 2) return undefined;
+                    var past = points[points.length - 1];
+                    var previous = points[points.length - 2];
+                    return [
+                        // Profitability Signals
+                        past.net_income > 0, // Net Income
+                        past.operating_cash_flow_free_cash_flow > 0, // Operating Cash Flow
+                        return_on_assets(past) > return_on_assets(previous), // Return on Assets
+                        past.operating_cash_flow_free_cash_flow > past.net_income, // Quality of Earnings
+                        // Leverage, Liquidity and Source of Funds
+                        long_term_debt_to_asset_ratio(past) <= long_term_debt_to_asset_ratio(previous), //Decrease in leverage
+                        current_ratio(past) > current_ratio(previous), // Increase in liquidity
+                        past.diluted_weighted_average_shares_outstanding <= previous.diluted_weighted_average_shares_outstanding, // Absence of Dilution
+                        // Operating Efficiency
+                        gross_margin(past) > gross_margin(previous), // Gross Margin
+                        asset_turnover(past) > asset_turnover(previous) // Asset Turnover
+                    ].reduce(function(score, result){
+                        if (result) return score + 1;
+                        else return score;
+                    }, 0);
+                }
+            };
+            function return_on_assets(point) {
+                return point.net_income / point.total_assets;
+            }
+            function long_term_debt_to_asset_ratio(point) {
+                if (!point['total_non-current_liabilities']) return 0;
+                return point['total_non-current_liabilities'] / point.total_assets;
+            }
+            function current_ratio(point) {
+                return point.total_current_assets / point.total_current_liabilities;
+            }
+            function gross_margin(point) {
+                return (point.revenue - point.cost_of_revenue) / point.revenue;
+            }
+            function asset_turnover(point) {
+                return point.revenue / point.total_assets;
+            }
         }
     };
+
+    return function parseCalculation(calculation) {
+        var parsed = parseExpression(calculation);
+        if (!parsed) return calculations.unknown(calculation);
+        else if (typeof parsed == 'string') return calculations.identity(calculation);
+        var func = parsed[0];
+        var args = parsed.slice(1);
+        if (!calculations[func])
+            return calculations.unknown(calculation); // unknown function
+        return calculations[func].apply(calculations[func], args);
+    };
+
+    function parseExpression(expr) {
+        if (expr.indexOf('(') < 0 && expr.indexOf(',') < 0) return expr; // field
+        var idx = expr.indexOf('(');
+        var func = expr.substring(0, idx);
+        var params = expr.substring(idx + 1, expr.length - 1);
+        var regex = /[0-9A-Za-z\.\-_]+(\(([0-9A-Za-z\.\-_]+(\(([0-9A-Za-z\.\-_]+,?)*\))?,?)*\))?/g;
+        var match, split = [];
+        if (!expr.match(regex)) {
+            return undefined; // incomplete function
+        }
+        while ((match = regex.exec(params)) !== null) {
+            var ex = parseExpression(match[0]);
+            if (!ex) return ex;
+            split.push(ex);
+        }
+        return [func].concat(_.map(split, function(value){
+            if (typeof value !== 'string') return value;
+            if (value.match(/^\-?\d+$/))
+                return parseInt(value, 10);
+            if (value.match(/^\-?[0-9\.]+$/))
+                return parseFloat(value);
+            return value;
+        }));
+    }
 
     function getValueRange(tpos, poc) {
         var step = 0.01;
@@ -844,7 +1041,8 @@ var calculations = (function(_) {
         var shifted = slice ? Array.prototype.slice.call(args, slice, args.length) : args;
         return calculations[field] ?
             calculations[field].apply(this, shifted) :
-            calculations.identity(field);
+            typeof field == 'string' ? calculations.identity(field) :
+            getCalculation(_.first(field), _.rest(field));
     }
 
     function getValues(size, calc, points) {
@@ -858,24 +1056,6 @@ var calculations = (function(_) {
     function getValue(calc, points) {
         var n = calc.getDataLength();
         return calc.getValue(points.slice(Math.max(points.length - n, 0), points.length));
-    }
-
-    function sto(points) {
-        var highest = _.max(_.pluck(points, 'high'));
-        var lowest = _.min(_.pluck(points, 'low'));
-        var close = _.last(points).close;
-        return (close - lowest) * 100 / (highest - lowest);
-    }
-
-    function ema(n, values) {
-        var a = 2 / (n + 1);
-        var firstN = _.first(values, n);
-        var sma = _.reduce(firstN, function(memo, value, index){
-            return memo + value;
-        }, 0) / firstN.length;
-        return _.reduce(values, function(memo, value, index){
-            return a * value + (1 - a) * memo;
-        }, sma);
     }
 
     function decimal(float) {

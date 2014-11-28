@@ -184,7 +184,7 @@ function loadQuotes(mic, ticker, expressions, length, interval, asof, rows) {
                 return mic == exchange.mic;
             });
         }).then(function(exchanges){
-                return exchanges[0].iri + '/' + encodeURI(ticker);
+            return exchanges[0].iri + '/' + encodeURI(ticker);
         }).then(function(security){
             return screener.load(security, expressions, interval, length, asof);
         }).then(function(data) {
@@ -195,6 +195,15 @@ function loadQuotes(mic, ticker, expressions, length, interval, asof, rows) {
             });
         }).then(function(result){
             expect(result.length).toBe(length);
+            for (var i=0; i<length; i++) {
+                if (rows[i]) expect(result[i]).toBeTruthy();
+                else expect(result[i]).toBeFalsy();
+                expect(result[i].length).toBe(rows[i].length);
+                for (var j=0; j<rows[i].length; j++) {
+                    if (rows[i][j] && !result[i][j]) expect(expressions[j]).toBe(rows[i][j]);
+                    else if (!rows[i][j] && result[i][j]) expect(expressions[j]).toBeFalsy();
+                }
+            }
             expect(result).toEqual(rows);
         }).then(done, unexpected(done));
     };
@@ -284,6 +293,7 @@ function xthese(message, list, func) {
 
 function unexpected(done){
     return function(data) {
+        console.log(data);
         if (data.stack) {
             expect(data.stack).toBe(undefined);
         }

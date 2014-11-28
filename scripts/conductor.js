@@ -61,8 +61,6 @@ dispatch({
 
     validate: (function(services, event){
         var interval = event.data.interval;
-        var i = interval && interval.charAt(0);
-        var period = i == 'd' ? 'd1' : i == 'm' ? 'm1' : interval;
         var key = getWorker(services.mentat, event.data.expression);
         return promiseMessage({
             cmd: 'fields',
@@ -71,7 +69,7 @@ dispatch({
             return Promise.all(_.map(services.quote, function(quote, key){
                 return promiseMessage({
                     cmd: 'validate',
-                    period: period,
+                    interval: interval,
                     fields: _.without(fields, 'asof')
                 }, quote, key).catch(Promise.resolve.bind(Promise));
             }));
@@ -152,7 +150,7 @@ dispatch({
 
     screen: function(event) {
         var data = event.data;
-        return screenSecurities(services, data.watchLists, data.screens, data.asof, data.load);
+        return screenSecurities(services, data.watchLists, data.screens, data.begin, data.end, data.load);
     },
 
     signal: function(event){
@@ -162,7 +160,9 @@ dispatch({
 
     performance: function(event){
         var data = event.data;
-        return signal(services, intervals, data.watchLists, data.entry, data.exit, data.begin, data.end).then(function(signals){
+        return signal(services, intervals, data.watchLists, data.entry, data.exit, data.begin, data.end).then(function(data){
+            return data.result;
+        }).then(function(signals){
             var returns = _.reduce(_.groupBy(signals, 'security'), function(returns, signals, security){
                 var entry = null;
                 return signals.reduce(function(returns, exit, i, signals){
@@ -183,12 +183,12 @@ dispatch({
             var sd = Math.sqrt(sum(returns.map(function(num){
                 var diff = num - avg;
                 return diff * diff;
-            })) / returns.length);
+            })) / Math.max(returns.length-1,1));
             return {
                 status: 'success',
                 result: {
                     rate: rate,
-                    sd: sd,
+                    sd: sd === 0 ? 1 : sd,
                     amount: returns.length
                 }
             };
@@ -206,40 +206,32 @@ function signal(services, intervals, watchLists, entry, exit, begin, end) {
     var byExchange = _.groupBy(watchLists, _.compose(_.property('iri'), _.property('exchange')));
     return Promise.all(_.map(byExchange, function(watchLists) {
         var exchange = watchLists[0].exchange;
-        var signals = findSignals.bind(this, services, exchange);
-        return findAllSecuritiesByWeek(services, intervals, exchange, watchLists, entry, begin, end).then(function(securities){
+        return listSecurities(services, watchLists).then(function(securities){
             return Promise.all(securities.map(function(security){
-                return signals(security, entry, exit, begin, end);
+                return findSignals(services, exchange, security, entry, exit, begin, end).catch(function(error){
+                    return error;
+                });
             }));
         });
-    })).then(_.flatten);
-}
-
-function findAllSecuritiesByWeek(services, intervals, exchange, watchLists, screens, begin, end) {
-    var d5 = intervals.d5;
-    var weeklyScreener = screens.map(function(screen) {
-        return _.extend({}, screen, {
-            filters: screen.filters.filter(function(filter){
-                return intervals[filter.indicator.interval].millis >= d5.millis;
-            })
+    })).then(_.flatten).then(function(signals){
+        var error = signals.filter(_.property('status'));
+        var result = signals.filter(_.property('signal'));
+        if (!error.length) return {
+            status: 'success',
+            result: result
+        };
+        else if (!result.length) return Promise.reject({
+            status: 'error',
+            message: _.uniq(_.pluck(error, 'message').sort(), true).join('\n'),
+            error: error
         });
+        else return {
+            status: 'warning',
+            result: result,
+            message: _.uniq(_.pluck(error, 'message').sort(), true).join('\n'),
+            error: error
+        };
     });
-    var weeks = intervalRange(exchange, d5.floor(exchange, begin), d5.ceil(exchange, end), d5);
-    return Promise.all(weeks.map(function(week){
-        return screenSecurities(services, watchLists, weeklyScreener, week).then(function(data){
-            return data.result.map(_.property('security'));
-        });
-    })).then(_.flatten).then(_.uniq);
-}
-
-function intervalRange(exchange, begin, end, interval) {
-    var result = [];
-    var date = interval.ceil(exchange, begin);
-    while (date.valueOf() <= end.valueOf()) {
-        result.push(date.toDate());
-        date = interval.inc(exchange, date, 1);
-    }
-    return result;
 }
 
 function findSignals(services, exchange, security, entry, exit, begin, end) {
@@ -257,11 +249,11 @@ function findSignals(services, exchange, security, entry, exit, begin, end) {
     });
 }
 
-function screenSecurities(services, watchLists, screens, asof, load) {
+function screenSecurities(services, watchLists, screens, begin, end, load) {
     var byExchange = _.groupBy(watchLists, _.compose(_.property('iri'), _.property('exchange')));
     return Promise.all(_.map(byExchange, function(watchLists) {
         var exchange = watchLists[0].exchange;
-        var filter = filterSecurity.bind(this, services, screens, asof, load, exchange);
+        var filter = filterSecurity.bind(this, services, screens, begin, end, load, exchange);
         return listSecurities(services, watchLists).then(function(securities) {
             return Promise.all(securities.map(filter));
         });
@@ -305,11 +297,12 @@ function listSecurities(services, watchLists) {
     })).then(_.flatten).then(_.uniq);
 }
 
-function filterSecurity(services, screens, asof, load, exchange, security){
+function filterSecurity(services, screens, begin, end, load, exchange, security){
     var worker = getWorker(services.mentat, security);
     return retryAfterImport(services, {
         cmd: 'screen',
-        asof: asof,
+        begin: begin,
+        end: end,
         screens: screens,
         exchange: exchange,
         security: security
@@ -322,6 +315,8 @@ function filterSecurity(services, screens, asof, load, exchange, security){
 }
 
 function retryAfterImport(services, data, port, worker, load) {
+    var exchange = data.exchange;
+    if (!exchange) throw Error("Missing exchange in " + JSON.stringify(data));
     return promiseMessage(_.extend({
         failfast: load !== false
     }, data), port, worker).catch(function(error){
@@ -333,14 +328,18 @@ function retryAfterImport(services, data, port, worker, load) {
         return Promise.all(error.quote.map(function(request){
             return Promise.all(_.map(services.quote, function(quote, quoteName){
                 return promiseMessage(_.extend({
-                    cmd: 'quote'
+                    cmd: 'quote',
+                    exchange: exchange,
+                    ticker: decodeURI(data.security.substring(exchange.iri.length + 1))
                 }, request), quote, quoteName).then(function(data){
-                    if (data.result.length == 0) return null;
+                    if (data.result.length === 0) return null;
+                    if (data.result[0].close !== undefined && isNaN(data.result[0].close))
+                        throw Error("Data is NaN " + JSON.stringify(data.result[0]));
                     return promiseMessage({
                         cmd: 'import',
                         security: request.security,
-                        period: request.period,
-                        exchange: request.exchange,
+                        interval: request.interval,
+                        exchange: exchange,
                         points: data.result
                     }, port, worker);
                 });
@@ -372,8 +371,8 @@ function promiseMessage(data, port, worker) {
             timeout = setTimeout(function(){
                 console.log("Aborting " + worker + " response to", data);
                 reject(_.extend({}, data, {status: 'error', message: "Service took too long to respond"}));
-            }, 30000);
-        }, 30000);
+            }, 60000);
+        }, 60000);
         channel.port2.onmessage = function(event) {
             clearTimeout(timeout);
             if (!event.data || event.data.status === undefined || event.data.status == 'success') {

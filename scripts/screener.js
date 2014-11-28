@@ -264,13 +264,18 @@
                     return inlineScreens(screens).then(function(screens){
                         return {
                             cmd: 'screen',
-                            asof: asof,
+                            begin: asof,
+                            end: asof,
                             load: load,
                             watchLists: watchLists,
                             screens: screens
                         };
                     });
-                }).then(postDispatchMessage);
+                }).then(postDispatchMessage).catch(function(data){
+                    if (load !== false && data.status == 'warning')
+                        return data.result;
+                    else return Promise.reject(data);
+                });
             },
 
             /*
@@ -293,7 +298,10 @@
                             };
                         });
                     });
-                }).then(postDispatchMessage);
+                }).then(postDispatchMessage).catch(function(data){
+                    if (data.status == 'warning') return data.result;
+                    else return Promise.reject(data);
+                });
             },
 
             /*
