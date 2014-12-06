@@ -160,10 +160,13 @@ function screenPeriods(intervals, exchange, screens) {
 
 function findSignals(periods, load, security, entry, exit, begin, end) {
     return screenSecurity(periods, load, security, entry, begin, end).then(function(first){
+        if (!first.result || first.result.asof.valueOf() >= begin.valueOf()) return first;
+        else return screenSecurity(periods, load, security, entry, first.until, end);
+    }).then(function(first){
         if (!first.result) return _.extend(first, {
             result: []
         });
-        return findSignals(periods, load, security, exit, entry, first.until, end).then(function(rest){
+        else return findSignals(periods, load, security, exit, entry, first.until, end).then(function(rest){
             rest.result.unshift(first.result);
             return _.extend(rest, {
                 status: first.status == rest.status ? first.status : 'warning',
@@ -178,9 +181,8 @@ function findSignals(periods, load, security, entry, exit, begin, end) {
 
 function screenSecurity(periods, load, security, screens, begin, end){
     return screens.reduce(function(promise, screen){
-        return promise.then(function(data){
-            if (data) return data;
-            if (!screen.filters.length) return {
+        return promise.then(function(alt){
+            if (!screen.filters.length) return alt || {
                 status: 'success',
                 result: {
                     security: security,
@@ -199,7 +201,8 @@ function screenSecurity(periods, load, security, screens, begin, end){
                     filters: byInterval[interval]
                 };
             }), begin, begin, end).then(function(data){
-                if (!data) return data;
+                if (!data) return alt;
+                else if (alt && alt.result.asof && alt.result.asof.valueOf() < data.result.asof.valueOf()) return alt
                 else return _.extend(data, {
                     result: _.extend(data.result, {
                         security: security,
@@ -461,7 +464,8 @@ function collectRawRange(open, failfast, security, period, length, lower, upper)
                     quote: [{
                         security: security,
                         interval: period.interval,
-                        start: period.format(start)
+                        start: period.format(start),
+                        end: earliest && period.format(earliest.asof)
                     }]
                 });
             });

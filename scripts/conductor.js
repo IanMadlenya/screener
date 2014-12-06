@@ -208,9 +208,7 @@ function signal(services, intervals, watchLists, entry, exit, begin, end) {
         var exchange = watchLists[0].exchange;
         return listSecurities(services, watchLists).then(function(securities){
             return Promise.all(securities.map(function(security){
-                return findSignals(services, exchange, security, entry, exit, begin, end).catch(function(error){
-                    return error;
-                });
+                return findSignals(services, exchange, security, entry, exit, begin, end);
             }));
         });
     })).then(_.flatten).then(function(signals){
@@ -246,6 +244,9 @@ function findSignals(services, exchange, security, entry, exit, begin, end) {
         security: security
     }, services.mentat[worker], worker).then(function(data){
         return data.result;
+    }).catch(function(error){
+        console.log("Could not load", security, error.status, error);
+        return normalizedError(error);
     });
 }
 
@@ -368,6 +369,7 @@ function promiseMessage(data, port, worker) {
         var channel = new MessageChannel();
         var timeout = setTimeout(function(){
             console.log("Still waiting on " + worker + " for a response to", data);
+            if (data.cmd == 'quote') return; // don't abort quote
             timeout = setTimeout(function(){
                 console.log("Aborting " + worker + " response to", data);
                 reject(_.extend({}, data, {status: 'error', message: "Service took too long to respond"}));
@@ -414,9 +416,8 @@ function hashCode(str){
     var hash = 0, i, char;
     if (str.length === 0) return hash;
     for (i = 0, l = str.length; i < l; i++) {
-        char  = str.charCodeAt(i);
-        hash  = ((hash<<5)-hash)+char;
-        hash |= 0; // Convert to 32bit integer
+        char = str.charCodeAt(i);
+        hash = char + (hash << 6) + (hash << 16) - hash;
     }
     return hash;
 }
