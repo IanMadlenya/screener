@@ -30,17 +30,79 @@
  */
 
 describe("intervals.js", function(){
+    var exchange = {
+        tz: "America/New_York",
+        marketOpensAt: "09:30:00",
+        marketClosesAt: "16:00:00"
+    };
+    describe("spot check", function(){
+        describe('annual', function(){
+            describe('inc', function(){
+                it("Fri Jan 31 2014 00:00:00 GMT-0500 (EST) by 1", function() {
+                    var amount = 1;
+                    var date = new Date("Fri Jan 31 2014 00:00:00 GMT-0500 (EST)");
+                    var inc = intervals.annual.inc(exchange, date, amount);
+                    expect(moment(inc).year()).toEqual(2015);
+                });
+            });
+        });
+        describe('m60', function(){
+            describe('inc', function(){
+                it("Fri Jan 31 2014 16:00:00 GMT-0500 (EST) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Fri Jan 31 2014 16:00:00 GMT-0500 (EST)");
+                    var inc = intervals.m60.inc(exchange, date, amount);
+                    expect(moment(inc).minute()).toEqual(0);
+                });
+            });
+        });
+        describe('m120', function(){
+            describe('inc', function(){
+                it("Fri Jan 31 2014 16:00:00 GMT-0500 (EST) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Fri Jan 31 2014 16:00:00 GMT-0500 (EST)");
+                    var inc = intervals.m120.inc(exchange, date, amount);
+                    expect(moment(inc).minute()).toEqual(0);
+                });
+            });
+        });
+        describe('d1', function(){
+            describe("inc", function() {
+                it("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT)");
+                    var inc = intervals.d1.inc(exchange, date, amount);
+                    expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
+                });
+                it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
+                    var inc = intervals.d1.inc(exchange, date, amount);
+                    expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
+                });
+            });
+            describe("dec", function() {
+                it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
+                    var dec = intervals.d1.dec(exchange, date, amount);
+                    expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
+                });
+                it("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
+                    var amount = 1;
+                    var date = new Date("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT)");
+                    var dec = intervals.d1.dec(exchange, date, amount);
+                    expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
+                });
+            });
+        });
+    });
     testMinuteInterval(1);
     testMinuteInterval(5);
     testMinuteInterval(10);
     testMinuteInterval(30);
     testMinuteInterval(60);
     testMinuteInterval(120);
-    var exchange = {
-        tz: "America/New_York",
-        marketOpensAt: "09:30:00",
-        marketClosesAt: "16:00:00"
-    };
     describe('d1', function(){
         describe("ceil", function() {
             datesBetween(new Date(2010,0,1), new Date(2015,0,1), 60 *60 *1000).forEach(function(date){
@@ -65,18 +127,6 @@ describe("intervals.js", function(){
             });
         });
         describe("inc", function() {
-            it("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
-                var amount = 1;
-                var date = new Date("Mon Oct 13 2014 16:00:00 GMT-0400 (EDT)");
-                var inc = intervals.d1.inc(exchange, date, amount);
-                expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
-            });
-            it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
-                var amount = 1;
-                var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
-                var inc = intervals.d1.inc(exchange, date, amount);
-                expect(moment(inc).subtract(1,'minute').format('dddd')).toEqual(moment(date).add(1,'day').format('dddd'));
-            });
             var dates = datesBetween(new Date(2010,0,1), new Date(2015,0,1), 60 *60 *1000);
             var numbers = numbersBetween(0, 500, dates.length);
             dates.forEach(function(date,i,dates){
@@ -92,18 +142,6 @@ describe("intervals.js", function(){
             });
         });
         describe("dec", function() {
-            it("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
-                var amount = 1;
-                var date = new Date("Wed Oct 15 2014 16:00:00 GMT-0400 (EDT)");
-                var dec = intervals.d1.dec(exchange, date, amount);
-                expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
-            });
-            it("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT) by 1", function(){
-                var amount = 1;
-                var date = new Date("Fri Oct 17 2014 16:00:00 GMT-0400 (EDT)");
-                var dec = intervals.d1.dec(exchange, date, amount);
-                expect(moment(dec).format('dddd')).toEqual(moment(date).subtract(1,'day').format('dddd'));
-            });
             var dates = datesBetween(new Date(2010,0,1), new Date(2015,0,1), 60 *60 *1000);
             var numbers = numbersBetween(0, 500, dates.length);
             dates.forEach(function(date,i,dates){

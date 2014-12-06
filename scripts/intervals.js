@@ -148,10 +148,10 @@ var intervals = (function(_, moment) {
             return start;
         },
         inc: function(exchange, dateTime, amount) {
-            return m1.inc(exchange, m60.ceil(exchange, dateTime), amount * 60);
+            return m60.floor(exchange, m1.inc(exchange, m60.ceil(exchange, dateTime), amount * 60));
         },
         dec: function(exchange, dateTime, amount) {
-            return m1.dec(exchange, m60.floor(exchange, dateTime), amount * 60);
+            return m60.ceil(exchange, m1.dec(exchange, m60.floor(exchange, dateTime), amount * 60));
         }
     };
     var m120 = {
@@ -170,10 +170,10 @@ var intervals = (function(_, moment) {
             return start;
         },
         inc: function(exchange, dateTime, amount) {
-            return m1.inc(exchange, m120.ceil(exchange, dateTime), amount * 120);
+            return m120.floor(exchange, m1.inc(exchange, m120.ceil(exchange, dateTime), amount * 120));
         },
         dec: function(exchange, dateTime, amount) {
-            return m1.dec(exchange, m120.floor(exchange, dateTime), amount * 120);
+            return m120.ceil(exchange, m1.dec(exchange, m120.floor(exchange, dateTime), amount * 120));
         }
     };
     var d1 = {
@@ -262,12 +262,10 @@ var intervals = (function(_, moment) {
             return start;
         },
         inc: function(exchange, dateTime, amount) {
-            var start = annual.ceil(exchange, dateTime);
-            return start.add(amount, 'years');
+            return moment(dateTime).tz(exchange.tz).add(amount, 'years');
         },
         dec: function(exchange, dateTime, amount) {
-            var start = annual.floor(exchange, dateTime);
-            return start.subtract(amount, 'years');
+            return moment(dateTime).tz(exchange.tz).subtract(amount, 'years');
         }
     };
     return {
