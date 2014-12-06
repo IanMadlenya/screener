@@ -293,7 +293,8 @@ var parseCalculation = (function(_) {
                     var p2 = _.range(s2).map(function(i) {
                         var p1 = _.range(s1).map(function(j){
                             var end = points.length - i - j;
-                            var sliced = points.slice(Math.max(end - n, 0), end);
+                            var start = Math.max(end - n, 0);
+                            var sliced = points.slice(start, Math.max(end,start+1));
                             var highest = _.max(_.pluck(sliced, 'high'));
                             var lowest = _.min(_.pluck(sliced, 'low'));
                             var close = _.last(sliced).close;
@@ -567,7 +568,7 @@ var parseCalculation = (function(_) {
                     var close = _.last(points).close;
                     var lowerBB = value - multiplier * atr;
                     var upperBB = value + multiplier * atr;
-                    return (close - lowerBB) / (upperBB - lowerBB);
+                    return (close - lowerBB) * 100 / (upperBB - lowerBB);
                 }
             };
         },
@@ -1024,7 +1025,7 @@ var parseCalculation = (function(_) {
             if (point.high != prices[h]) prices.splice(h, 0, point.high);
             return prices;
         }, []);
-        return points.reduce(function(tpos, point){
+        var tpos = points.reduce(function(tpos, point){
             var low = _.sortedIndex(prices, point.low);
             var high = _.sortedIndex(prices, point.high);
             for (var i=low; i<=high && i<tpos.length; i++) {
@@ -1035,6 +1036,12 @@ var parseCalculation = (function(_) {
         }, prices.map(function(price){
             return {price: price, count: 0, lower: 0};
         }));
+        var median = prices[Math.floor(prices.length/2)];
+        var bottom = 0, top = tpos.length-1;
+        while (tpos[bottom].price < 0) bottom++;
+        while (tpos[top].price > median * 10) top--;
+        if (bottom >= top) return tpos;
+        else return tpos.slice(bottom, top+1);
     }
 
     function getCalculation(field, args, slice) {

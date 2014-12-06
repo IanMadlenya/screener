@@ -36,7 +36,7 @@ importScripts('../assets/underscore/underscore.js');
 
 importScripts('dispatch.js');
 
-var hit = openHIT();
+var hit = openHIT({});
 dispatch({
     close: function(event) {
         hit('close');
@@ -73,6 +73,7 @@ dispatch({
             begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
             end: data.end && moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
         }).then(function(lines){
+            console.log("Loading", lines.length, interval, symbol);
             var results = lines.map(function(line){
                 var row = line.split(',');
                 return {
@@ -85,6 +86,8 @@ dispatch({
                     total_volume: parseFloat(row[6]),
                     volume: parseFloat(row[7])
                 };
+            }).filter(function(result){
+                return result.close > 0 && result.close < 10000 && result.total_volume > 0;
             });
             if (results.length && moment(results[0].dateTime).valueOf() > asof - (interval * 1000)) {
                 results = results.slice(1); // first line might yet be incomplete
@@ -103,7 +106,7 @@ dispatch({
     }
 });
 
-function openHIT(){
+function openHIT(blacklist){
     var pending = {};
     var seq = 0;
     var buffer = '';
@@ -122,6 +125,7 @@ function openHIT(){
                 if (pending[id]) {
                     var error = line.replace(/\w+,E,!?/,'').replace(/!?,*$/,'');
                     if ("NO_DATA" != error) {
+                        blacklist[pending[id].symbol] = error;
                         pending[id].error(Error(error + " for " + pending[id].cmd));
                         delete pending[id];
                     }
@@ -175,6 +179,8 @@ function openHIT(){
         if (!options || !options.symbol)
             throw Error("Missing symbol in " + JSON.stringify(options));
         return exec(function(callback, error){
+            if (blacklist[options.symbol])
+                throw Error(blacklist[options.symbol] + ": " + options.symbol);
             var id = ++seq;
             var cmd = ["HIT"];
             cmd.push(options.symbol);
@@ -190,6 +196,7 @@ function openHIT(){
             cmd.push('s');
             var msg = cmd.join(',');
             pending[id] = {
+                symbol: options.symbol,
                 cmd: msg,
                 buffer:[],
                 callback: callback,
