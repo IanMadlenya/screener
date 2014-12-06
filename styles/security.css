@@ -62,43 +62,53 @@ g.price path {
     stroke-opacity: 0.7;
 }
 
-g.poc0 path {
-    stroke: red;
-}
-
-g.band0 path {
-    fill: red;
-}
-
-g.poc1 path {
-    stroke: green;
-}
-
-g.band1 path {
-    fill: green;
-}
-
-g.poc2 path {
-    stroke: blue;
-}
-
-g.band2 path {
-    fill: blue;
-}
-
-g.poc3 path {
-    stroke: aqua;
-}
-
-g.band3 path {
-    fill: aqua;
-}
-
 g.poc path {
+    stroke: black;
     fill: none;
     stroke-opacity: 0.5;
 }
 
 g.band path {
+    fill: black;
     fill-opacity: 0.1;
+}
+
+g.poc.poc0 path {
+    stroke: red;
+}
+
+g.band.band0 path {
+    fill: red;
+}
+
+g.poc.poc1 path {
+    stroke: green;
+}
+
+g.band.band1 path {
+    fill: green;
+}
+
+g.poc.poc2 path {
+    stroke: blue;
+}
+
+g.band.band2 path {
+    fill: blue;
+}
+
+g.poc.poc3 path {
+    stroke: teal;
+}
+
+g.band3 path {
+    fill: teal;
+}
+
+g.poc4 path {
+    stroke: aqua;
+}
+
+g.band4 path {
+    fill: aqua;
 }
