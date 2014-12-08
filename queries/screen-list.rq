@@ -9,15 +9,17 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?forSignal ?hasFilter ?forIndicator ?min ?max {
+SELECT ?iri ?label ?forSignal ?hasFilter ?forIndicator ?lower ?upper ?hasChangeReference {
     ?iri a screener:Screen;
         rdfs:label ?label;
         screener:forSignal ?forSignal;
         screener:hasFilter ?hasFilter .
     ?hasFilter screener:forIndicator ?forIndicator
     OPTIONAL {
-        ?hasFilter screener:min ?min
+        ?hasFilter screener:lower ?lower
     } OPTIONAL {
-        ?hasFilter screener:max ?max
+        ?hasFilter screener:upper ?upper
+    } OPTIONAL {
+        ?hasFilter screener:hasChangeReference ?hasChangeReference
     }
 }

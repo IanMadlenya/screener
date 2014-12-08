@@ -476,11 +476,11 @@ describe("Screener", function(){
                             expression: 'volume',
                             interval: 'd1'
                         },
-                        min: 415800
+                        lower: 415800
                     }]
                 }],
                 new Date(2014, 0, 14),
-                [{symbol: 'XNGS:YHOO', volume: 16047200}]
+                [{symbol: 'XNGS:YHOO', d1: {volume: 16047200}}]
             ]
         ], screenCheck);
         it("should have non-empty values for TSX", function(done){
@@ -495,11 +495,11 @@ describe("Screener", function(){
                         expression:"SMA(60,volume)",
                         interval: "d1"
                     },
-                    min:"500000"
+                    lower:"500000"
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4),new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
-                expect(result[0]['SMA(60,volume)']).not.toBeUndefined();
+                expect(result[0].d1['SMA(60,volume)']).not.toBeUndefined();
             }).then(done, unexpected(done));
         });
         it("should have non-empty values for BB F-Score", function(done){
@@ -514,9 +514,9 @@ describe("Screener", function(){
                         interval: "annual"
                     }
                 }]
-            }],new Date(2014, 3, 4)).then(function(result){
+            }],new Date(2014, 3, 4),new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
-                expect(result[0]['F-Score()']).not.toBeUndefined();
+                expect(result[0].annual['F-Score()']).not.toBeUndefined();
             }).then(done, unexpected(done));
         });
         it("should return all securities w/o filtering", function(done){
@@ -529,7 +529,7 @@ describe("Screener", function(){
             [{
                 filters:[]
             }],
-            new Date(2014, 3, 4)).then(function(result){
+            new Date(2014, 3, 4),new Date(2014, 3, 4)).then(function(result){
                 expect(result).not.toEqual([]);
             }).then(done, unexpected(done));
         });
@@ -583,5 +583,180 @@ describe("Screener", function(){
                 ]
             ]
         ], screenIterator);
+    });
+
+    describe("MMM", function(){
+        it("screen", function(done){
+            screener.screen([{
+                ofExchange: "New York Stock Exchange",
+                includes:["MMM"]
+            }],[{
+                signal: 'buy',
+                filters:[{
+                    indicator: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    upper: "135.00"
+                }]
+            }], new Date('2014-10-10'),new Date('2014-11-01')).then(function(result){
+                expect(result).toContain(jasmine.objectContaining({
+                    signal: 'buy',
+                    price: 133.83
+                }));
+            }).then(done, unexpected(done));
+        });
+        it("signal", function(done){
+            screener.signal([{
+                ofExchange: "New York Stock Exchange",
+                includes:["MMM"]
+            }],[{
+                signal: 'buy',
+                filters:[{
+                    indicator: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    upper: "135.00"
+                }]
+            }],[{
+                signal: 'sell',
+                filters:[{
+                    indicator: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    changeReference: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    lower: "4"
+                }]
+            }], new Date('2014-10-10'),new Date('2014-11-01')).then(function(result){
+                expect(result.length).toEqual(2);
+                expect(result).toContain(jasmine.objectContaining({
+                    signal: 'buy',
+                    price: 133.83
+                }));
+                expect(result).toContain(jasmine.objectContaining({
+                    signal: 'sell',
+                    price: 140.93
+                }));
+            }).then(done, unexpected(done));
+        });
+        it("performance", function(done){
+            screener.performance([{
+                ofExchange: "New York Stock Exchange",
+                includes:["MMM"]
+            }],[{
+                signal: 'buy',
+                filters:[{
+                    indicator: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    upper: "135.00"
+                }]
+            }],[{
+                signal: 'sell',
+                filters:[{
+                    indicator: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    changeReference: {
+                        expression: "close",
+                        interval: 'd1'
+                    },
+                    lower: "4"
+                }]
+            }], new Date('2014-10-10'),new Date('2014-11-01')).then(function(result){
+                expect(result).toEqual(jasmine.objectContaining({amount: 1 }));
+            }).then(done, unexpected(done));
+        });
+        it("reversion", function(done){
+            screener.signal([{
+                ofExchange: "New York Stock Exchange",
+                includes:["MMM"]
+            }],[{
+                signal: 'buy',
+                filters:[{
+                    indicator: {
+                        expression: "F-Score()",
+                        interval: "annual"
+                    },
+                    lower: "5"
+                }, {
+                    indicator: {
+                        expression: "close",
+                        interval: "d5"
+                    },
+                    lower: "5"
+                }, {
+                    indicator: {
+                        expression: "volume",
+                        interval: "d5"
+                    },
+                    lower: "100000"
+                }, {
+                    indicator: {
+                        expression: "Percent(close,SMA(20,close))",
+                        interval: "d1"
+                    },
+                    lower: "90"
+                }, {
+                    indicator: {
+                        expression: "DATR(14,KELT(SMA(20,close),-2,SD(20,close)))",
+                        interval: "d1"
+                    },
+                    upper: "0"
+                }, {
+                    indicator: {
+                        expression: "DATR(14,KELT(SMA(150,POC(6)),-2,SD(150,POC(6))))",
+                        interval: "m60"
+                    },
+                    lower: "0"
+                }, {
+                    indicator: {
+                        expression: "DATR(14,POC(12))",
+                        interval: "m30"
+                    },
+                    upper: "0"
+                }]
+            }],[{
+                signal: 'sell',
+                filters:[{
+                    indicator: {
+                        expression: "MIN(2,DATR(14,KELT(SMA(20,close),-2,SD(20,close))))",
+                        interval: "d1"
+                    },
+                    lower: "0"
+                },{
+                    indicator:{
+                        expression:"close",
+                        interval: "m60"
+                    },
+                    changeReference:{
+                        expression:"SMA(20,close)",
+                        interval: "d1"
+                    },
+                    lower:"0"
+                }]
+            },{
+                signal: 'sell',
+                filters:[{
+                    indicator: {
+                        expression: "MAX(10,PCO(1,SIGN(DATR(14,KELT(SMA(20,close),-2,SD(20,close))))))",
+                        interval: "d1"
+                    },
+                    upper: "0"
+                }]
+            }], new Date('2014-10-10'),new Date('2014-11-01')).then(function(result){
+                expect(result).toContain(jasmine.objectContaining({
+                    signal: 'sell',
+                    price: 145.81,
+                }));
+            }).then(done, unexpected(done));
+        });
     });
 });

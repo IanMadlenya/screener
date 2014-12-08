@@ -49,13 +49,13 @@ dispatch({
     },
 
     fields: function(event) {
-        var calcs = asCalculation(parseCalculation, event.data.expressions);
+        var calcs = asCalculation(parseCalculation.bind(this, event.data.exchange), event.data.expressions);
         var errorMessage = _.first(_.compact(_.invoke(calcs, 'getErrorMessage')));
         if (!errorMessage) {
             return _.uniq(_.flatten(_.invoke(calcs, 'getFields')));
         } else {
             event.data.expressions.forEach(function(expression){
-                var calc = parseCalculation(expression);
+                var calc = parseCalculation(event.data.exchange, expression);
                 var msg = calc.getErrorMessage();
                 if (msg)
                     throw new Error(msg + ' in ' + expression);
@@ -63,7 +63,7 @@ dispatch({
         }
     },
     validate: function(event) {
-        return validateExpressions(parseCalculation, intervals, event.data);
+        return validateExpressions(parseCalculation.bind(this, event.data.exchange), intervals, event.data);
     },
     increment: function(event) {
         var data = event.data;
@@ -96,24 +96,43 @@ dispatch({
         var data = event.data;
         var period = createPeriod(intervals, data.interval, data.exchange);
         if (!period) throw Error("Unknown interval: " + data.interval);
-        return loadData(parseCalculation, open, data.failfast, data.security,
+        return loadData(parseCalculation.bind(this, data.exchange), open, data.failfast, data.security,
             data.length, data.lower, data.upper, period, data.expressions
         );
     },
     screen: function(event){
         var data = event.data;
-        var load = pointLoad(parseCalculation, open, data.failfast, data.security, data.screens, data.begin, data.end);
+        var load = pointLoad(parseCalculation.bind(this, data.exchange), open, data.failfast, data.security, data.screens, data.begin, data.end);
         var periods = screenPeriods(intervals, data.exchange, data.screens);
-        return screenSecurity(periods, load, data.security, data.screens, data.begin, data.end);
+        return screenSecurity(periods, load, data.security, data.screens, {}, data.begin, data.end);
     },
     signal: function(event){
         var data = event.data;
         var screens = [].concat(data.entry, data.exit);
-        var load = pointLoad(parseCalculation, open, data.failfast, data.security, screens, data.begin, data.end);
+        var load = pointLoad(parseCalculation.bind(this, data.exchange), open, data.failfast, data.security, screens, data.begin, data.end);
         var periods = screenPeriods(intervals, data.exchange, screens);
-        return findSignals(periods, load, data.security, data.entry, data.exit, data.begin, data.end);
+        var entry = addChangeReference(data.entry, data.exit);
+        var exit = addChangeReference(data.exit, data.entry);
+        return findSignals(periods, load, data.security, entry, exit, {}, data.begin, data.end);
     }
 });
+
+function addChangeReference(entry, exit) {
+    var references = _.compact(_.flatten(exit.map(function(screen){
+        return screen.filters.map(function(filter){
+            return filter.changeReference && {
+                indicator: filter.changeReference
+            };
+        });
+    })));
+    if (!references.length) return entry;
+    return entry.map(function(screen){
+        return {
+            signal: screen.signal,
+            filters: screen.filters.concat(references)
+        };
+    });
+}
 
 function pointLoad(parseCalculation, open, failfast, security, screens, lower, upper) {
     var datasets = {};
@@ -121,6 +140,11 @@ function pointLoad(parseCalculation, open, failfast, security, screens, lower, u
         return screen.filters.reduce(function(exprs, filter){
             var expr = filter.indicator.expression;
             var interval = filter.indicator.interval;
+            if (!exprs[interval]) exprs[interval] = [];
+            if (exprs[interval].indexOf(expr) < 0) exprs[interval].push(expr);
+            if (!filter.changeReference) return exprs;
+            expr = filter.changeReference.expression;
+            interval = filter.changeReference.interval;
             if (!exprs[interval]) exprs[interval] = [];
             if (exprs[interval].indexOf(expr) < 0) exprs[interval].push(expr);
             return exprs;
@@ -158,15 +182,15 @@ function screenPeriods(intervals, exchange, screens) {
     }, {});
 }
 
-function findSignals(periods, load, security, entry, exit, begin, end) {
-    return screenSecurity(periods, load, security, entry, begin, end).then(function(first){
+function findSignals(periods, load, security, entry, exit, reference, begin, end) {
+    return screenSecurity(periods, load, security, entry, reference, begin, end).then(function(first){
         if (!first.result || first.result.asof.valueOf() >= begin.valueOf()) return first;
-        else return screenSecurity(periods, load, security, entry, first.until, end);
+        else return screenSecurity(periods, load, security, entry, reference, first.until, end);
     }).then(function(first){
         if (!first.result) return _.extend(first, {
             result: []
         });
-        else return findSignals(periods, load, security, exit, entry, first.until, end).then(function(rest){
+        else return findSignals(periods, load, security, exit, entry, first.result, first.until, end).then(function(rest){
             rest.result.unshift(first.result);
             return _.extend(rest, {
                 status: first.status == rest.status ? first.status : 'warning',
@@ -179,7 +203,7 @@ function findSignals(periods, load, security, entry, exit, begin, end) {
     });
 }
 
-function screenSecurity(periods, load, security, screens, begin, end){
+function screenSecurity(periods, load, security, screens, reference, begin, end){
     return screens.reduce(function(promise, screen){
         return promise.then(function(alt){
             if (!screen.filters.length) return alt || {
@@ -195,7 +219,7 @@ function screenSecurity(periods, load, security, screens, begin, end){
                 if (!periods[interval]) throw Error("Unknown interval: " + interval);
                 return periods[interval].millis * -1;
             });
-            return filterSecurityByPeriods(load, sorted.map(function(interval) {
+            return filterSecurityByPeriods(load, reference, sorted.map(function(interval) {
                 return {
                     period: periods[interval],
                     filters: byInterval[interval]
@@ -216,36 +240,41 @@ function screenSecurity(periods, load, security, screens, begin, end){
     });
 }
 
-function filterSecurityByPeriods(load, periodsAndFilters, lower, begin, upper) {
+function filterSecurityByPeriods(load, reference, periodsAndFilters, lower, begin, upper) {
     var first = _.first(periodsAndFilters);
     var rest = _.rest(periodsAndFilters);
     if (first.period.ceil(upper).valueOf() < first.period.floor(begin).valueOf())
         return Promise.resolve(null);
-    return findNextActiveFilter(load, first.period, first.filters, begin, upper).then(function(data){
+    return findNextActiveFilter(load, first.period, first.filters, reference, begin, upper).then(function(data){
         if (!data || data.result.asof.valueOf() > upper.valueOf()) return null;
-        else if (!rest.length) return data;
+        else if (!rest.length) return {
+            status: data.status,
+            quote: data.quote,
+            result: _.object([first.period.interval, 'price', 'asof'], [data.result, data.result.close, data.result.asof]),
+            until: data.until
+        };
         var start = maxDate(lower, data.result.asof);
-        return filterSecurityByPeriods(load, rest, start, start, minDate(upper, data.until)).then(function(child){
+        return filterSecurityByPeriods(load, reference, rest, start, start, minDate(upper, data.until)).then(function(child){
             if (child) return {
                 status: !data.status || data.status == child.status ? child.status : 'warning',
                 quote: _.compact(_.flatten([data.quote, child.quote])),
-                result: _.extend(data.result, child.result),
+                result: _.extend(_.object([first.period.interval], [data.result]), child.result),
                 until:  child.until
             };
             var inc = first.period.inc(maxDate(begin, data.result.asof), 1);
-            return filterSecurityByPeriods(load, periodsAndFilters, lower, inc, upper);
+            return filterSecurityByPeriods(load, reference, periodsAndFilters, lower, inc, upper);
         });
     });
 }
 
-function findNextActiveFilter(load, period, filters, begin, until) {
+function findNextActiveFilter(load, period, filters, reference, begin, until) {
     if (period.ceil(until).valueOf() < period.floor(begin).valueOf())
         return Promise.resolve(null);
-    return loadFilteredPoint(load, period, filters, minDate(begin,until)).then(function(data){
+    return loadFilteredPoint(load, period, filters, reference, minDate(begin,until)).then(function(data){
         var inc = period.inc(begin, 1);
         if (data.status == 'failure')
-            return findNextActiveFilter(load, period, filters, inc, until);
-        else return loadFilteredPoint(load, period, filters, inc).then(function(data){
+            return findNextActiveFilter(load, period, filters, reference, inc, until);
+        else return loadFilteredPoint(load, period, filters, reference, inc).then(function(data){
             return data.result.asof;
         }).then(function(next){
             return _.extend(data, {
@@ -263,7 +292,7 @@ function maxDate(d1, d2) {
     return d1 && d1.valueOf() > d2.valueOf() || !d2 ? d1 : d2;
 }
 
-function loadFilteredPoint(load, period, filters, asof) {
+function loadFilteredPoint(load, period, filters, reference, asof) {
     var expressions = _.map(filters,  _.compose(_.property('expression'), _.property('indicator')));
     return load(asof, period, expressions).then(function(data){
         if (!data.result) return Promise.reject(_.extend(data, {
@@ -275,13 +304,16 @@ function loadFilteredPoint(load, period, filters, asof) {
     }).then(function(data){
         var pass =_.reduce(filters, function(pass, filter) {
             if (!pass) return false;
-            var value = data.result[filter.indicator.expression];
-            if (filter.min || filter.min === 0) {
-                if (isNaN(value) || value < +filter.min)
+            var cr = filter.changeReference;
+            var ref = cr && reference[cr.interval] && reference[cr.interval][cr.expression];
+            var x = data.result[filter.indicator.expression];
+            var value = ref ? (x - ref) * 100 / (ref === 0 ? 1 : Math.abs(ref)) : x;
+            if (filter.lower || filter.lower === 0) {
+                if (isNaN(value) || value < +filter.lower)
                     return false;
             }
-            if (filter.max || filter.max === 0) {
-                if (isNaN(value) || +filter.max < value)
+            if (filter.upper || filter.upper === 0) {
+                if (isNaN(value) || +filter.upper < value)
                     return false;
             }
             return pass;

@@ -226,7 +226,7 @@ function screenCheck(watchLists, screens, asof, points) {
                     })
                 });
             });
-            return screener.screen(lists, screens, asof).then(function(result){
+            return screener.screen(lists, screens, asof, asof).then(function(result){
                 var expected = points.map(function(point){
                     var symbol = point.symbol;
                     var mic = symbol.substring(0, symbol.indexOf(':'));
@@ -239,7 +239,11 @@ function screenCheck(watchLists, screens, asof, points) {
                 expect(result.length).toEqual(expected.length);
                 expected.forEach(function(point, i){
                     for (var key in point) {
-                        expect(result[i][key]).toEqual(point[key]);
+                        if (typeof point[key] == 'object') {
+                            expect(result[i][key]).toEqual(jasmine.objectContaining(point[key]));
+                        } else {
+                            expect(result[i][key]).toEqual(point[key]);
+                        }
                     }
                 });
             });
@@ -262,7 +266,7 @@ function screenIterator(exchange, ticker, expressions, length, interval, asof, r
                     }
                 };
             })
-        }], asof);
+        }], asof, asof);
         Promise.all(rows.map(function(row){
             return iter.next().value.then(function(result){
                 expect(result).not.toEqual([]);

@@ -104,21 +104,27 @@ screener:hasFilter a owl:ObjectProperty;
     rdfs:domain screener:Screen;
     rdfs:range screener:Filter.
 
-screener:max a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:label "max";
+screener:upper a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "upper";
     rdfs:comment "Maximum value that is permitted through this filter";
     rdfs:domain screener:Filter;
     rdfs:range xsd:decimal.
 
-screener:min a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:label "min";
+screener:lower a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "lower";
     rdfs:comment "Minimum value that is permitted through this filter";
     rdfs:domain screener:Filter;
     rdfs:range xsd:decimal.
 
 screener:forIndicator a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "indicator";
+    rdfs:label "for indicator";
     rdfs:comment "Measurement used by this filter";
+    rdfs:domain screener:Filter;
+    rdfs:range screener:Indicator.
+
+screener:hasChangeReference a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "has change reference";
+    rdfs:comment "Entry reference indicator used for relative change value with indicator";
     rdfs:domain screener:Filter;
     rdfs:range screener:Indicator.
 

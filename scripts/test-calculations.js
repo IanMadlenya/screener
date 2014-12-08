@@ -32,6 +32,22 @@
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 60;
 
 describe("calculations", function(){
+    describe("DATE", function(){
+        it("WORKDAY", function(){
+            var WORKDAY = parseCalculation({tz: 'America/New_York'}, 'WORKDAY(asof,0)').getValue;
+            expect(WORKDAY([{asof:new Date('1900-01-01T00:00:00-0500')}])).toEqual(2);
+            expect(WORKDAY([{asof:new Date('1970-01-01T00:00:00-0500')}])).toEqual(25569);
+            expect(WORKDAY([{asof:new Date('2008-01-01T00:00:00-0500')}])).toEqual(39448);
+            expect(WORKDAY([{asof:new Date('2007-07-05T00:00:00-0500')}])).toEqual(39268);
+        });
+        it("WORKDAY1", function(){
+            var WORKDAY = parseCalculation({tz: 'America/New_York'}, 'WORKDAY(asof,1)').getValue;
+            expect(WORKDAY([{asof:new Date('1900-01-01T00:00:00-0500')}])).toEqual(3);
+            expect(WORKDAY([{asof:new Date('1970-01-01T00:00:00-0500')}])).toEqual(25570);
+            expect(WORKDAY([{asof:new Date('2008-01-01T00:00:00-0500')}])).toEqual(39449);
+            expect(WORKDAY([{asof:new Date('2007-07-05T00:00:00-0500')}])).toEqual(39269);
+        });
+    });
     describe("BB", function(){
         it("stockcharts.com", function(){
             var data = [
@@ -78,11 +94,11 @@ describe("calculations", function(){
                 [91.3894,91.1666,1.6013253508,94.3692507015,87.9639492985,7.0259298943],
                 [90.65,91.05018,1.5491617342,94.1485034683,87.9518565317,6.8057492436]
             ];
-            var SMA = parseCalculation('SMA(20,close)').getValue;
-            var SD = parseCalculation('SD(20,close)').getValue;
-            var UpperBB = parseCalculation('KELT(SMA(20,close),2,SD(20,close))').getValue;
-            var LowerBB = parseCalculation('KELT(SMA(20,close),-2,SD(20,close))').getValue;
-            var BandWidth = parseCalculation('BBWidth(SMA(20,close),2,SD(20,close))').getValue;
+            var SMA = parseCalculation(undefined, 'SMA(20,close)').getValue;
+            var SD = parseCalculation(undefined, 'SD(20,close)').getValue;
+            var UpperBB = parseCalculation(undefined, 'KELT(SMA(20,close),2,SD(20,close))').getValue;
+            var LowerBB = parseCalculation(undefined, 'KELT(SMA(20,close),-2,SD(20,close))').getValue;
+            var BandWidth = parseCalculation(undefined, 'BBWidth(SMA(20,close),2,SD(20,close))').getValue;
             data.forEach(function(datum,i,data){
                 if (!datum[1]) return;
                 var points = data.slice(0, i+1).map(function(datum){
@@ -168,11 +184,11 @@ describe("calculations", function(){
                 [439.66,441.037730053,438.0810671968,2.9566628561,4.260111317,-1.3034484609],
                 [441.35,441.0857715833,438.3232103674,2.7625612158,3.9606012968,-1.198040081]
             ];
-            var EMA12 = parseCalculation('EMA(12,close)').getValue;
-            var EMA26 = parseCalculation('EMA(26,close)').getValue;
-            var Line = parseCalculation('CDO(12,26,EMA,close)').getValue;
-            var Signal = parseCalculation('EMA(9,CDO,12,26,EMA,close)').getValue;
-            var Histogram = parseCalculation('CDO(1,9,EMA,CDO,12,26,EMA,close)').getValue;
+            var EMA12 = parseCalculation(undefined, 'EMA(12,close)').getValue;
+            var EMA26 = parseCalculation(undefined, 'EMA(26,close)').getValue;
+            var Line = parseCalculation(undefined, 'CDO(12,26,EMA,close)').getValue;
+            var Signal = parseCalculation(undefined, 'EMA(9,CDO,12,26,EMA,close)').getValue;
+            var Histogram = parseCalculation(undefined, 'CDO(1,9,EMA,CDO,12,26,EMA,close)').getValue;
             data.forEach(function(datum,i,data){
                 var points = data.slice(0, i+1).map(function(datum){
                     return {
@@ -231,7 +247,7 @@ describe("calculations", function(){
                 [129.1381,127.4865,130.0633,125.9245,128.6904,66.828549338],
                 [128.6406,127.397,130.0633,125.9245,128.2725,56.7314197352]
             ];
-            var STO = parseCalculation('STO(14,1,1)').getValue;
+            var STO = parseCalculation(undefined, 'STO(14,1,1)').getValue;
             data.forEach(function(datum,i,data){
                 var sto = datum[5];
                 var points = data.slice(0, i+1).map(function(datum){
@@ -284,7 +300,7 @@ describe("calculations", function(){
                 [42.6628,33.0795229944],
                 [43.1314,37.7729521144]
             ];
-            var RSI = parseCalculation('RSI(14,close)').getValue;
+            var RSI = parseCalculation(undefined, 'RSI(14,close)').getValue;
             data.forEach(function(datum,i,data){
                 var rsi = datum[1];
                 var points = data.slice(0, i+1).map(function(datum){
@@ -332,7 +348,7 @@ describe("calculations", function(){
                 [48.66,47.9,48.62,1.3362193662],
                 [48.79,47.7301,47.85,1.3164822686]
             ];
-            var ATR = parseCalculation('ATR(14)').getValue;
+            var ATR = parseCalculation(undefined, 'ATR(14)').getValue;
             data.forEach(function(datum,i,data){
                 var atr = datum[3];
                 var points = data.slice(0, i+1).map(function(datum){

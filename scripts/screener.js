@@ -259,13 +259,13 @@
              * * When undefined, load if needed and treat warning as success
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            screen: function(watchLists, screens, asof, load) {
+            screen: function(watchLists, screens, asof, until, load) {
                 return inlineWatchLists(watchLists).then(function(watchLists) {
                     return inlineScreens(screens).then(function(screens){
                         return {
                             cmd: 'screen',
                             begin: asof,
-                            end: asof,
+                            end: until,
                             load: load,
                             watchLists: watchLists,
                             screens: screens
@@ -339,16 +339,23 @@
                     return screener.indicatorLookup()(indicator).then(onlyOne(indicator)).then(function(indicator){
                         var int = indicator.hasInterval;
                         var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
-                        var min = indicator.min;
-                        var max = indicator.max;
                         return _.extend({}, filter, {
                             indicator: _.extend({
                                 interval: interval
-                            }, indicator, {
-                                min: _.isString(min) ? parseInt(min, 10) : min,
-                                max: _.isString(max) ? parseInt(max, 10) : max
-                            })
+                            }, indicator)
                         });
+                    }).then(function(filter){
+                        var reference = filter.hasChangeReference;
+                        if (!reference) return filter;
+                        return screener.indicatorLookup()(reference).then(onlyOne(reference)).then(function(reference){
+                            var int = reference.hasInterval;
+                            var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
+                            return _.extend(filter, {
+                                changeReference: _.extend({
+                                    interval: interval
+                                }, reference)
+                            });
+                        })
                     });
                 })).then(function(filters){
                     return _.extend({}, screen, {
@@ -507,7 +514,7 @@
 
     function createDispatchPort() {
         var port = new SharedWorker('/screener/2014/scripts/conductor.js').port;
-        _.range(11).forEach(function(index){
+        _.range(17).forEach(function(index){
             var name = 'mentat' + index;
             var worker = new SharedWorker('/screener/2014/scripts/mentat.js', name).port;
             port.postMessage({

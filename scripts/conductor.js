@@ -169,10 +169,10 @@ dispatch({
                     if (!entry && (exit.signal == 'buy' || exit.signal == 'sell')) {
                         entry = exit;
                     } else if (entry.signal == 'sell' && exit.signal == 'buy') {
-                        returns.push((entry.close - exit.close) / entry.close);
+                        returns.push((entry.price - exit.price) / entry.price);
                         entry = null;
                     } else if (entry.signal == 'buy' && exit.signal == 'sell') {
-                        returns.push((exit.close - entry.close) / entry.close);
+                        returns.push((exit.price - entry.price) / entry.price);
                         entry = null;
                     }
                     return returns;

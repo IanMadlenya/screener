@@ -100,7 +100,7 @@ jQuery(function($){
         $('#results').data({list: list});
         return screener.listExchanges().then(function(exchanges){
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, !!load).catch(function(error){
+                return screener.screen([list], [{filters: filters}], asof, asof, !!load).catch(function(error){
                     if (error.status == 'warning' && !load) {
                         queue.push(backtest(list, true));
                         return error.result;
@@ -137,11 +137,12 @@ jQuery(function($){
                                     target: target
                                 }).text(symbol)))
                                 .append(_.map(filters, function(filter) {
+                                    var interval = filter.indicator.hasInterval.replace(/.*\//,'');
                                     return $('<td></td>').append($('<a></a>',{
                                         href: filter.indicator.iri + '#!' + point.security,
                                         target: target,
-                                        "data-value": point[filter.indicator.expression]
-                                    }).text(screener.formatNumber(screener.pceil(point[filter.indicator.expression], 3))));
+                                        "data-value": point[interval][filter.indicator.expression]
+                                    }).text(screener.formatNumber(screener.pceil(point[interval][filter.indicator.expression], 3))));
                                 }));
                         }))
                     );
@@ -163,8 +164,8 @@ jQuery(function($){
             return screener.indicatorLookup()(indicator).then(_.first).then(function(indicator){
                 return {
                     indicator: indicator,
-                    min: $(elem).find('[property="screener:min"]').attr("content"),
-                    max: $(elem).find('[property="screener:max"]').attr("content")
+                    lower: $(elem).find('[property="screener:lower"]').attr("content"),
+                    upper: $(elem).find('[property="screener:upper"]').attr("content")
                 };
             });
         })).catch(calli.error);
@@ -270,12 +271,12 @@ jQuery(function($){
         }).then(function(){
             var excludedFilters = _.map(filters, function(filter){
                 if (filter.indicator.iri == indicator.iri) {
-                    return _.omit(filter, 'min', 'max');
+                    return _.omit(filter, 'lower', 'upper');
                 } else {
                     return filter;
                 }
             });
-            return screener.screen([list], [{filters: excludedFilters}], asof, !!load);
+            return screener.screen([list], [{filters: excludedFilters}], asof, asof, !!load);
         }).catch(function(error){
             if (error.status == 'warning' && !load) {
                 queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
@@ -290,7 +291,7 @@ jQuery(function($){
             var data = new google.visualization.DataTable();
             data.addColumn('string', indicator.expression);
             data.addColumn('number', 'Securities');
-            var values = _.reject(_.pluck(points, indicator.expression), function(num) {
+            var values = _.reject(_.pluck(_.pluck(points, indicator.hasInterval.replace(/.*\//,'')), indicator.expression), function(num) {
                 return isNaN(num) || num === Infinity;
             });
             if (indicator.hasUnit.indexOf('discrete') >= 0) {

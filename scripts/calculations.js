@@ -82,7 +82,41 @@ var parseCalculation = (function(_) {
                     var date = points[0][asof];
                     if (_.isDate(date))
                         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                }  
+                }
+            };
+        },
+        WORKDAY: function(asof, n) {
+            return {
+                getErrorMessage: function() {
+                    if (!_.isString(asof) || !asof.match(/^[0-9a-z_\-&]+$/))
+                        return "Must be a field: " + asof;
+                    if (!_.isNumber(n) || Math.round(n) != n)
+                        return "Must be an integer: " + n;
+                    return null;
+                },
+                getFields: function(){
+                    return [asof];
+                },
+                getDataLength: function() {
+                    return 1;
+                },
+                getMomentFields: function() {
+                    return [asof];
+                },
+                getValue: function(points) {
+                    var start = points[0][asof];
+                    var wd = start.isoWeekday();
+                    var w = Math.floor((wd -1 + n) / 5);
+                    if (n > 0) {
+                        if (wd > 5) start.add(8 - wd, 'days');
+                        start.isoWeek(start.isoWeek() + w).isoWeekday(wd + n - w * 5);
+                    } else if (n < 0) {
+                        if (wd > 5) start.subtract(wd - 5, 'days');
+                        start.isoWeek(start.isoWeek() + w).isoWeekday(wd + n - w * 5);
+                    }
+                    var offset = 2 - moment.tz('1900-01-01', start.tz()).valueOf() /1000 /60 /60 /24;
+                    return start.valueOf() /1000 /60 /60 /24 + offset;
+                }
             };
         },
         /* Maximum */
@@ -924,7 +958,7 @@ var parseCalculation = (function(_) {
         }
     };
 
-    return function parseCalculation(calculation) {
+    return function parseCalculation(exchange, calculation) {
         var parsed = parseExpression(calculation);
         if (!parsed) return calculations.unknown(calculation);
         else if (typeof parsed == 'string') return calculations.identity(calculation);
@@ -932,7 +966,17 @@ var parseCalculation = (function(_) {
         var args = parsed.slice(1);
         if (!calculations[func])
             return calculations.unknown(calculation); // unknown function
-        return calculations[func].apply(calculations[func], args);
+        var calc = calculations[func].apply(calculations[func], args);
+        if (typeof calc.getMomentFields != 'function') return calc;
+        return _.extend({}, calc, {
+            getValue: function(points) {
+                return calc.getValue(points.map(function(point){
+                    return _.extend({}, point, _.object(calc.getMomentFields(), calc.getMomentFields().map(function(field){
+                        return moment(point[field]).tz(exchange.tz);
+                    })))
+                }));
+            }
+        });
     };
 
     function parseExpression(expr) {
@@ -1039,12 +1083,13 @@ var parseCalculation = (function(_) {
         var median = prices[Math.floor(prices.length/2)];
         var bottom = 0, top = tpos.length-1;
         while (tpos[bottom].price < 0) bottom++;
-        while (tpos[top].price > median * 10) top--;
+        while (tpos[top].price > median * 100) top--;
         if (bottom >= top) return tpos;
         else return tpos.slice(bottom, top+1);
     }
 
     function getCalculation(field, args, slice) {
+        if (!field) throw Error("Expected field or expression, but was: " + field);
         var shifted = slice ? Array.prototype.slice.call(args, slice, args.length) : args;
         return calculations[field] ?
             calculations[field].apply(this, shifted) :
