@@ -184,12 +184,11 @@ function screenPeriods(intervals, exchange, screens) {
 
 function findSignals(periods, load, security, entry, exit, reference, begin, end) {
     return screenSecurity(periods, load, security, entry, reference, begin, end).then(function(first){
-        if (!first.result || first.result.asof.valueOf() >= begin.valueOf()) return first;
-        else return screenSecurity(periods, load, security, entry, reference, first.until, end);
-    }).then(function(first){
         if (!first.result) return _.extend(first, {
             result: []
         });
+        else if (first.result && first.result.asof.valueOf() < begin.valueOf())
+            return findSignals(periods, load, security, entry, exit, reference, first.until, end);
         else return findSignals(periods, load, security, exit, entry, first.result, first.until, end).then(function(rest){
             rest.result.unshift(first.result);
             return _.extend(rest, {

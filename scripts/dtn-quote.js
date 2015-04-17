@@ -67,13 +67,13 @@ dispatch({
         var seconds = interval == 'm1' ? 60 : interval == 'm10' ? 600 : 3600;
         var symbol = (data.exchange.dtnPrefix || '') + data.ticker;
         var asof = Date.now();
+        console.log("Loading", interval, symbol);
         return hit({
             symbol: symbol,
             seconds: seconds,
             begin: moment(data.start).tz('America/New_York').format('YYYYMMDD HHmmss'),
             end: data.end && moment(data.end).tz('America/New_York').format('YYYYMMDD HHmmss')
         }).then(function(lines){
-            console.log("Loading", lines.length, interval, symbol);
             var results = lines.map(function(line){
                 var row = line.split(',');
                 return {
@@ -92,6 +92,7 @@ dispatch({
             if (results.length && moment(results[0].dateTime).valueOf() > asof - (interval * 1000)) {
                 results = results.slice(1); // first line might yet be incomplete
             }
+            console.log("Read", results.length, interval, symbol);
             return {
                 status: 'success',
                 exchange: data.exchange,
@@ -136,40 +137,37 @@ function openHIT(blacklist){
                 console.error(line);
             }
         }
+        if (!_.isEmpty(pending)) {
+            console.log("Waiting on " + _.keys(pending), buffer.indexOf('\n') >= 0, buffer.length, buffer, pending);
+        }
     };
     var socket, queue;
     var construct = function(open,close){
         var opened = false;
+        console.log("Opening WebSocket");
         socket = new WebSocket('ws://probabilitytrading.net:1337/historical', 'IQFeed5.1');
         socket.onmessage = onmessage;
         socket.onopen = function(event) {
             opened = true;
+            console.log("WebSocket open");
             open(socket);
         };
         socket.onclose = function(event) {
             if (opened) {
                 queue = undefined;
+                console.log("WebSocket closed");
             } else {
                 close(event);
+                console.log("WebSocket aborted");
             }
         };
     };
     var exec = function(fn){
         if (!queue || socket && socket.readyState > 1)
             queue = new Promise(construct);
-        queue = queue.catch(function(error){
-            // errors are handled by caller
-        }).then(function(){
+        return queue.then(function(){
             return new Promise(fn);
         });
-        var same = queue;
-        queue.then(function(){
-            setTimeout(function(){
-                if (queue === same)
-                    socket.close(3001, "WebSocket timeout");
-            }, 10000);
-        });
-        return queue;
     };
     return function(options) {
         if (options == 'close') {
@@ -203,6 +201,7 @@ function openHIT(blacklist){
                 error: error
             };
             socket.send(msg + '\r\n');
+            console.log(msg);
         });
     };
 }

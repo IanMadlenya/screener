@@ -87,10 +87,23 @@ function normalizedError(error) {
         return _.extend({
             status: 'error'
         }, toJSONObject(error));
-    } else {
+    } else if (error.srcElement && error.srcElement.error && error.srcElement.error.message) {
         return {
             status: 'error',
-            message: toJSONObject(error)
+            message: error.srcElement.error.message,
+            name: error.srcElement.transaction && error.srcElement.transaction.db && error.srcElement.transaction.db.name
+        };
+    } else if (error.target && error.target.transaction && error.target.transaction.error && error.target.transaction.error.message) {
+        return {
+            status: 'error',
+            message: error.target.transaction.error.message,
+            name: error.target.transaction.db && error.target.transaction.db.name
+        };
+    } else {
+        console.log("Unknown error type", error);
+        return {
+            status: 'error',
+            message: JSON.stringify(toJSONObject(error))
         };
     }
 }
