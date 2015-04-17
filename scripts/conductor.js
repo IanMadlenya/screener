@@ -369,7 +369,6 @@ function promiseMessage(data, port, worker) {
         var channel = new MessageChannel();
         var timeout = setTimeout(function(){
             console.log("Still waiting on " + worker + " for a response to", data);
-            if (data.cmd == 'quote') return; // don't abort quote
             timeout = setTimeout(function(){
                 console.log("Aborting " + worker + " response to", data);
                 reject(_.extend({}, data, {status: 'error', message: "Service took too long to respond"}));
