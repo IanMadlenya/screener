@@ -74,6 +74,7 @@ g.band path {
 g.poc.poc0 path {
     stroke: red;
     stroke-opacity: 0.25;
+    stroke-width: 0.5pt;
 }
 
 g.band.band0 path {
@@ -82,51 +83,56 @@ g.band.band0 path {
 }
 
 g.poc.poc1 path {
-    stroke: green;
+    stroke: orange;
     stroke-opacity: 0.4;
+    stroke-width: 0.8pt;
 }
 
 g.band.band1 path {
-    fill: green;
+    fill: orange;
     fill-opacity: 0.08;
 }
 
 g.poc.poc2 path {
-    stroke: teal;
+    stroke: yellow;
     stroke-opacity: 0.55;
+    stroke-width: 1.1pt;
 }
 
 g.band.band2 path {
-    fill: teal;
+    fill: yellow;
     fill-opacity: 0.11;
 }
 
 g.poc.poc3 path {
-    stroke: blue;
+    stroke: green;
     stroke-opacity: 0.7;
+    stroke-width: 1.4pt;
 }
 
 g.band3 path {
-    fill: blue;
+    fill: green;
     fill-opacity: 0.14;
 }
 
 g.poc4 path {
-    stroke: aqua;
+    stroke: blue;
     stroke-opacity: 0.85;
+    stroke-width: 1.7pt;
 }
 
 g.band4 path {
-    fill: aqua;
+    fill: blue;
     fill-opacity: 0.17;
 }
 
 g.poc5 path {
-    stroke: steelblue;
+    stroke: violet;
     stroke-opacity: 1;
+    stroke-width: 2.3pt;
 }
 
 g.band5 path {
-    fill: skyblue;
-    fill-opacity: 0.2;
+    fill: violet;
+    fill-opacity: 0.23;
 }

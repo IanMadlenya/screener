@@ -132,7 +132,7 @@
             },
 
             listExchanges: _.memoize(function(){
-                return postDispatchMessage('exchange-list');
+                return calli.getJSON($('#queries').prop('href') + 'exchange-list.rq?tqx=out:table').then(tableToObjectArray);
             }),
 
             listSectors: _.memoize(function(exchange) {
@@ -160,15 +160,15 @@
             },
 
             listIndicators: _.memoize(function(){
-                return postDispatchMessage('indicator-list');
+                return calli.getJSON($('#queries').prop('href') + 'indicator-list.rq?tqx=out:table').then(tableToObjectArray);
             }),
 
             listWatchLists: function(){
-                return postDispatchMessage('watch-list');
+                return calli.getJSON($('#queries').prop('href') + 'watch-list.rq?tqx=out:table').then(tableToObjectArray);
             },
 
             listScreens: function() {
-                return postDispatchMessage('screen-list').then(function(list) {
+                return calli.getJSON($('#queries').prop('href') + 'screen-list.rq?tqx=out:table').then(tableToObjectArray).then(function(list) {
                     return _.groupBy(list, 'iri');
                 }).then(function(grouped){
                     return _.map(grouped, function(filters){
@@ -327,7 +327,7 @@
                 }).then(postDispatchMessage);
             }
         });
-    })(synchronized(postMessage.bind(this, _.once(createDispatchPort))));
+    })(synchronized(_.bindAll(createDispatch(), 'promiseMessage').promiseMessage));
 
     function inlineScreens(screens) {
         return Promise.all(screens.map(function(screen) {
@@ -493,42 +493,70 @@
         }
     }
 
-    function postMessage(port, message) {
-        return new Promise(function(resolve, reject){
-            var channel = new MessageChannel();
-            channel.port2.addEventListener('message', resolve, false);
-            channel.port2.start();
-            port().postMessage(message, [channel.port1]);
-        }).then(function(event){
-            if (event.data.status === undefined) {
-                return event.data;
-            } else if (event.data.status == 'success') {
-                return event.data.result;
-            } else {
-                return Promise.reject(event.data);
-            }
-        }).catch(function(error){
-            return Promise.reject(error);
+    function tableToObjectArray(table){
+        return table.rows.map(function(row){
+            return _.object(table.columns, row);
         });
     }
 
-    function createDispatchPort() {
-        var port = new SharedWorker('/screener/2014/scripts/conductor.js').port;
-        _.range(17).forEach(function(index){
-            var name = 'mentat' + index;
-            var worker = new SharedWorker('/screener/2014/scripts/mentat.js', name).port;
-            port.postMessage({
-                cmd: "register",
-                service: 'mentat',
-                name: name
-            }, [worker]);
+    function createDispatch() {
+        var dispatch = {};
+        dispatch.socket = new WebSocket('ws://localhost:1880/');
+        dispatch.open = new Promise(function(callback){
+            dispatch.socket.addEventListener("open", callback);
         });
-        port.postMessage({
-            cmd: "register",
-            service: 'quote',
-            name: "dtn-quote"
-        }, [new SharedWorker('/screener/2014/scripts/dtn-quote.js', "dtn-quote").port]);
-        return port;
+        dispatch.buffer = '';
+        dispatch.counter = 0;
+        dispatch.outstanding = [];
+        dispatch.promiseMessage = function(data) {
+            return dispatch.open.then(function(){
+                var id = ++dispatch.counter;
+                return new Promise(function(resolve, reject){
+                    data.id = id;
+                    dispatch.outstanding[id] = {
+                        data: data,
+                        resolve: resolve,
+                        reject: reject
+                    };
+                    console.log(data);
+                    dispatch.socket.send(JSON.stringify(data) + '\n\n');
+                }).then(function(resolved){
+                    delete dispatch.outstanding[id];
+                    console.log("resolved", id);
+                    return resolved;
+                }, function(rejected){
+                    delete dispatch.outstanding[id];
+                    console.log(rejected);
+                    return Promise.reject(rejected);
+                });
+            });
+        };
+        dispatch.socket.addEventListener("message", function(event) {
+            dispatch.buffer = dispatch.buffer ? dispatch.buffer + event.data : event.data;
+            while (dispatch.buffer.indexOf('\n\n') > 0) {
+                var idx = dispatch.buffer.indexOf('\n\n') + 2;
+                var json = dispatch.buffer.substring(0, idx);
+                dispatch.buffer = dispatch.buffer.substring(idx);
+                Promise.resolve(json).then(JSON.parse.bind(JSON)).then(function(data){
+                    var id = data.id;
+                    var pending = dispatch.outstanding[id];
+                    if (id && pending) {
+                        if (!data || data.status == 'success' || data.status === undefined) {
+                            if (data && data.result) {
+                                pending.resolve(data.result);
+                            } else {
+                                pending.resolve(data);
+                            }
+                        } else {
+                            pending.reject(data);
+                        }
+                    } else {
+                        console.log("Unknown WebSocket message", event);
+                    }
+                });
+            }
+        });
+        return dispatch;
     }
 
     function suffixScale(getScaleSuffix, number) {
