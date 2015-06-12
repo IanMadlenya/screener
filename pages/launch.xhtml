@@ -1,0 +1,26 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+    <title>Probability Screener</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <script type="text/javascript">
+        if (window.location.hash.indexOf("#socket=") === 0) {
+            try {
+                window.localStorage.setItem("socket", window.location.hash.substring("#socket=".length));
+            } catch (e) {
+                if (console) console.error(e);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Probability Screener</h1>
+        <p>Thanks for using Probability Screener.</p>
+    </div>
+</body>
+</html>

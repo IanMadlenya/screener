@@ -500,16 +500,64 @@
     }
 
     function createDispatch() {
-        var dispatch = {};
-        dispatch.socket = new WebSocket('ws://localhost:1880/');
-        dispatch.open = new Promise(function(callback){
-            dispatch.socket.addEventListener("open", callback);
-        });
-        dispatch.buffer = '';
-        dispatch.counter = 0;
-        dispatch.outstanding = [];
+        var url = "ws://localhost:1880/";
+        try {
+            url = window.localStorage.getItem("socket") || url;
+        } catch (e) {
+            if (console) console.error(e);
+        }
+        var dispatch = {
+            counter: 0,
+            outstanding: {}
+        };
+        dispatch.open = function(){
+            return (dispatch.openPromise || Promise.reject()).catch(function(){
+                var socket, buffer;
+                return dispatch.openPromise = new Promise(function(callback){
+                    socket = new WebSocket(url);
+                    socket.addEventListener("close", function() {
+                        dispatch.openPromise = null;
+                    });
+                    socket.addEventListener("open", callback);
+                    socket.addEventListener("message", function(event) {
+                        buffer = buffer ? buffer + event.data : event.data;
+                        while (buffer.indexOf('\n\n') > 0) {
+                            var idx = buffer.indexOf('\n\n') + 2;
+                            var json = buffer.substring(0, idx);
+                            buffer = buffer.substring(idx);
+                            Promise.resolve(json).then(JSON.parse.bind(JSON)).then(function(data){
+                                var id = data.id;
+                                var pending = dispatch.outstanding[id];
+                                if (id && pending) {
+                                    if (!data || data.status == 'success' || data.status === undefined) {
+                                        if (data && data.result) {
+                                            pending.resolve(data.result);
+                                        } else {
+                                            pending.resolve(data);
+                                        }
+                                    } else {
+                                        pending.reject(data);
+                                    }
+                                } else {
+                                    console.log("Unknown WebSocket message", event);
+                                    _.each(dispatch.outstanding, function(pending, id) {
+                                        pending.reject(Error("Unknown WebSocket message"));
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }).then(function(){
+                    console.log("Connected to", url);
+                    _.each(dispatch.outstanding, function(pending, id) {
+                        socket.send(JSON.stringify(pending.data) + '\n\n');
+                    });
+                    return socket;
+                });
+            });
+        };
         dispatch.promiseMessage = function(data) {
-            return dispatch.open.then(function(){
+            return dispatch.open().then(function(socket){
                 var id = ++dispatch.counter;
                 return new Promise(function(resolve, reject){
                     data.id = id;
@@ -519,7 +567,7 @@
                         reject: reject
                     };
                     console.log(data);
-                    dispatch.socket.send(JSON.stringify(data) + '\n\n');
+                    socket.send(JSON.stringify(data) + '\n\n');
                 }).then(function(resolved){
                     delete dispatch.outstanding[id];
                     console.log("resolved", id);
@@ -531,31 +579,6 @@
                 });
             });
         };
-        dispatch.socket.addEventListener("message", function(event) {
-            dispatch.buffer = dispatch.buffer ? dispatch.buffer + event.data : event.data;
-            while (dispatch.buffer.indexOf('\n\n') > 0) {
-                var idx = dispatch.buffer.indexOf('\n\n') + 2;
-                var json = dispatch.buffer.substring(0, idx);
-                dispatch.buffer = dispatch.buffer.substring(idx);
-                Promise.resolve(json).then(JSON.parse.bind(JSON)).then(function(data){
-                    var id = data.id;
-                    var pending = dispatch.outstanding[id];
-                    if (id && pending) {
-                        if (!data || data.status == 'success' || data.status === undefined) {
-                            if (data && data.result) {
-                                pending.resolve(data.result);
-                            } else {
-                                pending.resolve(data);
-                            }
-                        } else {
-                            pending.reject(data);
-                        }
-                    } else {
-                        console.log("Unknown WebSocket message", event);
-                    }
-                });
-            }
-        });
         return dispatch;
     }
 
