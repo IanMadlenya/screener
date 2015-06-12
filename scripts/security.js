@@ -93,7 +93,7 @@ jQuery(function($){
             screener.setItem("security-chart-interval", interval);
             screener.setItem("security-chart-length", data.length);
             if (!data.length || int != interval ||
-                    begin.valueOf() < data[0].asof.valueOf() ||
+                    begin.valueOf() < chart.xPlot()(data[0]) ||
                     loaded.valueOf() < end.valueOf()) {
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
