@@ -1,0 +1,14 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a </callimachus/1.4/types/Concept> , skos:Concept ;
+    dcterms:created "2015-06-19T15:24:41.938Z"^^xsd:dateTime ;
+    dcterms:modified "2015-06-19T15:30:50.600Z"^^xsd:dateTime , "2015-06-19T15:40:35.113Z"^^xsd:dateTime ;
+    skos:prefLabel "Stocks" ;
+    calli:administrator </auth/groups/admin> , </auth/groups/super> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    skos:narrower <developed> , <dividend> , <domestic> , <emerging> , <europe> , <growth> , <large-cap> , <micro-cap> , <mid-cap> , <pacific> , <sector> , <small-cap> , <value> .
