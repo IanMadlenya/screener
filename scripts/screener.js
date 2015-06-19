@@ -122,6 +122,14 @@
 
             formatNumber: suffixScale.bind(this, _.memoize(getScaleSuffix)),
 
+            formatCurrency: function(number) {
+                return '$' + number.toFixed(2);
+            },
+
+            ping: function() {
+                return postDispatchMessage("ping");
+            },
+
             validate: function(expression, interval) {
                 var int = interval && interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
                 return postDispatchMessage({
@@ -159,16 +167,32 @@
                 });
             },
 
+            getUserProfile: function(){
+                return calli.getCurrentUserAccount().then(function(iri){
+                    var url = "user-profile.rq?tqx=out:table&user=" + encodeURIComponent(iri);
+                    return calli.getJSON($('#queries').prop('href') + url);
+                }).then(tableToObjectArray).then(function(results){
+                    if (results.length) return results[0].profile;
+                    else throw Error("No profile existis for current user");
+                });
+            },
+
             listIndicators: _.memoize(function(){
                 return calli.getJSON($('#queries').prop('href') + 'indicator-list.rq?tqx=out:table').then(tableToObjectArray);
             }),
 
-            listWatchLists: function(){
-                return calli.getJSON($('#queries').prop('href') + 'watch-list.rq?tqx=out:table').then(tableToObjectArray);
+            listSecurityClasses: function(){
+                return calli.getCurrentUserAccount().then(function(iri){
+                    var url = "security-class.rq?tqx=out:table&user=" + encodeURIComponent(iri);
+                    return calli.getJSON($('#queries').prop('href') + url);
+                }).then(tableToObjectArray);
             },
 
             listScreens: function() {
-                return calli.getJSON($('#queries').prop('href') + 'screen-list.rq?tqx=out:table').then(tableToObjectArray).then(function(list) {
+                return calli.getCurrentUserAccount().then(function(iri){
+                    var url = "screen-list.rq?tqx=out:table&user=" + encodeURIComponent(iri);
+                    return calli.getJSON($('#queries').prop('href') + url);
+                }).then(tableToObjectArray).then(function(list) {
                     return _.groupBy(list, 'iri');
                 }).then(function(grouped){
                     return _.map(grouped, function(filters){
@@ -184,50 +208,22 @@
                 });
             },
 
-            exchangeLookup: _.memoize(function() {
-                return typeaheadSource(function(resolve, reject) {
-                    return screener.listExchanges().then(function(datums){
-                        return { local: _.values(datums) };
-                    }).then(resolve, reject);
-                });
-            }),
-
-            indicatorLookup: _.memoize(function() {
-                return typeaheadSource(function(resolve, reject) {
-                    return screener.listIndicators().then(function(datums){
-                        return { local: _.values(datums) };
-                    }).then(resolve, reject);
-                });
-            }),
-
-            watchListLookup: _.memoize(function() {
-                return typeaheadSource(function(resolve, reject) {
-                    return screener.listWatchLists().then(function(datums){
-                        return { local: _.values(datums) };
-                    }).then(resolve, reject);
-                });
-            }),
-
-            screenLookup: _.memoize(function() {
-                return typeaheadSource(function(resolve, reject) {
-                    return screener.listScreens().then(function(datums){
-                        return {
-                            datumTokenizer: function(d) {
-                                var filterValues = _.filter(_.flatten(_.map(d.filters, _.values)), _.isString);
-                                return _.flatten(_.map(filterValues, Bloodhound.tokenizers.whitespace));
-                            },
-                            local: _.values(datums)
-                        };
-                    }).then(resolve, reject);
-                });
-            }),
-
             resetSecurity: function(security){
                 return getExchangeOfSecurity(security).then(function(exchange){
                     return postDispatchMessage({
                         cmd: 'reset',
                         exchange: exchange,
                         security: security
+                    });
+                });
+            },
+
+            lookup: function(symbol, exchange) {
+                return getExchange(exchange).then(function(exchange){
+                    return postDispatchMessage({
+                        cmd: 'lookup',
+                        symbol: symbol,
+                        exchange: exchange
                     });
                 });
             },
@@ -251,7 +247,7 @@
             },
 
             /*
-             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
              * screens: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
              * asof: new Date()
              * load:
@@ -259,15 +255,15 @@
              * * When undefined, load if needed and treat warning as success
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            screen: function(watchLists, screens, asof, until, load) {
-                return inlineWatchLists(watchLists).then(function(watchLists) {
+            screen: function(securityClasses, screens, asof, until, load) {
+                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
                     return inlineScreens(screens).then(function(screens){
                         return {
                             cmd: 'screen',
                             begin: asof,
                             end: until,
                             load: load,
-                            watchLists: watchLists,
+                            securityClasses: securityClasses,
                             screens: screens
                         };
                     });
@@ -279,20 +275,20 @@
             },
 
             /*
-             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
              * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
              * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
              * asof: new Date()
             */
-            signal: function(watchLists, entry, exit, begin, end) {
-                return inlineWatchLists(watchLists).then(function(watchLists) {
+            signal: function(securityClasses, entry, exit, begin, end) {
+                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
                     return inlineScreens(entry).then(function(entry){
                         return inlineScreens(exit).then(function(exit){
                             return {
                                 cmd: 'signal',
                                 begin: begin,
                                 end: end,
-                                watchLists: watchLists,
+                                securityClasses: securityClasses,
                                 entry: entry,
                                 exit: exit
                             };
@@ -305,20 +301,20 @@
             },
 
             /*
-             * watchLists: [{ofExchange:$iri, includes:[$ticker]}]
+             * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
              * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
              * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
              * asof: new Date()
             */
-            performance: function(watchLists, entry, exit, begin, end) {
-                return inlineWatchLists(watchLists).then(function(watchLists) {
+            performance: function(securityClasses, entry, exit, begin, end) {
+                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
                     return inlineScreens(entry).then(function(entry){
                         return inlineScreens(exit).then(function(exit){
                             return {
                                 cmd: 'performance',
                                 begin: begin,
                                 end: end,
-                                watchLists: watchLists,
+                                securityClasses: securityClasses,
                                 entry: entry,
                                 exit: exit
                             };
@@ -327,7 +323,7 @@
                 }).then(postDispatchMessage);
             }
         });
-    })(synchronized(_.bindAll(createDispatch(), 'promiseMessage').promiseMessage));
+    })(_.bindAll(createDispatch(), 'promiseMessage').promiseMessage);
 
     function inlineScreens(screens) {
         return Promise.all(screens.map(function(screen) {
@@ -366,24 +362,24 @@
         });
     }
 
-    function inlineWatchLists(watchLists) {
-        return Promise.all(watchLists.map(function(hasWatchList) {
-            return screener.watchListLookup()(hasWatchList).then(onlyOne(hasWatchList));
-        })).then(function(watchLists) {
-            return Promise.all(watchLists.map(function(watchList) {
-                if (!watchList.ofExchange && !watchList.exchange) throw Error("No watch list exchange: " + JSON.stringify(watchList));
-                return getExchange(watchList.exchange || watchList.ofExchange).then(function(exchange){
-                    var s = watchList.includeSectors;
+    function inlineSecurityClasses(securityClasses) {
+        return Promise.all(securityClasses.map(function(hasSecurityClass) {
+            return screener.securityClassLookup()(hasSecurityClass).then(onlyOne(hasSecurityClass));
+        })).then(function(securityClasses) {
+            return Promise.all(securityClasses.map(function(securityClass) {
+                if (!securityClass.ofExchange && !securityClass.exchange) throw Error("No security class exchange: " + JSON.stringify(securityClass));
+                return getExchange(securityClass.exchange || securityClass.ofExchange).then(function(exchange){
+                    var s = securityClass.includeSectors;
                     var sectors = s ? _.isString(s) ? _.compact(s.split('\t')) : s : [];
-                    var i = watchList.includes;
+                    var i = securityClass.includes;
                     var includes = i ? _.isString(i) ? _.compact(i.split(' ')) : i : [];
-                    var e = watchList.excludes;
+                    var e = securityClass.excludes;
                     var excludes = e ? _.isString(e) ? _.compact(e.split(' ')) : e : [];
                     var prefix = function(security){
                         if (security.indexOf('://') > 0) return security;
                         return exchange.iri + '/' + encodeURI(security);
                     };
-                    return _.extend({}, watchList, {
+                    return _.extend({}, securityClass, {
                         exchange: exchange,
                         includeSectors: sectors,
                         includes: includes.map(prefix),
@@ -395,7 +391,15 @@
     }
 
     function getExchange(iri) {
-        return screener.exchangeLookup()(iri).then(onlyOne(iri));
+        if (_.isObject(iri)) return Promise.resolve(iri);
+        return screener.listExchanges().then(function(exchanges){
+            var exchange = exchanges.reduce(function(ret, exchange){
+                if (ret) return ret;
+                if (exchange.iri == iri) return exchange;
+            }, undefined);
+            if (exchange) return exchange;
+            else throw Error("Unknown exchange: " + iri);
+        });
     }
 
     function getExchangeOfSecurity(security) {
@@ -407,64 +411,6 @@
             if (filtered.length) throw Error("Security matches too many exchanges: " + filtered);
             throw Error("Unknown security: " + security);
         });
-    }
-
-    function typeaheadSource(options) {
-        var bloodhound = new Promise(options).then(createBloodhound).then(function(bloodhound){
-            bloodhound.initialize();
-            return bloodhound;
-        });
-        return function(query, callback) {
-            if (!_.isString(query)) return Promise.resolve([query]);
-            return bloodhound.then(function(bloodhound) {
-                return new Promise(function(callback) {
-                    bloodhound.get(query, callback);
-                });
-            }).then(callback || _.identity).then(function(suggestions) {
-                if (callback || suggestions.length == 1) return suggestions;
-                var narrow = function(suggestions) {
-                    if (suggestions.length <= 1)
-                        return suggestions;
-                    var filtered = _.filter(suggestions, function(suggestion){
-                        return suggestion.label == query || suggestion.iri == query;
-                    });
-                    if (filtered.length) {
-                        return filtered;
-                    } else {
-                        return suggestions;
-                    }
-                };
-                var filtered = narrow(suggestions);
-                if (filtered.length == 1) return filtered;
-                // load (possibly new) options
-                bloodhound = bloodhound.then(function(bloodhound){
-                    bloodhound.clear();
-                    bloodhound.clearPrefetchCache();
-                    bloodhound.clearRemoteCache();
-                }).then(function(){
-                    return new Promise(options);
-                }).then(createBloodhound).then(function(newbloodhound){
-                    newbloodhound.initialize();
-                    return newbloodhound;
-                });
-                return bloodhound.then(function(bloodhound){
-                    return new Promise(function(callback){
-                        bloodhound.get(query, function(suggestions){
-                            callback(narrow(suggestions));
-                        });
-                    });
-                });
-            });
-        };
-    }
-
-    function createBloodhound(options){
-        return new Bloodhound(_.extend({
-            datumTokenizer: function(d) {
-                return _.flatten(_.map(_.filter(_.values(d), _.isString), Bloodhound.tokenizers.whitespace));
-            },
-            queryTokenizer: Bloodhound.tokenizers.whitespace
-        }, options));
     }
 
     function onlyOne(term) {
@@ -511,9 +457,9 @@
             outstanding: {}
         };
         dispatch.open = function(){
-            return (dispatch.openPromise || Promise.reject()).catch(function(){
+            return dispatch.openPromise = (dispatch.openPromise || Promise.reject()).catch(function(){
                 var socket, buffer;
-                return dispatch.openPromise = new Promise(function(callback){
+                return new Promise(function(callback){
                     socket = new WebSocket(url);
                     socket.addEventListener("close", function() {
                         dispatch.openPromise = null;
@@ -539,11 +485,13 @@
                                         pending.reject(data);
                                     }
                                 } else {
-                                    console.log("Unknown WebSocket message", event);
-                                    _.each(dispatch.outstanding, function(pending, id) {
-                                        pending.reject(Error("Unknown WebSocket message"));
-                                    });
+                                    throw Error("Unknown WebSocket message");
                                 }
+                            }).catch(function(error){
+                                console.log("Unknown WebSocket message", error);
+                                _.each(dispatch.outstanding, function(pending, id) {
+                                    pending.reject(error);
+                                });
                             });
                         }
                     });
@@ -560,21 +508,26 @@
             return dispatch.open().then(function(socket){
                 var id = ++dispatch.counter;
                 return new Promise(function(resolve, reject){
-                    data.id = id;
                     dispatch.outstanding[id] = {
-                        data: data,
+                        request: data,
                         resolve: resolve,
                         reject: reject
                     };
-                    console.log(data);
+                    if (data && _.isObject(data)) {
+                        data.id = id;
+                    } else if (data) {
+                        data = {cmd: data, id: id};
+                    } else {
+                        throw Error("Empty message: " + data);
+                    }
                     socket.send(JSON.stringify(data) + '\n\n');
                 }).then(function(resolved){
+                    dispatch.outstanding[id].response = resolved;
                     delete dispatch.outstanding[id];
-                    console.log("resolved", id);
                     return resolved;
                 }, function(rejected){
+                    dispatch.outstanding[id].response = rejected;
                     delete dispatch.outstanding[id];
-                    console.log(rejected);
                     return Promise.reject(rejected);
                 });
             });

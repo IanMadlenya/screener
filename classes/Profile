@@ -7,11 +7,11 @@
 
 <> a </callimachus/1.4/types/Class> , owl:Class ;
     dcterms:created "2014-04-04T19:48:05.152Z"^^xsd:dateTime ;
-    dcterms:modified "2014-04-04T19:57:53.706Z"^^xsd:dateTime ;
+    dcterms:modified "2015-06-15T15:32:31.357Z"^^xsd:dateTime ;
     rdfs:comment "Personal data associated with a specific user." ;
     rdfs:label "Profile" ;
     calli:administrator </auth/groups/admin> ;
-    calli:author </auth/groups/admin> , </auth/groups/staff> , </auth/groups/users> ;
+    calli:author </auth/groups/admin> , </auth/groups/everyone> , </auth/groups/staff> , </auth/groups/users> ;
     calli:create <../templates/profile-create.xhtml> ;
     calli:edit <../templates/profile-edit.xhtml> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
@@ -20,4 +20,4 @@
     calli:subscriber </auth/groups/everyone> ;
     calli:thumbnail <../images/profile.svg> ;
     calli:view <../templates/profile-view.xhtml> ;
-    rdfs:subClassOf </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .
+    rdfs:subClassOf </callimachus/1.4/types/Composite> , </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .

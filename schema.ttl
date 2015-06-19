@@ -41,14 +41,14 @@
 
 screener:System a owl:Class;
     rdfs:label "System";
-    rdfs:comment "Set of filters and watch lists used to produce a focus list".
+    rdfs:comment "Set of filters and security classes used to produce a focus list".
 
 screener:QualifiedScreen a owl:Class;
     rdfs:label "Qualified Screen".
 
 screener:Screen a owl:Class;
     rdfs:label "Screen";
-    rdfs:comment "Set of filters used to convert a watch list into a focus list".
+    rdfs:comment "Set of filters used to convert a security class into a focus list".
 
 screener:Filter a owl:Class;
     rdfs:label "Filter";
@@ -68,8 +68,8 @@ screener:Unit a owl:Class;
     rdfs:comment "Concepts used to identify units of meansure";
     rdfs:subClassOf skos:Concept.
 
-screener:WatchList a owl:Class;
-    rdfs:label "Watch List";
+screener:SecurityClass a owl:Class;
+    rdfs:label "Security Class";
     rdfs:comment "Set of securities".
 
 screener:Exchange a owl:Class;
@@ -80,11 +80,11 @@ screener:Exchange a owl:Class;
 # Property
 ################
 
-screener:hasWatchList a owl:ObjectProperty;
-    rdfs:label "has watch list";
+screener:hasSecurityClass a owl:ObjectProperty;
+    rdfs:label "has security class";
     rdfs:comment "List of securities that are screened in this system";
     rdfs:domain screener:System;
-    rdfs:range screener:WatchList.
+    rdfs:range screener:SecurityClass.
 
 screener:qualifiedScreen a owl:ObjectProperty;
     rdfs:label "qualified screen";
@@ -154,38 +154,44 @@ screener:hasUnit a owl:FunctionalProperty, owl:ObjectProperty;
 
 screener:ofExchange a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "of exchange";
-    rdfs:comment "All securities in this watch list are listed on the given exchange";
-    rdfs:domain screener:WatchList;
+    rdfs:comment "All securities in this security class are listed on the given exchange";
+    rdfs:domain screener:SecurityClass;
     rdfs:range screener:Exchange.
 
 screener:include a owl:ObjectProperty;
     rdfs:label "include";
-    rdfs:comment "A Security that is explicitly included in this watch list";
-    rdfs:domain screener:WatchList;
+    rdfs:comment "A Security that is explicitly included in this security class";
+    rdfs:domain screener:SecurityClass;
     rdfs:range screener:Security.
 
 screener:includeSector a owl:DatatypeProperty;
     rdfs:label "include sector";
     rdfs:comment "All securities in a sector, of the given name, are implicitly included, unless explicitly excluded";
-    rdfs:domain screener:WatchList;
+    rdfs:domain screener:SecurityClass;
     rdfs:range xsd:string.
 
 screener:mincap a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:label "min cap";
-    rdfs:comment "Minimum market capitalization of companies in the sectors if this watch list";
-    rdfs:domain screener:WatchList;
+    rdfs:comment "Minimum market capitalization of companies in the sectors if this security class";
+    rdfs:domain screener:SecurityClass;
     rdfs:range xsd:integer.
 
 screener:maxcap a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:label "max cap";
-    rdfs:comment "Maximum market capitalization of companies in the sectors if this watch list";
-    rdfs:domain screener:WatchList;
+    rdfs:comment "Maximum market capitalization of companies in the sectors if this security class";
+    rdfs:domain screener:SecurityClass;
     rdfs:range xsd:integer.
 
 screener:exclude a owl:ObjectProperty;
     rdfs:label "exclude";
-    rdfs:comment "This security is not part of this watch list";
-    rdfs:domain screener:WatchList;
+    rdfs:comment "This security is not part of this security class";
+    rdfs:domain screener:SecurityClass;
+    rdfs:range screener:Security.
+
+screener:correlated a owl:ObjectProperty;
+    rdfs:label "correlated";
+    rdfs:comment "The given security is highly correlated to this security class";
+    rdfs:domain screener:SecurityClass;
     rdfs:range screener:Security.
 
 screener:marketOpensAt a owl:FunctionalProperty, owl:DatatypeProperty;

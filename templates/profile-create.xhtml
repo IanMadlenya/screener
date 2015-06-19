@@ -1,27 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:dcterms="http://purl.org/dc/terms/">
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-    <title>New Resource</title>
+    <title>New Profile</title>
+    <script type="text/javascript">
+    <![CDATA[
+        jQuery(function($){
+            calli.getCurrentUserName().then(function(username){
+                if (!$('#name').val() && username) $('#name').val(username.replace(/@.*/,''));
+            });
+            calli.getCurrentUserAccount().then(function(iri){
+                $('#members').append($('<span></span>', {
+                    resource: iri
+                }));
+            });
+        });
+    ]]>
+    </script>
 </head>
 <body>
     <div class="container">
         <hgroup class="page-header">
-            <h1>New Resource</h1>
+            <h1>New Profile</h1>
         </hgroup>
-        <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="" class="row"
-                onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <form role="form" method="POST" action="" enctype="text/turtle" typeof="" class="row"
+                onsubmit="calli.submitTurtle(event,calli.slugify($('#name').val()))">
             <fieldset class="col-sm-4">
                 <div class="form-group">
-                    <label for="label">Label</label>
-                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" value="{foaf:name}" required="required" autofocus="autofocus" />
                 </div>
-                <div class="form-group">
-                    <label for="comment">Comment</label>
-                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                <div rel="foaf:member" id="members">
+                    <span resource="?user"></span>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-success">Create</button>

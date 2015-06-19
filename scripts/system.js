@@ -32,10 +32,10 @@
 jQuery(function($){
 
     new MutationObserver(function(){
-        checkWatchLists();
+        checkSecurityClasses();
         $('#lists').find('.typeahead:not(.tt-hint)').last().focus();
     }).observe(document.getElementById('lists'), { childList: true });
-    checkWatchLists();
+    checkSecurityClasses();
 
     new MutationObserver(function(){
         checkScreens();
@@ -69,16 +69,16 @@ jQuery(function($){
         });
     });
 
-    function checkWatchLists() {
+    function checkSecurityClasses() {
         $('#lists').find('.typeahead:not(.tt-hint):not(.tt-input)').typeahead(null, {
-            name: 'watch-list',
+            name: 'security-class',
             displayKey: 'label',
-            source: screener.watchListLookup()
+            source: screener.securityClassLookup()
         }).on('change typeahead:selected typeahead:autocompleted', function(event){
             var group = $(event.target).closest('.form-group');
             group.removeClass('has-success has-warning has-error');
             var resource = $(event.target).closest('[resource]');
-            screener.watchListLookup()(event.target.value).then(function(suggestions){
+            screener.securityClassLookup()(event.target.value).then(function(suggestions){
                 var relationships = resource.find('.relationships');
                 relationships.empty();
                 suggestions.forEach(function(suggestion){
@@ -134,7 +134,7 @@ jQuery(function($){
     function backtest() {
         var asof = screener.getBacktestAsOf();
         screener.listExchanges().then(function(exchanges){
-            var lists = $('[rel="screener:hasWatchList"]').toArray().map(function(list){
+            var lists = $('[rel="screener:hasSecurityClass"]').toArray().map(function(list){
                 return list.getAttribute("resource");
             });
             var screens = $('[rel="screener:screen"]').toArray().map(function(screen){

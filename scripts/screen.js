@@ -38,13 +38,13 @@ jQuery(function($){
     checkIndicators();
 
     $('#backtesting-list').typeahead(null, {
-        name: 'watch-list',
+        name: 'security-class',
         displayKey: 'label',
-        source: screener.watchListLookup()
+        source: screener.securityClassLookup()
     }).on('change typeahead:selected typeahead:autocompleted', function(event){
         var group = $(event.target).closest('.form-group');
         group.removeClass('has-success has-warning has-error');
-        screener.watchListLookup()(event.target.value).then(function(suggestions){
+        screener.securityClassLookup()(event.target.value).then(function(suggestions){
             if (suggestions.length == 1) {
                 group.addClass('has-success');
                 screener.setItem('screen-backtest-list', event.target.value);
@@ -64,7 +64,7 @@ jQuery(function($){
 
     $('#backtesting-form').submit(function(event){
         event.preventDefault();
-        screener.watchListLookup()($('#backtesting-list').val()).then(function(suggestions) {
+        screener.securityClassLookup()($('#backtesting-list').val()).then(function(suggestions) {
             if (suggestions.length < 1) return;
             $('#backtesting-form button[type="submit"]').addClass('active');
             return backtest(suggestions[0]);
@@ -238,7 +238,7 @@ jQuery(function($){
                 return;
             var indicator = suggestions[0];
             return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.watchListLookup()($('#backtesting-list').val()).then(function(suggestions) {
+                return screener.securityClassLookup()($('#backtesting-list').val()).then(function(suggestions) {
                     if (suggestions.length != 1)
                         return;
                     var asof = screener.getBacktestAsOf();

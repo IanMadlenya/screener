@@ -6,7 +6,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <> a </callimachus/1.4/types/Class> , owl:Class ;
-    dcterms:modified "2014-03-03T19:04:39.932Z"^^xsd:dateTime , "2014-03-07T21:57:13.571Z"^^xsd:dateTime , "2014-03-18T14:16:34.483Z"^^xsd:dateTime ;
+    dcterms:modified "2014-03-18T14:16:34.483Z"^^xsd:dateTime ;
     rdfs:comment "Used to help assess whether an asset is trending, and if it is, the probability of its direction and of continuation" ;
     rdfs:label "Indicator" ;
     calli:administrator </auth/groups/admin> ;

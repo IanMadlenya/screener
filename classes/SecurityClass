@@ -7,15 +7,16 @@
 
 <> a </callimachus/1.4/types/Class> , owl:Class ;
     dcterms:created "2014-03-10T14:17:19.062Z"^^xsd:dateTime ;
+    dcterms:modified "2015-06-15T16:51:51.915Z"^^xsd:dateTime ;
     rdfs:comment "A list of securities being monitored for potential trading or investing opportunities. An investor or trader may have a watch list of hundreds of trading instruments." ;
-    rdfs:label "Watch List" ;
+    rdfs:label "Security Class" ;
     calli:administrator </auth/groups/admin> ;
-    calli:author </auth/groups/admin> , </auth/groups/staff> , </auth/groups/users> ;
-    calli:create <../templates/watch-list-create.xhtml> ;
-    calli:edit <../templates/watch-list-edit.xhtml> ;
+    calli:author </auth/groups/admin> , </auth/groups/everyone> , </auth/groups/staff> , </auth/groups/users> ;
+    calli:create <../templates/security-class-create.xhtml> ;
+    calli:edit <../templates/security-class-edit.xhtml> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
-    calli:icon <../images/watch-list.png> ;
+    calli:icon <../images/security-class.png> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     calli:subscriber </auth/groups/everyone> ;
-    calli:view <../templates/watch-list-view.xhtml> ;
+    calli:view <../templates/security-class-view.xhtml> ;
     rdfs:subClassOf </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .

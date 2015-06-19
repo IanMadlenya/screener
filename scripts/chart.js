@@ -126,6 +126,7 @@
             if (!arguments.length) return svg;
             svg = _svg;
             var domain = chart.datum().map(chart.xPlot());
+            if (!domain.length) return chart;
             var ease = d3.ease('cube-in-out');
             svg.transition().ease(ease).tween("axis", function(){
                 var x0 = chart.x().copy();

@@ -3,10 +3,11 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-    <title>Probability Screener</title>
+    <title>Getting Started with Probability Screener</title>
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
+    <link id="queries" href="../queries/" />
     <script type="text/javascript">
         if (window.location.hash.indexOf("#socket=") === 0) {
             try {
@@ -16,11 +17,121 @@
             }
         }
     </script>
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../assets/moment/moment-with-locales.js"></script>
+    <script type="text/javascript" src="../assets/moment/moment-timezone-with-data-2010-2020.js"></script>
+    <script src="../scripts/screener.js"></script>
+    <script type="text/javascript">
+        jQuery(function($){
+            $('#profile a').click(function(event){
+                event.preventDefault();
+                var url = "/p/?create=" + encodeURIComponent(event.target.getAttribute("resource"));
+                calli.createResource(event, url).then(function(profile){
+                    $('#profile').each(complete);
+                    $('#securityclass a, #screener a').each(function(){
+                        this.href = profile + "?create=" + this.getAttribute("resource");
+                    });
+                    $('#monitor a').prop("href", profile);
+                    $('#securityclass').each(step);
+                });
+            });
+            var incomplete = "glyphicon glyphicon-minus glyphicon-hand-right text-info text-muted";
+            var complete = function(){
+                $(this).find('i').removeClass(incomplete).addClass("glyphicon glyphicon-ok text-success")
+                $(this).contents().wrap('<s></s>');
+            };
+            var step = function(){
+                $(this).find('i').removeClass(incomplete).addClass("glyphicon glyphicon-hand-right text-info");
+            };
+            screener.ping().then(function(){
+                $('#install').each(complete);
+                return calli.getCurrentUserName();
+            }, function(error){
+                $('#install').each(step);
+                return Promise.reject(error);
+            }).then(function(username){
+                if (username) {
+                    $('#login').each(complete);
+                    return screener.getUserProfile().catch(function(error){
+                        $('#profile').each(step);
+                        return Promise.reject(error);
+                    });
+                } else {
+                    $('#login').each(step);
+                    throw Error("Not logged in");
+                }
+            }).then(function(profile){
+                $('#profile').each(complete);
+                $('#securityclass a, #screener a').each(function(){
+                    this.href = profile + "?create=" + this.getAttribute("resource");
+                });
+                $('#monitor a').prop("href", profile);
+                return screener.listSecurityClasses();
+            }).then(function(securityclasses){
+                if (securityclasses.length) {
+                    $('#securityclass').each(complete);
+                    return screener.listScreens();
+                } else {
+                    $('#securityclass').each(step);
+                    throw Error("No security classes defined");
+                }
+            }).then(function(screens){
+                if (screens.length) {
+                    $('#screen').each(complete);
+                } else {
+                    $('#screen').each(step);
+                    throw Error("No screens");
+                }
+            }).then(function(){
+                $('#monitor').each(step);
+                window.location.replace($('#monitor a').prop("href"));
+            }).catch(function(error){
+                if (console) if (console.error) console.error(error);
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Probability Screener</h1>
-        <p>Thanks for using Probability Screener.</p>
+        <div class="page-header">
+            <h1>Getting Started with Probability Screener</h1>
+        </div>
+        <p class="lead">Thanks for using Probability Screener</p>
+        <div class="row">
+            <div class="col-md-offset-2 col-md-8">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        Just a few more steps to get started...
+                    </div>
+                    <ul class="list-group">
+                        <li id="install" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            Install Local Probability Screener Chrome App
+                        </li>
+                        <li id="login" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            <a href="/?login&amp;choice=/auth/yahoo%2Baccounts">Sign in</a> using a Yahoo Account
+                        </li>
+                        <li id="profile" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            <a href="../classes/Profile" resource="../classes/Profile">Create a profile</a>
+                        </li>
+                        <li id="securityclass" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            <a resource="../classes/SecurityClass">Define a Security Class</a>
+                        </li>
+                        <li id="screen" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            <a resource="../classes/Screener">Create a Screen</a>
+                        </li>
+                        <li id="monitor" class="list-group-item lead">
+                            <i class="glyphicon glyphicon-minus text-muted"></i>
+                            <a>Monitor screened securities</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -53,8 +53,14 @@ jQuery(function($){
             })[0];
         }).then(function(exchange){
             var ticker = security.substring(exchange.iri.length + 1);
-            $('title').text(ticker + ' / ' + exchange.label);
-            $('#page-title').text(ticker);
+            return screener.lookup(ticker, exchange).then(function(results){
+                if (results.length && results[0].ticker == ticker)
+                    return results[0].name;
+                else return ticker;
+            });
+        }).then(function(title){
+            $('title').text(title);
+            $('#page-title').text(title);
             return security;
         });
     }
@@ -93,7 +99,7 @@ jQuery(function($){
             screener.setItem("security-chart-interval", interval);
             screener.setItem("security-chart-length", data.length);
             if (!data.length || int != interval ||
-                    begin.valueOf() < chart.xPlot()(data[0]) ||
+                    begin.valueOf() < chart.xPlot()(data[0]).valueOf() ||
                     loaded.valueOf() < end.valueOf()) {
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
@@ -101,7 +107,7 @@ jQuery(function($){
                     console.log("Loading", int, begin, end);
                     return loadChartData(chart, security, int, begin, end).then(function(){
                         interval = int;
-                        loaded = end;
+                        loaded = new Date(Math.min(Date.now(), end.valueOf()));
                         if (delay || int == optimalInterval(int, chart)) {
                             d3.select('#ohlc-div').call(chart);
                         }

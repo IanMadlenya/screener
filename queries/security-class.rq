@@ -7,16 +7,21 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label
+SELECT ?iri ?label ?profile
         (group_concat(?of) AS ?ofExchange)
         (group_concat(?includeSector; separator = "\t") AS ?includeSectors)
         (max(?min) AS ?mincap) (max(?max) AS ?maxcap)
         (group_concat(?exclude) AS ?excludes)
         (group_concat(?include) AS ?includes) {
-    ?iri a screener:WatchList;
-        rdfs:label ?label
+    ?p foaf:name ?profile ;
+        foaf:member <$user> ;
+        calli:hasComponent ?iri .
+    ?iri a screener:SecurityClass;
+        rdfs:label ?label .
     {
         ?iri screener:ofExchange ?of
     } UNION {
@@ -30,4 +35,4 @@ SELECT ?iri ?label
     } UNION {
         ?iri screener:include ?include
     }
-} GROUP BY ?iri ?label
+} GROUP BY ?iri ?label ?profile HAVING (COUNT(?iri) > 0)

@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <link rel="stylesheet" type="text/css" href="../styles/security-class.css" />
+    <link id="queries" href="../queries/" />
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/security-class.js"></script>
+</head>
+<body resource="?this">
+    <div class="container">
+        <div class="page-header">
+            <h1 property="rdfs:label"></h1>
+        </div>
+        <p property="rdfs:comment"></p>
+        <span id="sector-span"><span property="screener:includeSector" content="?includeSector"></span></span>
+        <span rel="screener:ofExchange" resource="?exchange"></span>
+        <span property="screener:mincap" content="?mincap"></span>
+        <span property="screener:maxcap" content="?maxcap"></span>
+    </div>
+    <ul rel="screener:include" class="hide column-list">
+        <li resource="?include"></li>
+    </ul>
+    <ul rel="screener:exclude" class="hide column-list">
+        <li resource="?exclude"></li>
+    </ul>
+    <div class="table-responsive">
+        <table id="security-table" class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Name</th>
+                    <th>Closing Price</th>
+                    <th>Daily Change</th>
+                    <th>Daily Volume</th>
+                    <th>52-Week High</th>
+                    <th>52-Week Low</th>
+                    <th class="month">Jan</th>
+                    <th class="month">Feb</th>
+                    <th class="month">Mar</th>
+                    <th class="month">Apr</th>
+                    <th class="month">May</th>
+                    <th class="month">Jun</th>
+                    <th class="month">Jul</th>
+                    <th class="month">Aug</th>
+                    <th class="month">Sep</th>
+                    <th class="month">Oct</th>
+                    <th class="month">Nov</th>
+                    <th class="month">Dec</th>
+                    <th class="month">Jan</th>
+                    <th>52-Week Return</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</body>
+</html>
