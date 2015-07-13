@@ -4,12 +4,12 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "The difference between yesterday's closing price and the 250 day low, as a percentage of the lowest price low in the last 250 days" ;
-    rdfs:label "250-day Percentage Low" ;
-    screener:expression "PLOW(250,close)" ;
+    rdfs:comment "Momentum indicator that uses support and resistance levels. Dr. George Lane promoted this indicator in the 1950s. The term stochastic refers to the location of a current price in relation to its price range over a period of time. This method attempts to predict price turning points by comparing the closing price of a security to its price range." ;
+    rdfs:label "Stochastic Oscillator" ;
+    screener:expression "STO(14,3,1)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     screener:hasInterval <../../intervals/d1> ;
     screener:hasUnit <../../units/percent> ;
-    screener:isDerivedFrom <close> , <min(250,low)> .
+    screener:isDerivedFrom <max(14,high)> , <min(14,low)> , <sto(14,1,1)> .

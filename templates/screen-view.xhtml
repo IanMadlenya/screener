@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -9,47 +8,156 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link rel="stylesheet" href="../styles/inline-input-group.css" />
     <link rel="stylesheet" href="../styles/screen.less?less" />
-    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
-    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <link id="queries" href="../queries/" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/screen.js"></script>
 </head>
 <body resource="?this">
     <div class="container">
-        <hgroup class="page-header">
+        <div class="page-header">
             <h1>{rdfs:label}</h1>
-        </hgroup>
-        <pre class="wiki" property="rdfs:comment" />
+        </div>
+        <p property="rdfs:comment"></p>
     </div>
-    <div id="filters">
-        <div rel="screener:hasFilter" resource="?filter">
-            <div rel="screener:forIndicator" resource="?indicator" />
-            <span property="screener:lower" content="?lower" />
-            <span property="screener:upper" content="?upper" />
+    <div id="watch">
+        <div rel="screener:hasWatchCriteria" resource="?watch">
+            <div rel="screener:forIndicator" resource="?windicator"></div>
+            <span property="screener:lower" content="?wl"></span>
+            <span property="screener:upper" content="?wu"></span>
+        </div>
+    </div>
+    <div id="hold">
+        <div rel="screener:hasHoldCriteria" resource="?hold">
+            <div rel="screener:forIndicator" resource="?hindicator"></div>
+            <span property="screener:lower" content="?hl"></span>
+            <span property="screener:upper" content="?hu"></span>
         </div>
     </div>
     <div class="container">
-        <form id="backtesting-form" class="form-inline pull-right" role="form">
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">Backtest</span>
-                    <input type="text" class="form-control input-sm security-class typeahead" id="backtesting-list" placeholder="Security class" required="required" />
+        <form id="backtesting-form" role="form">
+            <fieldset class="row">
+                <div class="col-md-9 col-sm-8">
+                    <div class="form-group">
+                        <label for="security-class">Security Class</label>
+                        <select id="security-class" required="required" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <div class="form-group">
+                        <label for="since">Since</label>
+                        <input type="date" class="form-control" id="since" />
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row">
+                <div class="col-sm-6 col-md-2">
+                    <div class="form-group">
+                        <button id="show-results-table" class="btn btn-link" type="button">
+                            Watch List
+                            <span class="glyphicon glyphicon-expand"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Number of distinct securities">Securities</th>
+                                    <td id="security_count" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Number of watch signals">Occurances</th>
+                                    <td id="occurances" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Average length of time securities appeared on list">Average duration</th>
+                                    <td id="average_duration" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Percent of occurances with performance above zero">Percent of positive</th>
+                                    <td id="percent_positive" class="text-right"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Average performance per watch signal">Average performance</th>
+                                    <td id="average_performance" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Standard deviation (SD)">Standard deviation</th>
+                                    <td id="standard_deviation" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
+                                    <td id="negative_excursion" class="text-right text-danger"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Maximum Favorable Excursion (MFE)">Positive excursion</th>
+                                    <td id="positive_excursion" class="text-right text-success"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Generated profit over generated losses">Performance factor</th>
+                                    <td id="performance_factor" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Average performance per security">Performance</th>
+                                    <td id="performance" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
+                                    <td id="annual_growth" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Risk adjusted Return (RAR): CAGR divided by exposure">Risk adjusted rate</th>
+                                    <td id="risk_adjusted" class="text-right"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">As of</span>
-                    <input type="date" class="form-control input-sm" id="backtesting-asof" required="required" />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-default btn-sm">Preview</button>
         </form>
     </div>
-    <table id="results" class="table table-striped table-condensed"></table>
+    <div class="collapse table-responsive">
+        <table id="results-table" class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </body>
 </html>
 

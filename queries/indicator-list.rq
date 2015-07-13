@@ -10,10 +10,10 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
 SELECT ?iri ?label ?comment ?expression ?hasInterval ?hasUnit {
-    ?iri a screener:Indicator;
+    ?iri a <../classes/Indicator>;
         rdfs:label ?label;
         rdfs:comment ?comment;
         screener:expression ?expression;
         screener:hasInterval ?hasInterval;
         screener:hasUnit ?hasUnit .
-}
+} ORDER BY ?label ?iri

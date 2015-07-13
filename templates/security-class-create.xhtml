@@ -9,7 +9,6 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title>New Security Class</title>
-    <link rel="stylesheet" type="text/css" href="../styles/security-class.css" />
     <link id="queries" href="../queries/" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
@@ -18,125 +17,182 @@
 <body>
     <form role="form" method="POST" action="" enctype="text/turtle" typeof="screener:SecurityClass"
             onsubmit="calli.submitTurtle(event,calli.slugify($('#label').val()))">
+        <div class="modal fade" id="label-dialog" tabindex="-1" role="dialog" aria-labelledby="label-title">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="label-title">Security Class Identification</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="label">Label</label>
+                            <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="exchange">Categories</label>
+                            <xi:include href="../queries/categories-list.rq?select&amp;rel=screener:category&amp;name=categories&amp;id=categories&amp;multiple=multiple"></xi:include>
+                            <div rel="screener:category" resource="?category"></div>
+                            <script type="text/javascript">
+                                $('div[rel="screener:category"]').filter(calli.selectEachResourceIn('#categories')).remove();
+                            </script>
+                        </div>
+                        <div class="form-group">
+                            <label for="correlated-exchange" class="sr-only">Correlated Fund Exchange</label>
+                            <label for="correlated-ticker">Correlated Fund</label>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <xi:include href="../queries/exchange-list.rq?select&amp;name=correlated-exchange&amp;id=correlated-exchange"></xi:include>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select id="correlated" class="form-control"
+                                            onchange="calli.updateResource(event, 'screener:correlated')">
+                                        <option rel="screener:correlated" resource="?correlated" selected="selected">{?correlated}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <p class="help-block">A security that highly correlated to this security class</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container">
-            <hgroup class="page-header">
+            <div class="page-header">
                 <h1>New Security Class</h1>
-            </hgroup>
-            <div class="row">
-                <fieldset class="col-sm-4">
-                    <div class="form-group">
-                        <label for="label">Label</label>
-                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
-                    </div>
-                    <div class="form-group">
-                        <label for="comment">Comment</label>
-                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="exchange">Categories</label>
-                        <xi:include href="../queries/categories-list.rq?select&amp;rel=screener:category&amp;name=categories&amp;id=categories&amp;multiple=multiple"></xi:include>
-                        <div rel="screener:category" resource="?category"></div>
-                        <script type="text/javascript">
-                            $('div[rel="screener:category"]').filter(calli.checkEachResourceIn('#categories')).remove();
-                        </script>
-                    </div>
-                    <div class="form-group">
-                        <label for="exchange">Exchange</label>
-                        <xi:include href="../queries/exchange-list.rq?select&amp;rel=screener:ofExchange&amp;name=exchange&amp;id=exchange"></xi:include>
-                        <div rel="screener:ofExchange" resource="?exchange"></div>
-                        <script type="text/javascript">
-                            $('div[rel="screener:ofExchange"]').filter(calli.checkEachResourceIn('#exchange')).remove();
-                        </script>
-                    </div>
-                    <span id="sector-span" class="hide">
-                        <span property="screener:includeSector" content="?includeSector"></span>
-                    </span>
-                </fieldset>
-                <fieldset class="sectors-present col-sm-4">
+            </div>
+            <div class="form-group">
+                <label for="exchange">Exchange of Securities</label>
+                <xi:include href="../queries/exchange-list.rq?select&amp;rel=screener:ofExchange&amp;name=exchange&amp;id=exchange"></xi:include>
+                <div rel="screener:ofExchange" resource="?exchange"></div>
+                <script type="text/javascript">
+                    $('div[rel="screener:ofExchange"]').filter(calli.selectEachResourceIn('#exchange')).remove();
+                </script>
+            </div>
+            <div class="sectors-present row">
+                <div class="col-sm-4">
                     <div class="form-group">
                         <label for="sectors">Sectors</label>
-                        <div id="sectors"></div>
-                        <p id="sector-security-list-empty" class="alert alert-warning">No sectors selected</p>
+                        <select id="sectors" class="form-control" multiple="multiple"
+                                onchange="calli.updateProperty(event, 'screener:includeSector')">
+                            <option property="screener:includeSector" selected="selected"
+                                content="?includeSector" value="{?includeSector}">{?includeSector}</option>
+                        </select>
                     </div>
-                </fieldset>
-                <fieldset class="col-sm-4">
-                    <div class="sectors-present form-group">
-                        <label for="marketcap">Market capitalization range</label>
-                        <input id="marketcap-min" type="range" class="form-control" list="marketcaps" min="0" max="1381" value="0" />
-                        <input id="marketcap-max" type="range" class="form-control" list="marketcaps" min="0" max="1381" value="1381" />
-                        <p class="help-block"></p>
-                        <datalist id="marketcaps">
-                            <option>0</option>
-                            <option>391</option>
-                            <option>552</option>
-                            <option>760</option>
-                            <option>921</option>
-                            <option>1220</option>
-                        </datalist>
-                        <span property="screener:mincap" datatype="xsd:integer" content="?mincap"></span>
-                        <span property="screener:maxcap" datatype="xsd:integer" content="?maxcap"></span>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="industries">Industries</label>
+                        <select id="industries" class="form-control" multiple="multiple"
+                                onchange="calli.updateProperty(event, 'screener:includeIndustry')">
+                            <option property="screener:includeIndustry" selected="selected"
+                                content="?includeIndustry" value="{?includeIndustry}">{?includeIndustry}</option>
+                        </select>
                     </div>
-                    <div class="sectors-present form-group">
-                        <label for="exclude-tickers">Excluded ticker symbols</label>
-                        <input type="text" id="exclude-tickers" class="form-control" pattern="[A-Za-z\.\/\-\^\$\s,]*" />
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="countries">Countries</label>
+                        <select id="countries" class="form-control" multiple="multiple"
+                                onchange="calli.updateProperty(event, 'screener:includeCountry')">
+                            <option property="screener:includeCountry" selected="selected"
+                                content="?includeCountry" value="{?includeCountry}">{?includeCountry}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="sectors-present form-group">
+                <label for="marketcap">Market capitalization range</label>
+                <input id="marketcap-min" type="range" class="form-control" list="marketcaps" min="0" max="1381" value="0" />
+                <input id="marketcap-max" type="range" class="form-control" list="marketcaps" min="0" max="1381" value="1381" />
+                <p class="help-block"></p>
+                <datalist id="marketcaps">
+                    <option>0</option>
+                    <option>391</option>
+                    <option>552</option>
+                    <option>760</option>
+                    <option>921</option>
+                    <option>1220</option>
+                </datalist>
+                <span property="screener:mincap" datatype="xsd:integer" content="?mincap"></span>
+                <span property="screener:maxcap" datatype="xsd:integer" content="?maxcap"></span>
+            </div>
+            <div class="row">
+                <div class="sectors-present col-sm-6">
+                    <div class="form-group">
+                        <label for="exclude-securities">Excluded ticker symbols</label>
+                        <select id="exclude-securities" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'screener:exclude')">
+                            <option rel="screener:exclude" resource="?exclude" selected="selected">{?exclude}</option>
+                        </select>
                         <p class="help-block">Space separated list of ticker symbols to exclude</p>
                     </div>
+                </div>
+                <div class="col-sm-6">
                     <div class="form-group">
-                        <label for="include-tickers"><span class="sectors-present">Additional </span>Included ticker symbols</label>
-                        <input type="text" id="include-tickers" class="form-control" pattern="[A-Za-z\.\/\-\^\$\s,]*" />
+                        <label for="include-securities"><span class="sectors-present">Additional </span>Included ticker symbols</label>
+                        <select id="include-securities" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'screener:include')">
+                            <option rel="screener:include" resource="?include" selected="selected">{?include}</option>
+                        </select>
                         <p class="help-block">Space separated list of ticker symbols to include</p>
                     </div>
-                    <div class="form-group">
-                        <label for="correlated-exchange" class="sr-only">Correlated Fund Exchange</label>
-                        <label for="correlated-ticker">Correlated Fund</label>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <xi:include href="../queries/exchange-list.rq?select&amp;name=correlated-exchange&amp;id=correlated-exchange"></xi:include>
-                            </div>
-                            <div class="col-sm-6">
-                                <input type="text" id="correlated-ticker" class="form-control" />
-                            </div>
-                        </div>
-                        <div rel="screener:correlated" resource="?correlated"></div>
-                        <p class="help-block">A security that highly correlated to this security class</p>
-                    </div>
-                </fieldset>
+                </div>
             </div>
-            <fieldset class="form-group">
-                <button type="submit" class="btn btn-success">Create</button>
-            </fieldset>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <button id="store" type="button" class="btn btn-primary">Store</button>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <p></p>
+                    <p>
+                        Number of securities:
+                        <span id="security-count"></span>
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <button id="show-security-table" class="btn btn-link" type="button">
+                        List securities
+                        <span class="glyphicon glyphicon-expand"></span>
+                    </button>
+                </div>
+            </div>
         </div>
-        <ul rel="screener:include" class="hide column-list">
-            <li resource="?include"></li>
-        </ul>
-        <ul rel="screener:exclude" class="hide column-list">
-            <li resource="?exclude"></li>
-        </ul>
-        <div class="table-responsive">
+        <div class="collapse table-responsive">
             <table id="security-table" class="table table-condensed table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>Ticker</th>
                         <th>Name</th>
-                        <th>Closing Price</th>
-                        <th>Daily Change</th>
-                        <th>Daily Volume</th>
-                        <th>52-Week High</th>
-                        <th>52-Week Low</th>
-                        <th class="month">Jan</th>
-                        <th class="month">Feb</th>
-                        <th class="month">Mar</th>
-                        <th class="month">Apr</th>
-                        <th class="month">May</th>
-                        <th class="month">Jun</th>
-                        <th class="month">Jul</th>
-                        <th class="month">Aug</th>
-                        <th class="month">Sep</th>
-                        <th class="month">Oct</th>
-                        <th class="month">Nov</th>
-                        <th class="month">Dec</th>
-                        <th class="month">Jan</th>
-                        <th>52-Week Return</th>
+                        <th class="hidden-xs">Closing Price</th>
+                        <th class="hidden-xs">Daily Change</th>
+                        <th class="hidden-xs">Daily Volume</th>
+                        <th class="hidden-xs">52-Week High</th>
+                        <th class="hidden-xs">52-Week Low</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Jan</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Feb</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Mar</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Apr</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">May</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Jun</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Jul</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Aug</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Sep</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Oct</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Nov</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Dec</th>
+                        <th class="month hidden-xs hidden-sm hidden-md">Jan</th>
+                        <th class="hidden-xs hidden-sm">52-Week Return</th>
                     </tr>
                 </thead>
                 <tbody></tbody>

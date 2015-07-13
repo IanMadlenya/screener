@@ -31,51 +31,135 @@
 
 jQuery(function($){
 
-    new MutationObserver(function(){
-        checkIndicators();
-        $('#filters').find('.typeahead:not(.tt-hint)').last().focus();
-    }).observe(document.getElementById('filters'), { childList: true });
-    checkIndicators();
-
-    $('#backtesting-list').typeahead(null, {
-        name: 'security-class',
-        displayKey: 'label',
-        source: screener.securityClassLookup()
-    }).on('change typeahead:selected typeahead:autocompleted', function(event){
-        var group = $(event.target).closest('.form-group');
-        group.removeClass('has-success has-warning has-error');
-        screener.securityClassLookup()(event.target.value).then(function(suggestions){
-            if (suggestions.length == 1) {
-                group.addClass('has-success');
-                screener.setItem('screen-backtest-list', event.target.value);
-            } else if (suggestions.length) {
-                group.addClass('has-warning');
-            } else {
-                group.addClass('has-error');
-            }
-        }).catch(calli.error);
-    });
-    $('#backtesting-list').val(screener.getItem('screen-backtest-list'));
-    $('#backtesting-asof').change(function(event){
-        if (event.target.value) {
-            screener.setBacktestAsOfDateString(event.target.value);
-        }
-    }).val(screener.getBacktestAsOfDateString());
-
-    $('#backtesting-form').submit(function(event){
-        event.preventDefault();
-        screener.securityClassLookup()($('#backtesting-list').val()).then(function(suggestions) {
-            if (suggestions.length < 1) return;
-            $('#backtesting-form button[type="submit"]').addClass('active');
-            return backtest(suggestions[0]);
-        }).catch(calli.error).then(function(){
-            $('#backtesting-form button[type="submit"]').removeClass('active');
+    (function(updateWatchList){
+        var selectizeIndicator = function(select) {
+            return screener.listIndicators().then(function(list){
+                return list.map(function(indicator){
+                    return {
+                        value: indicator.iri,
+                        text: indicator.label,
+                        title: indicator.comment
+                    };
+                });
+            }).then(function(options){
+                return $(select).selectize({
+                    options: options
+                }).change();
+            });
+        };
+        screener.listSecurityClasses().then(function(classes){
+            return classes.map(function(indicator){
+                return {
+                    value: indicator.iri,
+                    text: indicator.label
+                };
+            });
+        }).then(function(options){
+            $('#security-class').selectize({
+                searchField: ["text", "value"],
+                options: options,
+                closeAfterSelect: true,
+                load: function(query, callback) {
+                    if (!query) callback();
+                    return screener.lookup(query).then(function(securities){
+                        return securities.map(function(security){
+                            return {
+                                text: security.ticker,
+                                value: security.iri,
+                                title: security.name,
+                                type: security.type,
+                                mic: security.exchange.mic
+                            };
+                        });
+                    }).then(callback, function(error){
+                        callback();
+                        calli.error(error);
+                    });
+                },
+                create: function(input, callback) {
+                    var cls = $('#SecurityClass').prop('href');
+                    var container = $('#container-resource').prop('href') || window.location.pathname;
+                    var url = container + "?create=" + encodeURIComponent(cls) + "#" + encodeURIComponent(input);
+                    calli.createResource('#security-class', url).then(function(iri){
+                        callback({
+                            value: iri,
+                            text: input
+                        });
+                    }, function(error){
+                        callback();
+                        call.error(error);
+                    });
+                },
+                render: {
+                    option: function(data, escape) {
+                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title) + '">' +
+                            (data.title ?
+                                (
+                                    '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
+                                    ' <small class="text-muted">(' + escape(data.mic + ' ' + data.type) + ')</small>'
+                                ) :
+                               escape(data.text)
+                            ) +
+                        '</div>';
+                    },
+                    item: function(data, escape) {
+                        if (data.title) return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
+                        else return '<div onclick="calli.createResource(this, \'' + escape(data.value) + '?edit\').then(undefined, calli.error)">' +
+                            escape(data.text) + '</div>';
+                    }
+                }
+            }).change(updateWatchList);
         });
-    }).submit();
+        var lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        $('#since').prop('valueAsDate', lastWeek).change(updateWatchList);
+        $('div[rel="screener:forIndicator"]').parent().each(function(){
+            $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
+        })
+        $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
+        $('#watch').siblings('.add').click(function(event){
+            event.preventDefault();
+            calli.addResource(event,'#watch').then(function(div){
+                $(div).find('select,input').change(updateWatchList);
+                $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
+            });
+        });
+        $('#hold').siblings('.add').click(function(event){
+            event.preventDefault();
+            calli.addResource(event,'#hold').then(function(div){
+                $(div).find('select,input').change(updateWatchList);
+                $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
+            });
+        });
+    
+        $('#label-dialog').modal({
+            show: false,
+            backdrop: false
+        }).on('shown.bs.modal', function () {
+            $('#label').focus()
+        });
+        $('#store').click(function(event){
+            $('#label-dialog').modal('show');
+        });
+        $('#show-results-table').click(function(event){
+            $('#results-table').parent().collapse('toggle');
+            updateWatchList();
+        });
+        $('#results-table').parent().on('show.bs.collapse', function(){
+            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-expand').addClass('glyphicon-collapse-down');
+        }).on('hidden.bs.collapse', function(){
+            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
+        });
+    })(screener.debouncePromise(updateWatchList));
 
+    var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
     $('#screen-form').submit(function(event){
-        var prefix = $(this).attr('resource') || '';
-        var filters = $('[rel="screener:hasFilter"]');
+        event.preventDefault();
+        var creating = event.target.getAttribute("enctype") == "text/turtle";
+        var slug = calli.slugify($('#label').val());
+        var ns = window.location.pathname.replace(/\/?$/, '/');
+        var resource = creating ? ns + slug : $(event.target).attr('resource');
+        var filters = $('[rel="screener:hasWatchCriteria"],[rel="screener:hasHoldCriteria"]');
         var counter = _.max([35].concat(filters.toArray().map(function(filter){
             return filter.getAttribute("resource");
         }).filter(function(iri){
@@ -86,255 +170,162 @@ jQuery(function($){
         filters.each(function(){
             var indicator = $(this).find('[rel="screener:forIndicator"]').attr("resource");
             if (indicator) {
-                $(this).attr("resource", prefix + "#" + (++counter).toString(36));
+                $(this).attr("resource", resource + "#" + (++counter).toString(36));
             } else {
                 $(this).remove();
             }
         });
+        if (creating) {
+            calli.submitTurtle(event,slug);
+        } else {
+            calli.submitUpdate(comparision, event);
+        }
     });
 
-    function backtest(list, load) {
-        if (_.isEmpty(list)) return;
-        var asof = screener.getBacktestAsOf();
-        var queue = [];
-        $('#results').data({list: list});
-        return screener.listExchanges().then(function(exchanges){
-            return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.screen([list], [{filters: filters}], asof, asof, !!load).catch(function(error){
-                    if (error.status == 'warning' && !load) {
-                        queue.push(backtest(list, true));
-                        return error.result;
-                    } else if (!load) {
-                        queue.push(backtest(list, true));
-                        return [];
-                    } else {
-                        return Promise.reject(error);
-                    }
-                }).then(function(result){
-                    if (!_.isEqual({list: list}, $('#results').data())) return undefined;
-                    return $('#results').empty().append(
-                        $('<thead></thead>').append(
-                            $('<tr></tr>').append(
-                                $('<th></th>').text('Symbol')
-                            ).append(_.map(filters, function(filter){
-                                return $('<th></th>').text(filter.indicator.label);
-                            }))
-                        )
-                    ).append(
-                        $('<tbody></tbody>').append(_.map(_.sortBy(result, function(point){
-                            return point.security;
-                        }), function(point){
-                            var self = $('body').attr("resource");
-                            var suffix = self ? ('#!' + self) : '';
-                            var exchange = exchanges.filter(function(exchange){
-                                return point.security.indexOf(exchange.iri) === 0;
-                            })[0];
-                            var symbol = point.security.substring(exchange.iri.length + 1);
-                            var target = $('#screen-form').length ? '_blank' : "_self";
-                            return $('<tr></tr>')
-                                .append($('<td></td>').append($('<a></a>',{
-                                    href: point.security + suffix,
-                                    target: target
-                                }).text(symbol)))
-                                .append(_.map(filters, function(filter) {
-                                    var interval = filter.indicator.hasInterval.replace(/.*\//,'');
-                                    return $('<td></td>').append($('<a></a>',{
-                                        href: filter.indicator.iri + '#!' + point.security,
-                                        target: target,
-                                        "data-value": point[interval][filter.indicator.expression]
-                                    }).text(screener.formatNumber(screener.pceil(point[interval][filter.indicator.expression], 3))));
-                                }));
-                        }))
-                    );
+    function updateWatchList() {
+        var securityClasses = $('#security-class').val();
+        var since = $('#since').prop('valueAsDate');
+        var watch = readFilters('[rel="screener:hasWatchCriteria"]');
+        var hold = readFilters('[rel="screener:hasHoldCriteria"]');
+        if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return;
+        var now = new Date();
+        var screen = {watch: watch, hold: hold};
+        return screener.screen(securityClasses, screen, since, now).then(function(list){
+            updatePerformance(since, now, list);
+            if ($('#results-table').is(":hidden")) return;
+            return Promise.all(hold.map(function(hold){
+                return screener.getIndicator(hold.forIndicator);
+            })).then(function(indicators){
+                var thead = $('#results-table thead tr');
+                while (thead.children().length > 2) thead.children().last().remove();
+                indicators.forEach(function(indicator){
+                    thead.append($('<th></th>', {
+                        title: indicator.comment
+                    }).text(indicator.label));
                 });
+                var target = $('#results-table').closest('form').length ? "_blank" : "_self";
+                var rows = list.map(function(item){
+                    // ticker
+                    return $('<tr></tr>', {
+                        resource: item.security,
+                        "class": item.signal == 'stop' ? "text-muted" : ""
+                    }).append($('<td></td>').append($('<a></a>', {
+                        href: item.security,
+                        target: target
+                    }).text(decodeURIComponent(item.security.replace(/^.*\//,'')))));
+                });
+                $('#results-table tbody').empty().append(rows);
+                return Promise.all(list.map(function(item, i){
+                    var tr = rows[i];
+                    return screener.getSecurity(item.security).then(function(result){
+                        return tr.append($('<td></td>').text(result && result.name || ''));
+                    }).then(function(){
+                        indicators.forEach(function(indicator){
+                            var value = item[indicator.interval][indicator.expression];
+                            var format = indicator.hasUnit.indexOf('/price') > 0  ?
+                                    '$' + value.toFixed(2) :
+                                indicator.hasUnit.indexOf('/percent') > 0 ?
+                                    value.toFixed(2) + '%' :
+                                screener.formatNumber(value);
+                            tr.append($('<td></td>', {
+                                "class": "text-right",
+                                "data-value": value
+                            }).text(format));
+                        });
+                    });
+                }));
             });
-        }).then(function(result){
-            if (load) return result;
-            queue.unshift(result);
-            return Promise.all(queue);
         });
+    }
+
+    function updatePerformance(since, now, list) {
+        var occurances = sum(list.map(function(item){
+            return item.performance.length;
+        }));
+        var performance = sum(list.map(function(item){
+            return item.performance.reduce(function(profit, ret){
+                return profit + profit * ret / 100;
+            }, 1) * 100 - 100;
+        })) / list.length;
+        var avg = performance * list.length / occurances;
+        var sd = Math.sqrt(sum(_.flatten(list.map(function(item){
+            return item.performance.map(function(num){
+                var diff = num - avg;
+                return diff * diff;
+            });
+        }))) / Math.max(occurances-1,1));
+        var winners = _.flatten(list.map(function(item){
+            return item.performance.filter(function(num){
+                return num > 0;
+            });
+        }));
+        var loosers = _.flatten(list.map(function(item){
+            return item.performance.filter(function(num){
+                return num < 0;
+            });
+        }));
+        var drawup = list.reduce(function(drawup, item){
+            if (item.positive_excursion > drawup) {
+                return item.positive_excursion;
+            } else return drawup;
+        }, 0);
+        var drawdown = list.reduce(function(drawdown, item){
+            if (item.negative_excursion < drawdown) {
+                return item.negative_excursion;
+            } else return drawdown;
+        }, 0);
+        var risk_adjusted = sum(list.map(function(item){
+            return (item.performance.reduce(function(profit, ret){
+                return profit + profit * ret / 100;
+            }, 1) * 100 - 100) / item.exposure;
+        })) / list.length;
+        var exposure = sum(_.pluck(list, 'exposure'));
+        var duration = (now.valueOf() - since.valueOf());
+        var growth = Math.pow(1 + performance / 100, 365 * 24 * 60 * 60 * 1000 / duration) - 1;
+        var risk_growth = Math.pow(1 + risk_adjusted / 100, 365 * 24 * 60 * 60 * 1000 / duration) - 1;
+        var avg_duration = exposure * duration / occurances;
+        $('#security_count').text(list.length);
+        $('#occurances').text(occurances);
+        $('#average_duration').text(function(){
+            if (avg_duration > 24 * 60 * 60 * 1000) {
+                return (avg_duration / 24 / 60 / 60 / 1000).toFixed(0) + ' d';
+            } else if (avg_duration > 60 * 60 * 1000) {
+                return (avg_duration / 60 / 60 / 1000).toFixed(0) + ' hr';
+            } else if (avg_duration > 60 * 1000) {
+                return (avg_duration / 60 / 1000).toFixed(0) + ' min';
+            } else if (avg_duration > 1000) {
+                return (avg_duration / 1000).toFixed(0) + ' sec';
+            } else {
+                return avg_duration + ' ms';
+            }
+        });
+        $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
+        $('#average_performance').text(avg.toFixed(2) + '%');
+        $('#percent_positive').text((winners.length / occurances * 100).toFixed(0) + '%');
+        $('#positive_excursion').text(drawup.toFixed(2) + '%');
+        $('#negative_excursion').text(drawdown.toFixed(2) + '%');
+        $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
+        $('#performance').text(performance.toFixed(2) + '%');
+        $('#annual_growth').text((growth * 100).toFixed(2) + '%');
+        $('#risk_adjusted').text((risk_growth * 100).toFixed(2) + '%');
+        return list;
+    }
+
+    function sum(numbers) {
+        return numbers.reduce(function(sum, num){
+            return sum + num;
+        }, 0);
     }
 
     function readFilters(filterElements) {
-        var filtered = _.filter(filterElements, function(elem){
+        return $(filterElements).toArray().filter(function(elem){
             return $(elem).find('[rel="screener:forIndicator"]').attr("resource");
-        });
-        return Promise.all(_.map(filtered, function(elem){
-            var indicator = $(elem).find('[rel="screener:forIndicator"]').attr("resource");
-            return screener.indicatorLookup()(indicator).then(_.first).then(function(indicator){
-                return {
-                    indicator: indicator,
-                    lower: $(elem).find('[property="screener:lower"]').attr("content"),
-                    upper: $(elem).find('[property="screener:upper"]').attr("content")
-                };
-            });
-        })).catch(calli.error);
-    }
-
-    function checkIndicators() {
-        $('#filters').find('.typeahead:not(.tt-hint):not(.tt-input)').typeahead(null, {
-            name: 'indicator',
-            displayKey: 'label',
-            source: screener.indicatorLookup()
-        }).each(function(i, input){
-            var indicator = $(input).closest('[resource]')
-                .find('[rel="screener:forIndicator"]').attr('resource');
-            if (indicator) {
-                screener.indicatorLookup()(indicator).then(_.first).then(function(indicator){
-                    $(input).typeahead('val', indicator.label);
-                    var group = $(input).closest('.form-group');
-                    group.removeClass('has-success has-warning has-error');
-                    group.addClass('has-success');
-                    group.find('.form-control-feedback').replaceWith($('<span></span>', {
-                        "class": "glyphicon glyphicon-info-sign form-control-feedback"
-                    }).popover({
-                        title: indicator.label,
-                        content: indicator.comment
-                    }));
-                }).catch(calli.error);
-            }
-        }).on('change typeahead:selected typeahead:autocompleted', function(event){
-            var group = $(event.target).closest('.form-group');
-            group.removeClass('has-success has-warning has-error');
-            var resource = $(event.target).closest('[resource]');
-            screener.indicatorLookup()(event.target.value).then(function(suggestions){
-                resource.find('[rel="screener:forIndicator"]').remove();
-                suggestions.forEach(function(suggestion){
-                    resource.append($('<div></div>', {
-                        rel: "screener:forIndicator",
-                        resource: suggestion.iri
-                    }));
-                });
-                if (suggestions.length == 1) {
-                    group.addClass('has-success');
-                    group.find('.form-control-feedback').replaceWith($('<span></span>', {
-                        "class": "glyphicon glyphicon-info-sign form-control-feedback"
-                    }).popover({
-                        title: suggestions[0].label,
-                        content: suggestions[0].comment
-                    }));
-                    updateDistributionChart(event);
-                } else if (suggestions.length) {
-                    group.addClass('has-warning');
-                    group.find('.form-control-feedback').replaceWith($('<span></span>', {
-                        "class": "glyphicon glyphicon-warning-sign form-control-feedback"
-                    }));
-                } else {
-                    group.addClass('has-error');
-                    group.find('.form-control-feedback').replaceWith($('<span></span>', {
-                        "class": "glyphicon glyphicon-remove form-control-feedback"
-                    }).click(function(event){
-                        $(event.target).closest('[resource]').remove();
-                    }));
-                }
-            }).catch(calli.error);
-        }).closest('[resource]').find(':input').focus(updateDistributionChart);
-    }
-
-    function updateDistributionChart(event){
-        var resource = $(event.target).closest('[resource]');
-        screener.indicatorLookup()(resource.find('.indicator.tt-input').val()).then(function(suggestions){
-            if (suggestions.length != 1)
-                return;
-            var indicator = suggestions[0];
-            return readFilters($('[rel="screener:hasFilter"]').toArray()).then(function(filters){
-                return screener.securityClassLookup()($('#backtesting-list').val()).then(function(suggestions) {
-                    if (suggestions.length != 1)
-                        return;
-                    var asof = screener.getBacktestAsOf();
-                    return chartDistribution("distribution-chart", filters, indicator, suggestions[0], asof);
-                });
-            });
-        }).catch(calli.error);
-    }
-
-    function chartDistribution(id, filters, indicator, list, asof) {
-        var key = {filters: filters, indicator: indicator, list: list, asof: asof};
-        if (_.isEqual(key, $('#' + id).data())) return Promise.resolve();
-        $('#' + id).data(key);
-        return evaluateDistribution(filters, indicator, list, asof, function(chartOptions){
-            if (_.isEqual(key, $('#' + id).data())) {
-                google.visualization.drawChart(_.extend({
-                    "containerId": id
-                }, chartOptions));
-            }
-        });
-    }
-
-    function evaluateDistribution(filters, indicator, list, asof, callback, load) {
-        var queue = [];
-        return new Promise(function(callback){
-            google.load('visualization', '1.0', {
-                packages: ['corechart'],
-                callback: callback
-            });
-        }).then(function(){
-            var excludedFilters = _.map(filters, function(filter){
-                if (filter.indicator.iri == indicator.iri) {
-                    return _.omit(filter, 'lower', 'upper');
-                } else {
-                    return filter;
-                }
-            });
-            return screener.screen([list], [{filters: excludedFilters}], asof, asof, !!load);
-        }).catch(function(error){
-            if (error.status == 'warning' && !load) {
-                queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
-                return error.result;
-            } else if (!load) {
-                queue.push(evaluateDistribution(filters, indicator, list, asof, callback, true));
-                return [];
-            } else {
-                return Promise.reject(error);
-            }
-        }).then(function(points){
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', indicator.expression);
-            data.addColumn('number', 'Securities');
-            var values = _.reject(_.pluck(_.pluck(points, indicator.hasInterval.replace(/.*\//,'')), indicator.expression), function(num) {
-                return isNaN(num) || num === Infinity;
-            });
-            if (indicator.hasUnit.indexOf('discrete') >= 0) {
-                var countBy = _.countBy(values, _.identity);
-                var rows = _.sortBy(_.zip(_.keys(countBy), _.values(countBy)), function(row){
-                    return parseInt(row[0], 10);
-                });
-                data.addRows(rows);
-            } else {
-                var min = _.min(values);
-                var max = _.max(values);
-                var interval = Math.max(screener.pceil((max - min) / 10, 1), 1);
-                var begin = Math.floor(min / interval) * interval;
-                var countBy = _.countBy(values, function(value){
-                    return Math.floor((value - begin) / interval) * interval + begin;
-                });
-                var rows = _.map(_.sortBy(_.zip(_.map(_.keys(countBy), function(key) {
-                    return parseInt(key, 10);
-                }), _.values(countBy)), _.property(0)), function(row) {
-                    return [screener.formatNumber(row[0]) + ' – ' + screener.formatNumber(row[0] + interval), row[1]];
-                });
-                data.addRows(rows);
-            }
+        }).map(function(elem){
             return {
-                containerId: "distribution-chart",
-                dataTable: data,
-                chartType: "ComboChart",
-                options: {
-                    seriesType: "bars",
-                    chartArea: {right: 0, width: '90%'},
-                    legend: { position: "none" },
-                    title: indicator.label,
-                    height: 200
-                }
+                forIndicator: $(elem).find('[rel="screener:forIndicator"]').attr("resource"),
+                lower: $(elem).find('[property="screener:lower"]').attr("content"),
+                upper: $(elem).find('[property="screener:upper"]').attr("content")
             };
-        }).then(callback).then(function(result){
-            if (load) return result;
-            queue.unshift(result);
-            return Promise.all(queue);
         });
-    }
-
-    function localPart(uri) {
-        return uri && uri.substring(uri.lastIndexOf('/') + 1);
     }
 });

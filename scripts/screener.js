@@ -153,13 +153,41 @@
                 });
             }),
 
-            listSecurities: function(exchange, sectors, mincap, maxcap) {
+            listIndustries: function(exchange, sectors) {
+                if (!exchange || _.isEmpty(sectors)) return Promise.resolve([]);
+                return getExchange(exchange).then(function(exchange){
+                    return Promise.all((_.isString(sectors) ? [sectors] : sectors).map(function(sector){
+                        return postDispatchMessage({
+                            cmd: 'industry-list',
+                            exchange: exchange,
+                            sector: sector
+                        });
+                    })).then(_.flatten);
+                });
+            },
+
+            listCountries: function(exchange, sectors) {
+                if (!exchange || _.isEmpty(sectors)) return Promise.resolve([]);
+                return getExchange(exchange).then(function(exchange){
+                    return Promise.all((_.isString(sectors) ? [sectors] : sectors).map(function(sector){
+                        return postDispatchMessage({
+                            cmd: 'country-list',
+                            exchange: exchange,
+                            sector: sector
+                        });
+                    })).then(_.flatten);
+                });
+            },
+
+            listSecurities: function(exchange, sectors, industries, countries, mincap, maxcap) {
                 return getExchange(exchange).then(function(exchange){
                     return Promise.all((_.isString(sectors) ? [sectors] : sectors).map(function(sector){
                         return postDispatchMessage({
                             cmd: 'security-list',
                             exchange: exchange,
                             sector: sector,
+                            industries: industries,
+                            countries: countries,
                             mincap: mincap,
                             maxcap: maxcap
                         });
@@ -178,14 +206,27 @@
             },
 
             listIndicators: _.memoize(function(){
-                return calli.getJSON($('#queries').prop('href') + 'indicator-list.rq?tqx=out:table').then(tableToObjectArray);
+                var url = $('#queries').prop('href') + 'indicator-list.rq?tqx=out:table';
+                return calli.getJSON(url).then(tableToObjectArray).then(function(list){
+                    return Promise.all(list.map(inlineIndicator));
+                });
+            }),
+
+            getIndicator: _.memoize(function(iri) {
+                return screener.listIndicators().then(function(indicators){
+                    return _.find(indicators, function(indicator){
+                        return indicator.iri == iri;
+                    });
+                });
             }),
 
             listSecurityClasses: function(){
                 return calli.getCurrentUserAccount().then(function(iri){
                     var url = "security-class.rq?tqx=out:table&user=" + encodeURIComponent(iri);
                     return calli.getJSON($('#queries').prop('href') + url);
-                }).then(tableToObjectArray);
+                }).then(tableToObjectArray).then(function(list){
+                    return Promise.all(list.map(inlineSecurityClass));
+                });
             },
 
             listScreens: function() {
@@ -196,13 +237,11 @@
                     return _.groupBy(list, 'iri');
                 }).then(function(grouped){
                     return _.map(grouped, function(filters){
-                        var signal = filters[0].forSignal;
                         return {
                             iri: filters[0].iri,
                             label: filters[0].label,
-                            signal: signal.substring(signal.lastIndexOf('/') + 1),
-                            forSignal: signal,
-                            filters: filters
+                            watch: _.filter(filters, 'hasWatchCriteria'),
+                            hold: _.filter(filters, 'hasHoldCriteria')
                         };
                     });
                 });
@@ -219,14 +258,45 @@
             },
 
             lookup: function(symbol, exchange) {
-                return getExchange(exchange).then(function(exchange){
-                    return postDispatchMessage({
-                        cmd: 'lookup',
-                        symbol: symbol,
-                        exchange: exchange
+                if (!exchange && symbol.indexOf('://') > 0) {
+                    exchange = symbol.replace(/\/[^\/]*$/,'');
+                    symbol = symbol.replace(/^.*\//,'');
+                }
+                var exchanges = exchange ?
+                    Promise.all([getExchange(exchange)]) :
+                    screener.listExchanges();
+                return exchanges.then(function(exchanges){
+                    return Promise.all(exchanges.map(function(exchange){
+                        return postDispatchMessage({
+                            cmd: 'lookup',
+                            symbol: symbol,
+                            exchange: exchange
+                        }).then(function(list){
+                            return list.map(function(item){
+                                return _.extend(item, {
+                                    exchange: exchange
+                                });
+                            });
+                        });
+                    })).then(function(results){
+                        if (results.length == 1) return results[0];
+                        else return _.sortBy(_.flatten(results), 'iri');
                     });
                 });
             },
+
+            getSecurity: _.memoize(function(security){
+                var ticker = decodeURIComponent(security.replace(/^.*\//,''));
+                var exchange = getExchange(security.replace(/\/[^\/]*$/,''));
+                return screener.lookup(ticker, exchange).then(function(securities){
+                    return _.find(securities, function(item){
+                        return item.iri == security;
+                    });
+                }).then(function(security){
+                    if (security) return security;
+                    else throw Error("Unknown security: " + ticker);
+                });
+            }),
 
             load: function(security, expressions, interval, length, lower, upper) {
                 if (length < 0 || length != Math.round(length)) throw Error("length must be a non-negative integer, not " + length);
@@ -248,23 +318,24 @@
 
             /*
              * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
-             * screens: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
-             * asof: new Date()
+             * screen: {watch:[{indicator:{expression:$expression, interval: $interval}}]}
+             * begin: new Date()
+             * end: new Date()
              * load:
              * * When false, don't load anything and reject on any error, but include result (if available) as warning
              * * When undefined, load if needed and treat warning as success
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            screen: function(securityClasses, screens, asof, until, load) {
+            screen: function(securityClasses, screen, begin, end, load) {
                 return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                    return inlineScreens(screens).then(function(screens){
+                    return inlineScreen(screen).then(function(screen){
                         return {
                             cmd: 'screen',
-                            begin: asof,
-                            end: until,
+                            begin: begin,
+                            end: end,
                             load: load,
                             securityClasses: securityClasses,
-                            screens: screens
+                            screen: screen
                         };
                     });
                 }).then(postDispatchMessage).catch(function(data){
@@ -276,127 +347,140 @@
 
             /*
              * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
-             * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
-             * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
-             * asof: new Date()
+             * screen: {watch:[{indicator:{expression:$expression, interval: $interval}}]}
+             * begin: new Date()
+             * end: new Date()
+             * load:
+             * * When false, don't load anything and reject on any error, but include result (if available) as warning
+             * * When undefined, load if needed and treat warning as success
+             * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            signal: function(securityClasses, entry, exit, begin, end) {
+            signals: function(securityClasses, screen, begin, end, load) {
                 return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                    return inlineScreens(entry).then(function(entry){
-                        return inlineScreens(exit).then(function(exit){
-                            return {
-                                cmd: 'signal',
-                                begin: begin,
-                                end: end,
-                                securityClasses: securityClasses,
-                                entry: entry,
-                                exit: exit
-                            };
-                        });
+                    return inlineScreen(screen).then(function(screen){
+                        return {
+                            cmd: 'signals',
+                            begin: begin,
+                            end: end,
+                            load: load,
+                            securityClasses: securityClasses,
+                            screen: screen
+                        };
                     });
                 }).then(postDispatchMessage).catch(function(data){
-                    if (data.status == 'warning') return data.result;
+                    if (load !== false && data.status == 'warning')
+                        return data.result;
                     else return Promise.reject(data);
                 });
-            },
-
-            /*
-             * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
-             * entry: [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
-             * exit:  [{filters:[{indicator:{expression:$expression, interval: $interval}}]}]
-             * asof: new Date()
-            */
-            performance: function(securityClasses, entry, exit, begin, end) {
-                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                    return inlineScreens(entry).then(function(entry){
-                        return inlineScreens(exit).then(function(exit){
-                            return {
-                                cmd: 'performance',
-                                begin: begin,
-                                end: end,
-                                securityClasses: securityClasses,
-                                entry: entry,
-                                exit: exit
-                            };
-                        });
-                    });
-                }).then(postDispatchMessage);
             }
         });
     })(_.bindAll(createDispatch(), 'promiseMessage').promiseMessage);
 
     function inlineScreens(screens) {
-        return Promise.all(screens.map(function(screen) {
-            return screener.screenLookup()(screen).then(onlyOne(screen));
-        })).then(function(screens){
+        return screener.listScreens().then(function(list){
             return Promise.all(screens.map(function(screen) {
-                return Promise.all(screen.filters.map(function(filter){
-                    var indicator = filter.indicator || filter.forIndicator;
-                    return screener.indicatorLookup()(indicator).then(onlyOne(indicator)).then(function(indicator){
-                        var int = indicator.hasInterval;
-                        var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
-                        return _.extend({}, filter, {
-                            indicator: _.extend({
-                                interval: interval
-                            }, indicator)
-                        });
-                    }).then(function(filter){
-                        var reference = filter.hasChangeReference;
-                        if (!reference) return filter;
-                        return screener.indicatorLookup()(reference).then(onlyOne(reference)).then(function(reference){
-                            var int = reference.hasInterval;
-                            var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
-                            return _.extend(filter, {
-                                changeReference: _.extend({
-                                    interval: interval
-                                }, reference)
-                            });
-                        })
-                    });
-                })).then(function(filters){
-                    return _.extend({}, screen, {
-                        filters: filters
-                    });
+                if (_.isObject(screen)) return screen;
+                return _.find(list, function(item){
+                    return item.iri == screen;
                 });
             }));
+        }).then(function(screens){
+            return Promise.all(screens.map(inlineScreen));
         });
     }
 
+    function inlineScreen(screen) {
+        return Promise.all([
+            inlineFilters(screen.watch),
+            inlineFilters(screen.hold)
+        ]).then(function(ar) {
+            return _.extend({}, screen, {
+                watch: ar[0],
+                hold: ar[1]
+            });
+        });
+    }
+
+    function inlineFilters(filters) {
+        if (_.isEmpty(filters)) return Promise.resolve();
+        return Promise.all(filters.map(function(filter){
+            return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
+                return getIndicator(filter.hasChangeReference || filter.changeReference).then(function(changeReference){
+                    return _.extend({}, filter, {
+                        indicator: indicator,
+                        changeReference: changeReference
+                    });
+                });
+            });
+        }));
+    }
+
+    function getIndicator(iri) {
+        if (_.isObject(iri)) return Promise.resolve(inlineIndicator(iri));
+        return screener.listIndicators().then(function(list){
+            return _.find(list, function(item){
+                return item.iri == iri;
+            });
+        });
+    }
+
+    function inlineIndicator(indicator) {
+        if (!indicator) return undefined;
+        var int = indicator.hasInterval;
+        var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
+        return _.extend({
+            interval: interval
+        }, indicator);
+    }
+
     function inlineSecurityClasses(securityClasses) {
-        return Promise.all(securityClasses.map(function(hasSecurityClass) {
-            return screener.securityClassLookup()(hasSecurityClass).then(onlyOne(hasSecurityClass));
-        })).then(function(securityClasses) {
+        return screener.listSecurityClasses().then(function(list){
             return Promise.all(securityClasses.map(function(securityClass) {
-                if (!securityClass.ofExchange && !securityClass.exchange) throw Error("No security class exchange: " + JSON.stringify(securityClass));
-                return getExchange(securityClass.exchange || securityClass.ofExchange).then(function(exchange){
-                    var s = securityClass.includeSectors;
-                    var sectors = s ? _.isString(s) ? _.compact(s.split('\t')) : s : [];
-                    var i = securityClass.includes;
-                    var includes = i ? _.isString(i) ? _.compact(i.split(' ')) : i : [];
-                    var e = securityClass.excludes;
-                    var excludes = e ? _.isString(e) ? _.compact(e.split(' ')) : e : [];
-                    var prefix = function(security){
-                        if (security.indexOf('://') > 0) return security;
-                        return exchange.iri + '/' + encodeURI(security);
-                    };
-                    return _.extend({}, securityClass, {
-                        exchange: exchange,
-                        includeSectors: sectors,
-                        includes: includes.map(prefix),
-                        excludes: excludes.map(prefix)
+                if (_.isObject(securityClass)) return securityClass;
+                var cls = _.find(list, function(cls){
+                    return cls.iri == securityClass;
+                });
+                if (cls) return cls;
+                return screener.getSecurity(securityClass).then(function(security){
+                    return inlineSecurityClass({
+                        exchange: security.exchange,
+                        includes: [security.iri]
                     });
                 });
             }));
+        }).then(function(securityClasses) {
+            return Promise.all(securityClasses.map(inlineSecurityClass));
         });
+    }
+
+    function inlineSecurityClass(sc) {
+        if (!sc.ofExchange && !sc.exchange) throw Error("No security class exchange: " + JSON.stringify(sc));
+        return getExchange(sc.exchange || sc.ofExchange).then(function(exchange){
+            var prefix = function(security){
+                if (security.indexOf('://') > 0) return security;
+                return exchange.iri + '/' + encodeURI(security);
+            };
+            return _.extend({}, sc, {
+                exchange: exchange,
+                sectors: split(sc.sectors || sc.includeSectors, '\t'),
+                industries: split(sc.industries || sc.includeIndustries, '\t'),
+                countries: split(sc.countries || sc.includeCountries, '\t'),
+                includes: split(sc.includes, ' ').map(prefix),
+                excludes: split(sc.excludes, ' ').map(prefix)
+            });
+        });
+    }
+
+    function split(list, by) {
+        return _.isArray(list) ? list : _.compact((list || '').split(by));
     }
 
     function getExchange(iri) {
         if (_.isObject(iri)) return Promise.resolve(iri);
         return screener.listExchanges().then(function(exchanges){
-            var exchange = exchanges.reduce(function(ret, exchange){
-                if (ret) return ret;
-                if (exchange.iri == iri) return exchange;
-            }, undefined);
+            var exchange = _.find(exchanges, function(ex){
+                return ex.iri == iri;
+            });
             if (exchange) return exchange;
             else throw Error("Unknown exchange: " + iri);
         });
@@ -485,6 +569,7 @@
                                         pending.reject(data);
                                     }
                                 } else {
+                                    console.error(data);
                                     throw Error("Unknown WebSocket message");
                                 }
                             }).catch(function(error){
@@ -535,7 +620,7 @@
         return dispatch;
     }
 
-    function suffixScale(getScaleSuffix, number) {
+    function suffixScale(getScaleSuffix, number, significant) {
         var num = parseFloat(number);
         if (num === 0.0)
             return '' + num;
@@ -544,9 +629,10 @@
         var scale = Math.floor(Math.log(abs)/Math.log(10) / 3) * 3;
         var suffix = getScaleSuffix(scale);
         var pow = Math.pow(10, Math.abs(scale));
-        if (scale >= 3) return sign + (abs / pow) + suffix;
-        if (scale <= -6) return sign + (abs * pow) + suffix;
-        return '' + num;
+        var value = scale >= 3 ? Math.round(abs * 100 / pow) / 100 :
+            scale <= -6 ? Math.round(abs * 100 * pow) / 100 :
+            Math.round(abs * 100) / 100;
+        return sign + value + suffix;
     }
 
     function getScaleSuffix (scale) {
@@ -579,19 +665,6 @@
         } else {
             return 'e' + scale;
         }
-    }
-
-    function synchronized(func) {
-        var promise = Promise.resolve();
-        return function(/* arguments */) {
-            var context = this;
-            var args = arguments;
-            return promise = promise.catch(function() {
-                // ignore previous error
-            }).then(function() {
-                return func.apply(context, args);
-            });
-        };
     }
 
 })(jQuery);

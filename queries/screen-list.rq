@@ -11,20 +11,27 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?profile ?forSignal ?hasFilter ?forIndicator ?lower ?upper ?hasChangeReference {
+SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?lower ?upper ?hasChangeReference {
     ?p foaf:name ?profile ;
         foaf:member <$user> ;
         calli:hasComponent ?iri .
     ?iri a screener:Screen;
-        rdfs:label ?label;
-        screener:forSignal ?forSignal;
-        screener:hasFilter ?hasFilter .
-    ?hasFilter screener:forIndicator ?forIndicator
-    OPTIONAL {
-        ?hasFilter screener:lower ?lower
-    } OPTIONAL {
-        ?hasFilter screener:upper ?upper
-    } OPTIONAL {
-        ?hasFilter screener:hasChangeReference ?hasChangeReference
+        rdfs:label ?label .
+    {
+        ?iri screener:hasWatchCriteria ?hasWatchCriteria .
+        ?hasWatchCriteria screener:forIndicator ?forIndicator
+        OPTIONAL {
+            ?hasWatchCriteria screener:lower ?lower
+        } OPTIONAL {
+            ?hasWatchCriteria screener:upper ?upper
+        }
+    } UNION {
+        ?iri screener:hasHoldCriteria ?hasHoldCriteria .
+        ?hasHoldCriteria screener:forIndicator ?forIndicator
+        OPTIONAL {
+            ?hasHoldCriteria screener:lower ?lower
+        } OPTIONAL {
+            ?hasHoldCriteria screener:upper ?upper
+        }
     }
 }

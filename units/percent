@@ -5,11 +5,8 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <> a </callimachus/1.4/types/Concept> , skos:Concept ;
-    dcterms:created "2015-06-19T15:23:17.199Z"^^xsd:dateTime ;
-    dcterms:modified "2015-06-25T14:32:21.715Z"^^xsd:dateTime ;
-    skos:definition "Stock that are priced low relative to earnings, dividends, or book value" ;
-    skos:prefLabel "Value" ;
+    dcterms:created "2015-07-03T14:15:24.597Z"^^xsd:dateTime ;
+    skos:prefLabel "Percent" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
-    calli:reader </auth/groups/public> , </auth/groups/system> ;
-    skos:related <dividend> .
+    calli:reader </auth/groups/public> , </auth/groups/system> .

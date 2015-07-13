@@ -121,6 +121,7 @@ jQuery(function($){
                 var derivedFromRelative = getDerivedFrom('discrete').concat(getDerivedFrom('relative'));
                 var derivedFromPrice = getDerivedFrom('price');
                 var derivedFromVolume = getDerivedFrom('volume');
+                var derivedFromPercent = getDerivedFrom('percent');
                 if (unit == 'relative' || unit == 'discrete') {
                     promises.push(chartRelative(asof, security, interval, [expr], 0));
                 }
@@ -138,6 +139,11 @@ jQuery(function($){
                     promises.push(chartVolume(asof, security, interval, _.compact(_.union([expr], derivedFromVolume))));
                 } else if (derivedFromVolume.length) {
                     promises.push(chartVolume(asof, security, interval, derivedFromVolume));
+                }
+                if (unit == 'percent') {
+                    promises.push(chartPercent(asof, security, interval, _.compact(_.union([expr], derivedFromPercent))));
+                } else if (derivedFromPercent.length) {
+                    promises.push(chartPercent(asof, security, interval, derivedFromPercent));
                 }
             }
             return Promise.all(promises);
@@ -194,14 +200,26 @@ jQuery(function($){
         });
     }
 
+    function chartPercent(asof, security, interval, expressions) {
+        return chartRelative(asof, security, interval, expressions).then(function(chart){
+            return _.extend(chart, {
+                "containerId": "percent-div"
+            });
+        });
+    }
+
     function chartRelative(asof, security, interval, expressions, counter) {
-        var candlestick = ['date(asof)'];
+        var candlestick = ['asof'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return columns.map(function(expression){
+                var asof = new Date(result.asof);
+                var d = new Date(asof.getFullYear(), asof.getMonth(), asof.getDate());
+                var first = [d];
+                if (!expressions) return first;
+                return first.concat(expressions.map(function(expression){
                     return result[expression];
-                });
+                }));
             });
         }).then(function(rows){
             var colours = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
@@ -219,7 +237,7 @@ jQuery(function($){
                 "options": {
                     seriesType: rows.length > 20 ? "line" : "bars",
                     chartArea: {width: '70%', height: '90%'},
-                    colors: colours.slice(counter % colours.length, colours.length),
+                    colors: counter ? colours.slice(counter % colours.length, colours.length) : colours,
                     height: 200,
                     width: window.innerWidth
                 }
@@ -228,13 +246,17 @@ jQuery(function($){
     }
 
     function chartPrice(asof, security, interval, expressions) {
-        var candlestick = ['date(asof)', 'low', 'open', 'close', 'high'];
+        var candlestick = ['asof', 'low', 'open', 'close', 'high'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return columns.map(function(expression){
+                var asof = new Date(result.asof);
+                var d = new Date(asof.getFullYear(), asof.getMonth(), asof.getDate());
+                var first = [d, result.low, result.open, result.close, result.high];
+                if (!expressions) return first;
+                return first.concat(expressions.map(function(expression){
                     return result[expression];
-                });
+                }));
             });
         }).then(function(rows){
             var table = new google.visualization.DataTable();
@@ -274,13 +296,17 @@ jQuery(function($){
     }
 
     function chartVolume(asof, security, interval, expressions) {
-        var candlestick = ['date(asof)', 'volume'];
+        var candlestick = ['asof', 'volume'];
         var columns = expressions ? candlestick.concat(expressions) : candlestick;
         return screener.load(security, columns, interval, 65, asof).then(function(data) {
             return data.map(function(result) {
-                return columns.map(function(expression){
+                var asof = new Date(result.asof);
+                var d = new Date(asof.getFullYear(), asof.getMonth(), asof.getDate());
+                var first = [d, result.volume];
+                if (!expressions) return first;
+                return first.concat(expressions.map(function(expression){
                     return result[expression];
-                });
+                }));
             });
         }).then(function(rows){
             var table = new google.visualization.DataTable();

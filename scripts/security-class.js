@@ -31,43 +31,63 @@
 
 jQuery(function($){
     (function(populate_list){
-        $('#categories').selectize();
-        $('#exchange').change(function(event){
-            screener.listSectors(event.target.value).then(function(result){
-                var values = $('[property="screener:includeSector"]').toArray().map(function(span){
-                    return span.getAttribute("content");
-                }).concat($('#sectors input:checked').toArray().map(function(input){
-                    return input.value;
+        if (window.location.hash.length > 1) {
+            $('#label').val(decodeURIComponent(window.location.hash.substring(1)));
+        }
+        $('#label-dialog').modal({
+            show: false,
+            backdrop: false
+        }).on('shown.bs.modal', function () {
+            $('#label').focus()
+        });
+        $('#store').click(function(event){
+            $('#label-dialog').modal('show');
+        });
+        $('#categories').selectize().change();
+        var removeSelectizeOption = function(id, fn) {
+            var selectize = document.getElementById(id).selectize;
+            selectize && _.keys(selectize.options).filter(fn).forEach(function(option){
+                selectize.removeOption(option);
+            });
+        };
+        var populateSelectize = function(id) {
+            return function(result){
+                var selectize = document.getElementById(id).selectize;
+                selectize.addOption(result.map(function(industry){
+                    return {
+                        value: industry,
+                        text: industry
+                    };
                 }));
+                removeSelectizeOption(id, function(option){
+                    return result.indexOf(option) < 0;
+                });
+                $(document.getElementById(id)).change();
+            };
+        };
+        $('#countries').selectize().change(populate_list).change();
+        $('#industries').selectize().change(populate_list).change();
+        $('#sectors').selectize().change(function(event){
+            screener.listIndustries($('#exchange').val(), $(event.target).val()).then(populateSelectize('industries')).catch(calli.error);
+        }).change(function(event){
+            screener.listCountries($('#exchange').val(), $(event.target).val()).then(populateSelectize('countries')).catch(calli.error);
+        }).change(populate_list).change();
+        $('#exchange').change(function(event){
+            removeSelectizeOption('exclude-securities', function(option){
+                return option.indexOf(event.target.value) !== 0;
+            });
+            removeSelectizeOption('include-securities', function(option){
+                return option.indexOf(event.target.value) !== 0;
+            });
+            screener.listSectors(event.target.value).then(function(result){
                 if (result.length) {
                     $('.sectors-present').show();
                 } else {
                     $('.sectors-present ').hide();
                 }
-                $('#sectors').empty().append($(result.map(function(sector){
-                    return $('<div></div>', {
-                        "class": "checkbox"
-                    }).append($('<label></label>').append($('<input/>', {
-                        type: "checkbox",
-                        value: sector,
-                        checked: values.indexOf(sector) >= 0 ? "checked" : undefined
-                    })).append(document.createTextNode(sector)))[0];
-                })).change(whenEnabled(_.debounce(function(event){
-                    var values = $('#sectors input:checked').toArray().map(function(input){
-                        return input.value;
-                    });
-                    $('#sector-span').empty().append(values.map(function(value){
-                        return $('<span></span>', {
-                            property: "screener:includeSector",
-                            content: value
-                        });
-                    }));
-                    if (values.length) $('#sector-security-list-empty').hide();
-                    else $('#sector-security-list-empty').show();
-                    populate_list();
-                }, 1000))));
-            }).catch(calli.error);
-        }).change();
+                return result;
+            }).then(populateSelectize('sectors')).catch(calli.error);
+        }).change(populate_list).selectize().change();
 
         var mincap = $('[property="screener:mincap"]').attr("content");
         if (mincap && parseInt(mincap,10) > 1000000) {
@@ -140,30 +160,21 @@ jQuery(function($){
             populate_list();
         }).change();
 
-        $("#include-tickers").val(_.map($('[rel="screener:include"]').find("[resource]").toArray(), function(elem){
-            var exchange = $('[rel="screener:ofExchange"][resource]').attr('resource');
-            var security = elem.getAttribute("resource");
-            if (security.indexOf(exchange) === 0) {
-                return security.substring(exchange.length + 1);
-            } else {
-                return security;
-            }
-        }).join(' '));
-        $("#exclude-tickers").val(_.map($('[rel="screener:exclude"]').find("[resource]").toArray(), function(elem){
-            var exchange = $('[rel="screener:ofExchange"][resource]').attr('resource');
-            var security = elem.getAttribute("resource");
-            if (security.indexOf(exchange) === 0) {
-                return security.substring(exchange.length + 1);
-            } else {
-                return security;
-            }
-        }).join(' '));
         var createTicker = function(exchangeId, id, single) {
             return {
                 delimiter: single ? undefined : ' ',
                 maxItems: single ? 1 : 10000,
                 persist: false,
-                searchField: ["text", "value"],
+                searchField: ["text", "title"],
+                options: _.isEmpty($(id).val()) ? [] : _.flatten([$(id).val()]).map(function(security){
+                    return {
+                        text: security.replace(/.*\//,''),
+                        value: security,
+                        title: '',
+                        type: ''
+                    };
+                }),
+                items: _.isEmpty($(id).val()) ? [] : $(id).val(),
                 load: function(query, callback) {
                     var exchange = $(exchangeId).val();
                     if (!query) callback();
@@ -171,8 +182,9 @@ jQuery(function($){
                         return screener.lookup(symbol, exchange).then(function(securities){
                             return securities.map(function(security){
                                 return {
-                                    text: security.name,
-                                    value: security.ticker,
+                                    text: security.ticker,
+                                    value: security.iri,
+                                    title: security.name,
                                     type: security.type
                                 };
                             });
@@ -189,8 +201,9 @@ jQuery(function($){
                         return screener.lookup(input, exchange).then(function(securities){
                             return securities.reduce(function(data, security){
                                 if (security.ticker == input) return {
-                                    text: security.name,
-                                    value: security.ticker,
+                                    text: security.ticker,
+                                    value: security.iri,
+                                    title: security.name,
                                     type: security.type
                                 };
                                 else return data;
@@ -215,11 +228,11 @@ jQuery(function($){
                 render: {
                     option: function(data, escape) {
                         return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +
-                            escape(data.text) + '"><b>' + escape(data.value) + "</b> | " +
-                            escape(data.text) + ' <small>(' + escape(data.type) + ')</small></div>';
+                            escape(data.title) + '"><b>' + escape(data.text) + "</b> | " +
+                            escape(data.title) + ' <small class="text-muted">(' + escape(data.type) + ')</small></div>';
                     },
                     item: function(data, escape) {
-                        return '<div class="" title="' + escape(data.text) + '">' + escape(data.value) + '</div>';
+                        return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
                     },
                     option_create: function(data, escape) {
                         return '<div></div>';
@@ -227,37 +240,28 @@ jQuery(function($){
                 }
             };
         };
-        $('#include-tickers').change(whenEnabled(function(event){
-            if (event.target.value) {
-                appendSecurities($('[rel="screener:include"]'), event.target.value.split(/[\s,]+/));
-            } else {
-                $('[rel="screener:include"]').empty();
-            }
-            populate_list();
-        })).selectize(createTicker('#exchange', '#include-tickers'));
-        $('#exclude-tickers').change(whenEnabled(function(event){
-            if (event.target.value) {
-                appendSecurities($('[rel="screener:exclude"]'), event.target.value.split(/[\s,]+/));
-            } else {
-                $('[rel="screener:exclude"]').empty();
-            }
-            populate_list();
-        })).selectize(createTicker('#exchange', '#exclude-tickers'));
-        var correlated = $('[rel="screener:correlated"]').attr("resource") || '';
-        $('#correlated-exchange').val(correlated.replace(/\/[^\/]+$/, '')).change(function(event){
-            $('#correlated-ticker').change();
+        $('#exclude-securities').change(populate_list).selectize(createTicker('#exchange', '#exclude-securities')).change();
+        $('#include-securities').change(populate_list).selectize(createTicker('#exchange', '#include-securities')).change();
+        $("#correlated").children().toArray().forEach(function(option){
+            $(option).text($(option).text().replace(/.*\//,''));
         });
-        $('#correlated-ticker').val(correlated.replace(/^.*\//, '')).change(function(event){
-            $('[rel="screener:correlated"]').remove();
-            var exchange = $('#correlated-exchange').val();
-            var ticker = $(event.target).val();
-            if (ticker && exchange) {
-                $(event.target).parent().append($('<div></div>', {
-                    rel: "screener:correlated",
-                    resource: exchange + "/" + ticker
-                }));
+        $('#correlated').selectize(createTicker('#correlated-exchange' ,'#correlated', true));
+        $('#correlated-exchange').val($("#correlated").val() ? $("#correlated").val().replace(/\/[^\/]+$/, '') : '').change(function(event){
+            if ($(event.target).val()) {
+                $('#correlated').removeAttr("disabled").change()[0].selectize.enable();
+            } else {
+                $('#correlated').val('').attr("disabled", "disabled").change()[0].selectize.disable();
             }
-        }).selectize(createTicker('#correlated-exchange' ,'#correlated-ticker', true));
+        }).selectize().change();
+        $('#show-security-table').click(function(event){
+            $('#security-table').parent().collapse('toggle');
+            populate_list();
+        });
+        $('#security-table').parent().on('show.bs.collapse', function(){
+            $('#show-security-table').children('.glyphicon').removeClass('glyphicon-expand').addClass('glyphicon-collapse-down');
+        }).on('hidden.bs.collapse', function(){
+            $('#show-security-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
+        });
         populate_list();
         $('#security-table thead th').click(function(event){
             sortTable($(event.target).prevAll().length);
@@ -299,34 +303,45 @@ jQuery(function($){
     function populate_list(labels){
         if ($('#security-table').is(":hover")) return;
         var exchange = $('[rel="screener:ofExchange"][resource]').attr('resource');
-        var sectors = $('[property="screener:includeSector"]').toArray().map(function(span){
-            return span.getAttribute("content");
+        var sectors = $('[property="screener:includeSector"]').toArray().map(function(option){
+            return option.getAttribute("value");
         });
+        if (!exchange) return;
         var mincap = $('[property="screener:mincap"]').attr("content");
         var maxcap = $('[property="screener:maxcap"]').attr("content");
         return Promise.resolve(sectors).then(function(sectors){
-            if (sectors.length) {
+            if (!_.isEmpty(sectors)) {
                 $('#security-table').show();
-                return screener.listSecurities(exchange, sectors, mincap, maxcap);
+                var industries = $('[property="screener:includeIndustry"]').toArray().map(function(option){
+                    return option.getAttribute("value");
+                });
+                var countries = $('[property="screener:includeCountry"]').toArray().map(function(option){
+                    return option.getAttribute("value");
+                });
+                return screener.listSecurities(exchange, sectors, industries, countries, mincap, maxcap);
             }
             $('#security-table tbody').empty();
-            if ($('[rel="screener:include"]').children().length) $('#security-table').show();
+            if ($('[rel="screener:include"][resource]').length) $('#security-table').show();
             else $('#security-table').hide();
         }).then(function(result){
-            var includes = $('[rel="screener:include"]').find("[resource]").toArray().map(function(incl){
+            var includes = $('[rel="screener:include"][resource]').toArray().map(function(incl){
                 return incl.getAttribute('resource');
             });
             if (!result) return includes.sort();
-            var excludes = $('[rel="screener:exclude"]').find("[resource]").toArray().map(function(excl){
+            var excludes = $('[rel="screener:exclude"][resource]').toArray().map(function(excl){
                 return excl.getAttribute('resource');
             });
             return includes.concat(_.reject(result, _.contains.bind(this, excludes))).sort();
         }).then(function(securities){
+            $('#security-count').text(securities.length);
+            if ($('#security-table').is(":hidden")) return;
+            var target = $('#security-table').closest('form').length ? "_blank" : "_self";
             var rows = securities.map(function(security){
+                // ticker
                 var ticker = security.substring(exchange.length + 1);
                 return $('<tr></tr>').append($('<td></td>').append($('<a></a>', {
                     href: security,
-                    target: $('#security-table').closest('form').length ? "_blank" : "_self"
+                    target: target
                 }).text(ticker)));
             });
             $('#security-table tbody').empty().append(rows);
@@ -336,50 +351,86 @@ jQuery(function($){
             var months = _.range(12, -1, -1).map(function(m){
                 return new Date(upper.getFullYear(), upper.getMonth() - m, 1);
             });
+            var classes = $('#security-table thead th').toArray().map(function(th){
+                return "text-right " + th.className;
+            });
+            var hidden = $('#security-table thead th').toArray().map(function(th){
+                return $(th).is(":hidden");
+            });
             $('#security-table thead th.month').toArray().forEach(function(th, i){
                 return $(th).text(labels[months[i].getMonth()] + " " + months[i].getFullYear());
             });
             return Promise.all(securities.map(function(security, i){
                 var tr = rows[i];
+                var d1 = hidden[2] || screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, upper);
+                // name
                 var ticker = security.substring(exchange.length + 1);
-                return screener.lookup(ticker, exchange).then(function(results){
-                    var th = $('<td></td>').text(results.length && results[0].name || '');
+                return screener.getSecurity(security).then(function(result){
+                    var th = $('<td></td>').text(result && result.name || '');
                     if ($('#security-table').closest('form').length) {
                         th.append($('<a></a>',{
                             "class": "glyphicon glyphicon-remove text-danger",
                             "style": "text-decoration:none"
                         }).click(function(event){
-                            if ($('#include-tickers')[0].selectize.items.indexOf(results[0].ticker) >= 0) {
-                                $('#include-tickers')[0].selectize.removeItem(results[0].ticker);
+                            if (_.contains($('#include-securities').val(), security)) {
+                                $('#include-securities')[0].selectize.removeItem(security);
                             } else {
-                                $('#exclude-tickers')[0].selectize.addItem(results[0].ticker);
+                                $('#exclude-securities')[0].selectize.addOption(result ? {
+                                    text: result.ticker,
+                                    value: security,
+                                    title: result.name,
+                                    type: result.type
+                                } : {
+                                    text: ticker,
+                                    value: security,
+                                    title: ticker,
+                                    type: ''
+                                });
+                                $('#exclude-securities')[0].selectize.addItem(security);
                             }
                             $(event.target).closest('tr').remove();
                         }));
                     }
                     return tr.append(th);
                 }).then(function(){
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, upper);
+                    // close change volume
+                    if (d1) return d1;
+                    else return [];
                 }).then(function(data){
                     if (!data.length) return tr;
                     var close = data[data.length-1].close;
-                    var previous = data[data.length-2].close;
+                    var previous = data.length > 1 ? data[data.length-2].close : close;
                     var change = Math.round(10000 * (close - previous) / previous) / 100;
                     var volume = data[data.length-1].volume;
                     return tr.append($('<td></td>', {
-                        "class": "text-right",
+                        "class": classes[tr.children().length],
                         "data-value": close
                     }).text(screener.formatCurrency(close))).append($('<td></td>', {
-                        "class": change < 0 ? "text-right text-danger" : "text-right",
+                        "class": (change < 0 ? "text-danger " : '') + classes[tr.children().length],
                         "data-value": change
-                    }).text(change + '%')).append($('<td></td>', {
-                        "class": "text-right",
+                    }).text(data.length > 1 && (change + '%') || '')).append($('<td></td>', {
+                        "class": classes[tr.children().length],
                         "data-value": volume
                     }).text(screener.formatNumber(volume)));
                 }).then(function(){
+                    // high low
+                    if (hidden[5]) return [];
                     return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, upper);
                 }).then(function(data){
-                    if (!data.length) return tr;
+                    if (!data.length) return data;
+                    var high = _.max(_.pluck(data, 'high'));
+                    var low = _.min(_.pluck(data, 'low'));
+                    tr.append($('<td></td>', {
+                        "class": classes[tr.children().length],
+                        "data-value": high
+                    }).text(screener.formatCurrency(high))).append($('<td></td>', {
+                        "class": classes[tr.children().length],
+                        "data-value": low
+                    }).text(screener.formatCurrency(low)));
+                    return data;
+                }).then(function(data){
+                    if (!data.length) return data;
+                    var close = data[data.length-1].close;
                     var returns = months.map(function(month){
                         var range = _.filter(data, function(datum){
                             var asof = new Date(datum.asof);
@@ -390,31 +441,26 @@ jQuery(function($){
                         var close = range[range.length-1].close;
                         return 100 * (close - open) / open;
                     });
-                    var close = data[data.length-1].close;
-                    var y = _.sortedIndex(data, {asof: lower.toISOString()}, 'asof');
-                    var total = y < data.length ? 100 * (close - data[y].open) / data[y].open : 0;
-                    var high = _.max(_.pluck(data, 'high'));
-                    var low = _.min(_.pluck(data, 'low'));
-                    tr.append($('<td></td>', {
-                        "class": "text-right",
-                        "data-value": high
-                    }).text(screener.formatCurrency(high))).append($('<td></td>', {
-                        "class": "text-right",
-                        "data-value": low
-                    }).text(screener.formatCurrency(low)));
                     var sorted = returns.slice().sort(function(a,b){
                         return a - b;
                     });
                     tr.append(returns.map(function(column,i){
                         var danger = column <= Math.trunc(sorted[0]) && column < 0;
                         var success = column >= Math.trunc(sorted[sorted.length-1]) && column > 0;
+                        var cls = danger ? "text-danger " : success ? "text-success " : '';
                         return $('<td></td>', {
-                            "class": danger ? "text-right text-danger" : success ? "text-right text-success" : "text-right",
+                            "class": cls + classes[tr.children().length],
                             "data-value": column
                         }).text(column.toFixed(2));
                     }));
+                    return data;
+                }).then(function(data){
+                    if (!data.length) return data;
+                    var close = data[data.length-1].close;
+                    var y = _.sortedIndex(data, {asof: lower.toISOString()}, 'asof');
+                    var total = y < data.length ? 100 * (close - data[y].open) / data[y].open : 0;
                     return tr.append($('<td></td>', {
-                        "class": total < 0 ? "text-right text-danger" : "text-right",
+                        "class": (total < 0 ? "text-danger " : '') + classes[tr.children().length],
                         "data-value": total
                     }).text(total.toFixed(2) + '%'))
                 }).catch(console.log.bind(console));
@@ -422,22 +468,5 @@ jQuery(function($){
         }).then(function(){
             sortTable();
         }).catch(calli.error);
-    }
-
-    function whenEnabled(func) {
-        return function() {
-            if (!$(this).is(":disabled")) {
-                func.apply(this, arguments);
-            }
-        };
-    }
-
-    function appendSecurities(container, list) {
-        var exchange = $('[rel="screener:ofExchange"][resource').attr('resource');
-        container.empty().append(_.map(_.compact(list).sort(), function(ticker){
-            return $('<li></li>', {
-                resource: exchange + '/' + encodeURI(ticker)
-            }).text(ticker);
-        }));
     }
 });

@@ -62,7 +62,7 @@
                 }
             }).then(function(profile){
                 $('#profile').each(complete);
-                $('#securityclass a, #screener a').each(function(){
+                $('#securityclass a, #screen a').each(function(){
                     this.href = profile + "?create=" + this.getAttribute("resource");
                 });
                 $('#monitor a').prop("href", profile);
@@ -84,7 +84,6 @@
                 }
             }).then(function(){
                 $('#monitor').each(step);
-                window.location.replace($('#monitor a').prop("href"));
             }).catch(function(error){
                 if (console) if (console.error) console.error(error);
             });
@@ -122,7 +121,7 @@
                         </li>
                         <li id="screen" class="list-group-item lead">
                             <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a resource="../classes/Screener">Create a Screen</a>
+                            <a resource="../classes/Screen">Create a Screen</a>
                         </li>
                         <li id="monitor" class="list-group-item lead">
                             <i class="glyphicon glyphicon-minus text-muted"></i>

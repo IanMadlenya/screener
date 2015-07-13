@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -9,56 +9,76 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title>New Screen</title>
-    <link rel="stylesheet" href="../styles/inline-input-group.css" />
     <link rel="stylesheet" href="../styles/screen.less?less" />
-    <style type="text/css">#signal-label { margin-right: 5px; }</style>
-    <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
-    <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <link id="queries" href="../queries/" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/screen.js"></script>
 </head>
 <body>
-    <form id="screen-form" role="form" method="POST" action="" enctype="application/rdf+xml" typeof="screener:Screen" class="container"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
-        <hgroup class="page-header">
-            <h1>New Screen</h1>
-        </hgroup>
-        <fieldset class="row">
-            <div class="col-sm-4">
-                <div class="form-group">
-                    <label for="label">Label</label>
-                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
-                </div>
-                <div class="form-group">
-                    <label for="comment">Comment</label>
-                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-                </div>
-                <div class="form-group">
-                    <label class="pull-left" id="signal-label">Triggers</label>
-                    <div>
-                        <label rel="screener:forSignal" resource="?signal" class="radio-inline">
-                            <input type="radio" name="signal" checked="checked" required="required" />
-                            <span rev="calli:hasComponent" resource="../signals/" property="skos:prefLabel" />
-                        </label>
+    <form id="screen-form" role="form" method="POST" action="" enctype="text/turtle" typeof="screener:Screen">
+        <div  class="container">
+            <div class="page-header">
+                <h1>New Screen</h1>
+            </div>
+            <div class="modal fade" id="label-dialog" tabindex="-1" role="dialog" aria-labelledby="label-title">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <h4 class="modal-title" id="label-title">Screen Identification</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="label">Label</label>
+                                <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                            </div>
+                            <div class="form-group">
+                                <label for="comment">Comment</label>
+                                <textarea id="comment" class="form-control" rows="3">{rdfs:comment}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exchange">Additional categories</label>
+                                <xi:include href="../queries/categories-list.rq?select&amp;rel=screener:category&amp;name=categories&amp;id=categories&amp;multiple=multiple"></xi:include>
+                                <div rel="screener:category" resource="?category"></div>
+                                <script type="text/javascript">
+                                    $('div[rel="screener:category"]').filter(calli.checkEachResourceIn('#categories')).remove();
+                                    $('#categories').selectize();
+                                </script>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Create</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-8">
-                <div id="distribution-chart"></div>
-            </div>
-        </fieldset>
-        <fieldset>
-            <div>
-                <label>Filters <a href="javascript:void(0)" title="Another filter"
-                    onclick="return calli.addResource(event,'#filters')" class="glyphicon glyphicon-plus" /></label>
-                <div id="filters">
-                    <div class="row" rel="screener:hasFilter" resource="?filter">
+            <fieldset class="row">
+                <div class="col-md-9 col-sm-8">
+                    <div class="form-group">
+                        <label for="security-class">Security Class</label>
+                        <select id="security-class" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <div class="form-group">
+                        <label for="since">Since</label>
+                        <input type="date" class="form-control" id="since" />
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <label>Watch criteria</label>
+                <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                <small class="text-muted">Criteria that must previously have been met for a security to appear on screen</small>
+                <div id="watch">
+                    <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
                         <div class="col-sm-6">
-                            <div class="form-group has-feedback has-warning">
-                                <input class="indicator typeahead form-control input-sm" type="text" placeholder="indicator" />
-                                <span class="glyphicon glyphicon-warning-sign form-control-feedback" />
+                            <div class="form-group">
+                                <xi:include href="../queries/indicator-list.rq?select&amp;rel=screener:forIndicator&amp;name=indicator"></xi:include>
+                                <div rel="screener:forIndicator" resource="?watchIndicator"></div>
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -77,32 +97,147 @@
                                 </div>
                             </div>
                         </div>
-                        <div rel="screener:forIndicator" resource="?indicator" />
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <label>Hold criteria</label>
+                <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                <small class="text-muted">Criteria that must continue to be met for a security to stay on screen</small>
+                <div id="hold">
+                    <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <xi:include href="../queries/indicator-list.rq?select&amp;rel=screener:forIndicator&amp;name=indicator"></xi:include>
+                                <div rel="screener:forIndicator" resource="?holdIndicator"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="input-group-addon input-sm">Lower</label>
+                                    <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="input-group-addon input-sm">Upper</label>
+                                    <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row">
+                <div class="col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <button id="store" type="button" class="btn btn-primary">Store</button>
+                        <button id="show-results-table" class="btn btn-link" type="button">
+                            Watch List
+                            <span class="glyphicon glyphicon-expand"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Number of distinct securities">Securities</th>
+                                    <td id="security_count" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Number of watch signals">Occurances</th>
+                                    <td id="occurances" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Average length of time securities appeared on list">Average duration</th>
+                                    <td id="average_duration" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Percent of occurances with performance above zero">Percent of positive</th>
+                                    <td id="percent_positive" class="text-right"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Average performance per watch signal">Average performance</th>
+                                    <td id="average_performance" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Standard deviation (SD)">Standard deviation</th>
+                                    <td id="standard_deviation" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
+                                    <td id="negative_excursion" class="text-right text-danger"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Maximum Favorable Excursion (MFE)">Positive excursion</th>
+                                    <td id="positive_excursion" class="text-right text-success"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="panel panel-default">
+                        <table class="table table-condensed table-bordered">
+                            <colgroup>
+                                <col style="width: 75%;" />
+                                <col style="width: 25%;" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th title="Generated profit over generated losses">Performance factor</th>
+                                    <td id="performance_factor" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Average performance per security">Performance</th>
+                                    <td id="performance" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
+                                    <td id="annual_growth" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <th title="Risk adjusted Return (RAR): CAGR divided by exposure">Risk adjusted rate</th>
+                                    <td id="risk_adjusted" class="text-right"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </fieldset>
-        <div class="form-group">
-            <button type="submit" class="btn btn-success">Create</button>
+        </div>
+        <div class="collapse table-responsive">
+            <table id="results-table" class="table table-condensed table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </form>
-    <div class="container">
-        <form id="backtesting-form" class="form-inline pull-right" role="form">
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">Backtest</span>
-                    <input type="text" class="form-control input-sm security-class typeahead" id="backtesting-list" placeholder="Security class" required="required" />
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon">As of</span>
-                    <input type="date" class="form-control input-sm" id="backtesting-asof" required="required" />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-default btn-sm">Preview</button>
-        </form>
-    </div>
-    <table id="results" class="table table-striped table-condensed"></table>
 </body>
 </html>

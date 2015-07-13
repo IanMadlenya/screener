@@ -12,7 +12,6 @@
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
-    <link rel="stylesheet" type="text/css" href="../styles/security-class.css" />
     <link id="queries" href="../queries/" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
@@ -21,45 +20,49 @@
 <body resource="?this">
     <div class="container">
         <div class="page-header">
-            <h1 property="rdfs:label"></h1>
+            <h1>
+                <span property="rdfs:label"></span>
+                <small>
+                    <span id="security-count"></span>
+                    securities
+                </small>
+            </h1>
         </div>
         <p property="rdfs:comment"></p>
-        <span id="sector-span"><span property="screener:includeSector" content="?includeSector"></span></span>
-        <span rel="screener:ofExchange" resource="?exchange"></span>
-        <span property="screener:mincap" content="?mincap"></span>
-        <span property="screener:maxcap" content="?maxcap"></span>
+        <div rel="screener:ofExchange" resource="?exchange"></div>
+        <div property="screener:includeSector" content="?includeSector" value="{?includeSector}"></div>
+        <div property="screener:includeIndustry" content="?includeIndustry" value="{?includeIndustry}"></div>
+        <div property="screener:includeCountry" content="?includeCountry" value="{?includeCountry}"></div>
+        <div property="screener:mincap" content="?mincap"></div>
+        <div property="screener:maxcap" content="?maxcap"></div>
+        <div rel="screener:exclude" resource="?exclude"></div>
+        <div rel="screener:include" resource="?include"></div>
     </div>
-    <ul rel="screener:include" class="hide column-list">
-        <li resource="?include"></li>
-    </ul>
-    <ul rel="screener:exclude" class="hide column-list">
-        <li resource="?exclude"></li>
-    </ul>
     <div class="table-responsive">
         <table id="security-table" class="table table-condensed table-bordered table-hover">
             <thead>
                 <tr>
                     <th>Ticker</th>
                     <th>Name</th>
-                    <th>Closing Price</th>
-                    <th>Daily Change</th>
-                    <th>Daily Volume</th>
-                    <th>52-Week High</th>
-                    <th>52-Week Low</th>
-                    <th class="month">Jan</th>
-                    <th class="month">Feb</th>
-                    <th class="month">Mar</th>
-                    <th class="month">Apr</th>
-                    <th class="month">May</th>
-                    <th class="month">Jun</th>
-                    <th class="month">Jul</th>
-                    <th class="month">Aug</th>
-                    <th class="month">Sep</th>
-                    <th class="month">Oct</th>
-                    <th class="month">Nov</th>
-                    <th class="month">Dec</th>
-                    <th class="month">Jan</th>
-                    <th>52-Week Return</th>
+                    <th class="hidden-xs">Closing Price</th>
+                    <th class="hidden-xs">Daily Change</th>
+                    <th class="hidden-xs">Daily Volume</th>
+                    <th class="hidden-xs">52-Week High</th>
+                    <th class="hidden-xs">52-Week Low</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Jan</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Feb</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Mar</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Apr</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">May</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Jun</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Jul</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Aug</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Sep</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Oct</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Nov</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Dec</th>
+                    <th class="month hidden-xs hidden-sm hidden-md">Jan</th>
+                    <th class="hidden-xs hidden-sm">52-Week Return</th>
                 </tr>
             </thead>
             <tbody></tbody>

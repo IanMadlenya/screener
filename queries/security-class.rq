@@ -12,8 +12,12 @@ PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
 SELECT ?iri ?label ?profile
+        (group_concat(?com) AS ?comment)
+        (group_concat(?cor) AS ?correlated)
         (group_concat(?of) AS ?ofExchange)
         (group_concat(?includeSector; separator = "\t") AS ?includeSectors)
+        (group_concat(?includeIndustry; separator = "\t") AS ?includeIndustries)
+        (group_concat(?includeCountry; separator = "\t") AS ?includeCountries)
         (max(?min) AS ?mincap) (max(?max) AS ?maxcap)
         (group_concat(?exclude) AS ?excludes)
         (group_concat(?include) AS ?includes) {
@@ -23,9 +27,17 @@ SELECT ?iri ?label ?profile
     ?iri a screener:SecurityClass;
         rdfs:label ?label .
     {
+        ?iri rdfs:comment ?com
+    } UNION {
+        ?iri screener:correlated ?cor
+    } UNION {
         ?iri screener:ofExchange ?of
     } UNION {
         ?iri screener:includeSector ?includeSector
+    } UNION {
+        ?iri screener:includeIndustry ?includeIndustry
+    } UNION {
+        ?iri screener:includeCountry ?includeCountry
     } UNION {
         ?iri screener:mincap ?min
     } UNION {
