@@ -33,17 +33,39 @@ jQuery(function($){
 
     (function(updateWatchList){
         var selectizeIndicator = function(select) {
+            var optgroups = {};
             return screener.listIndicators().then(function(list){
                 return list.map(function(indicator){
+                    var optgroup = indicator.interval.label + ' ' + indicator.unit.label;
+                    optgroups[optgroup] = indicator;
                     return {
                         value: indicator.iri,
                         text: indicator.label,
+                        optgroup: optgroup,
                         title: indicator.comment
                     };
                 });
             }).then(function(options){
+                var units = _.pluck(_.sortBy(_.pluck(optgroups, 'unit'), 'label'), 'value');
+                var groups = _.sortBy(_.uniq(_.pluck(options, 'optgroup')), function(optgroup){
+                    var indicator = optgroups[optgroup];
+                    var i = indicator.interval.value == 'annual' ? 1 :
+                            indicator.interval.value == 'quarter' ? 2 :
+                            indicator.interval.value == 'd5' ? 3 :
+                            indicator.interval.value == 'd1' ? 4 :
+                            10 * +indicator.interval.value.substring(1);
+                    return i * units.length + units.indexOf(indicator.unit.value);
+                });
                 return $(select).selectize({
-                    options: options
+                    options: _.sortBy(options, function(indicator){
+                        return groups.indexOf(indicator.optgroup);
+                    }),
+                    optgroups: groups.map(function(optgroup){
+                        return {
+                            value: optgroup,
+                            label: optgroup
+                        };
+                    })
                 }).change();
             });
         };
@@ -221,10 +243,10 @@ jQuery(function($){
                         return tr.append($('<td></td>').text(result && result.name || ''));
                     }).then(function(){
                         indicators.forEach(function(indicator){
-                            var value = item[indicator.interval][indicator.expression];
-                            var format = indicator.hasUnit.indexOf('/price') > 0  ?
+                            var value = item[indicator.interval.value][indicator.expression];
+                            var format = indicator.unit.value == 'price'  ?
                                     '$' + value.toFixed(2) :
-                                indicator.hasUnit.indexOf('/percent') > 0 ?
+                                indicator.unit.value == 'percent' ?
                                     value.toFixed(2) + '%' :
                                 screener.formatNumber(value);
                             tr.append($('<td></td>', {

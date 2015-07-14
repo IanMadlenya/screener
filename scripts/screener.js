@@ -205,11 +205,39 @@
                 });
             },
 
+            listUnits: _.memoize(function(){
+                var url = $('#queries').prop('href') + 'unit-list.rq?tqx=out:table';
+                return calli.getJSON(url).then(tableToObjectArray);
+            }),
+
+            listIntervals: _.memoize(function(){
+                var url = $('#queries').prop('href') + 'interval-list.rq?tqx=out:table';
+                return calli.getJSON(url).then(tableToObjectArray).then(function(list){
+                    return postDispatchMessage("indicator-list").then(function(indicators){
+                        return indicators.map(function(indicator){
+                            return _.find(list, function(item){
+                                return item.value == indicator;
+                            });
+                        });
+                    });
+                });
+            }),
+
             listIndicators: _.memoize(function(){
                 var url = $('#queries').prop('href') + 'indicator-list.rq?tqx=out:table';
                 return calli.getJSON(url).then(tableToObjectArray).then(function(list){
                     return Promise.all(list.map(inlineIndicator));
-                });
+                }).then(function(list){
+                    var validate = _.memoize(function(interval) {
+                        return postDispatchMessage({
+                            cmd: 'validate',
+                            interval: interval
+                        });
+                    });
+                    return Promise.all(list.map(function(indicator){
+                        return validate(indicator.interval).then(_.constant(indicator), function(){});
+                    }));
+                }).then(_.compact);
             }),
 
             getIndicator: _.memoize(function(iri) {
@@ -308,7 +336,7 @@
                         exchange: exchange,
                         security: security,
                         expressions: expressions,
-                        interval: int,
+                        interval: {value: int},
                         length: length,
                         lower: lower,
                         upper: upper || lower
@@ -426,11 +454,22 @@
 
     function inlineIndicator(indicator) {
         if (!indicator) return undefined;
-        var int = indicator.hasInterval;
-        var interval = int && int.indexOf('/') ? int.substring(int.lastIndexOf('/') + 1) : int;
-        return _.extend({
-            interval: interval
-        }, indicator);
+        return screener.listUnits().then(function(units){
+            return _.find(units, function(unit){
+                return unit.iri == indicator.hasUnit;
+            });
+        }).then(function(unit){
+            return screener.listIntervals().then(function(intervals){
+                return _.find(intervals, function(interval){
+                    return interval.iri == indicator.hasInterval;
+                });
+            }).then(function(interval){
+                return _.extend({
+                    interval: interval,
+                    unit: unit
+                }, indicator);
+            });
+        });
     }
 
     function inlineSecurityClasses(securityClasses) {

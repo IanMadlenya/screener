@@ -54,11 +54,9 @@
                     <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
                         <div class="col-sm-6">
                             <div class="form-group">
-                                <xi:include href="../queries/indicator-list.rq?select&amp;rel=screener:forIndicator&amp;name=indicator"></xi:include>
-                                <div class="hidden" rel="screener:forIndicator" resource="?watchIndicator"></div>
-                                <script type="text/javascript">
-                                    $('div').last().parent().find('[rel="screener:forIndicator"].hidden').filter(calli.selectEachResourceIn($('select').last()[0])).remove();
-                                </script>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                    <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -88,11 +86,9 @@
                     <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
                         <div class="col-sm-6">
                             <div class="form-group">
-                                <xi:include href="../queries/indicator-list.rq?select&amp;rel=screener:forIndicator&amp;name=indicator"></xi:include>
-                                <div class="hidden" rel="screener:forIndicator" resource="?holdIndicator"></div>
-                                <script type="text/javascript">
-                                    $('div').last().parent().find('[rel="screener:forIndicator"].hidden').filter(calli.selectEachResourceIn($('select').last()[0])).remove();
-                                </script>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                    <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-sm-3">
