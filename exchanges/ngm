@@ -1,0 +1,23 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix dbpprop: <http://dbpedia.org/property/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a <../classes/Exchange> , screener:Exchange ;
+    rdfs:comment "NASDAQ Global Market is made up of stocks that represent the Nasdaq Global Market. The NASDAQ Global Market consists of 1,450 stocks that meet Nasdaq's strict financial and liquidity requirements, and corporate governance standards. The Global Market is less exclusive than the Global Select Market." ;
+    rdfs:label "NASDAQ Global Market" ;
+    screener:exch "NGM" ;
+    screener:marketClosesAt "16:00:00"^^xsd:time ;
+    screener:marketID 5 ;
+    screener:marketLang "en-US" ;
+    screener:marketOpensAt "09:30:00"^^xsd:time ;
+    screener:mic "XNMS" ;
+    screener:morningstarCode "XNAS" ;
+    calli:administrator </auth/groups/admin> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    calli:subscriber </auth/groups/everyone> ;
+    dbpprop:currency <http://dbpedia.org/resource/United_States_dollar> ;
+    screener:inTimeZone <http://dbpedia.org/resource/America/New_York> .
