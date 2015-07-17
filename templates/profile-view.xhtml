@@ -1,21 +1,59 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:dcterms="http://purl.org/dc/terms/">
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-    <title resource="?this">{rdfs:label}</title>
+    <title resource="?this">Watch List for {foaf:name}</title>
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
+    <link id="queries" href="../queries/" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <link id="Screen" href="../classes/Screen" />
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/profile-view.js"></script>
 </head>
 <body resource="?this">
     <div class="container">
-        <hgroup class="page-header">
-            <h1 property="rdfs:label" />
-        </hgroup>
-        <pre class="wiki" property="rdfs:comment" />
+        <form onsubmit="return false">
+            <div class="row">
+                <div class="col-md-9 col-sm-8">
+                    <div class="form-group">
+                        <label for="security-class">Security Class</label>
+                        <select id="security-class" multiple="multiple" autofocus="autofocus"></select>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4">
+                    <div class="form-group">
+                        <label for="since">Since</label>
+                        <input type="date" class="form-control" id="since" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="screen">Screens</label>
+                <select id="screen" multiple="multiple"></select>
+            </div>
+        </form>
+        <table id="results-table" class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Name</th>
+                    <th>Closing Price</th>
+                    <th>Daily Change</th>
+                    <th class="hidden-xs">Daily Volume</th>
+                    <th class="hidden-xs">52-Week High</th>
+                    <th class="hidden-xs">52-Week Low</th>
+                    <th class="hidden-xs">Performance</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </body>
 </html>

@@ -84,6 +84,13 @@
                 localStorage.removeItem(key);
             },
 
+            setProfile: function(profile){
+                return postDispatchMessage({
+                    cmd: 'profile',
+                    launch: profile
+                });
+            },
+
             debouncePromise: function(func, wait) {
                 var end = Promise.resolve();
                 return function(/* arguments */) {
@@ -418,6 +425,7 @@
     }
 
     function inlineScreen(screen) {
+        if (_.isString(screen)) return inlineScreens([screen]).then(_.first);
         return Promise.all([
             inlineFilters(screen.watch),
             inlineFilters(screen.hold)

@@ -8,8 +8,10 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link rel="stylesheet" href="../styles/screen.less?less" />
     <link id="queries" href="../queries/" />
+    <link id="resource-type" href="../classes/Screen" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/screen.js"></script>

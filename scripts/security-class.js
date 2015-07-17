@@ -270,11 +270,29 @@ jQuery(function($){
         return $(th).text();
     })), 100));
 
+    var comparision = $('#security-class-form').attr("resource") && calli.copyResourceData('#security-class-form');
+    $('#security-class-form').submit(function(event){
+        event.preventDefault();
+        var creating = event.target.getAttribute("enctype") == "text/turtle";
+        var slug = calli.slugify($('#label').val());
+        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
+        var resource = creating ? ns + slug : $(event.target).attr('resource');
+        if (creating) {
+            event.target.setAttribute("resource", resource);
+            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+                screener.setItem("security-class", screener.getItem("security-class",'').split(' ').concat(redirect).join(' '));
+                window.location.replace(redirect);
+            }).catch(calli.error);
+        } else {
+            calli.submitUpdate(comparision, event);
+        }
+    });
+
     var lastSortedColumn;
     function sortTable(column) {
-        if (column == undefined && lastSortedColumn == undefined) {
+        if (column === undefined && lastSortedColumn === undefined) {
             return;
-        } else if (column == undefined) {
+        } else if (column === undefined) {
             return sortTable(lastSortedColumn);
         } else {
             lastSortedColumn = column;

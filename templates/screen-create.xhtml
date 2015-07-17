@@ -9,7 +9,6 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title>New Screen</title>
-    <link rel="stylesheet" href="../styles/screen.less?less" />
     <link id="queries" href="../queries/" />
     <link id="SecurityClass" href="../classes/SecurityClass" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
@@ -32,11 +31,13 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="label">Label</label>
-                                <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                                <input type="text" class="form-control" id="label" property="rdfs:label" required="required"
+                                    onchange="calli.updateProperty(event,'rdfs:label')" />
                             </div>
                             <div class="form-group">
                                 <label for="comment">Comment</label>
-                                <textarea id="comment" class="form-control" rows="3">{rdfs:comment}</textarea>
+                                <textarea id="comment" class="form-control" rows="3" property="rdfs:comment"
+                                    onchange="calli.updateProperty(event,'rdfs:comemnt')"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="exchange">Additional categories</label>
@@ -59,7 +60,7 @@
                 <div class="col-md-9 col-sm-8">
                     <div class="form-group">
                         <label for="security-class">Security Class</label>
-                        <select id="security-class" multiple="multiple"></select>
+                        <select id="security-class" multiple="multiple" autofocus="autofocus"></select>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-4">

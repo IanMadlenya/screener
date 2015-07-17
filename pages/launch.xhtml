@@ -8,6 +8,13 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link id="queries" href="../queries/" />
+    <style type="text/css">
+        @media (min-width: 768px) {
+          .container {
+            width: 760px;
+          }
+        }
+    </style>
     <script type="text/javascript">
         if (window.location.hash.indexOf("#socket=") === 0) {
             try {
@@ -23,22 +30,9 @@
     <script src="../scripts/screener.js"></script>
     <script type="text/javascript">
         jQuery(function($){
-            $('#profile a').click(function(event){
-                event.preventDefault();
-                var url = "/p/?create=" + encodeURIComponent(event.target.getAttribute("resource"));
-                calli.createResource(event, url).then(function(profile){
-                    $('#profile').each(complete);
-                    $('#securityclass a, #screener a').each(function(){
-                        this.href = profile + "?create=" + this.getAttribute("resource");
-                    });
-                    $('#monitor a').prop("href", profile);
-                    $('#securityclass').each(step);
-                });
-            });
             var incomplete = "glyphicon glyphicon-minus glyphicon-hand-right text-info text-muted";
             var complete = function(){
-                $(this).find('i').removeClass(incomplete).addClass("glyphicon glyphicon-ok text-success")
-                $(this).contents().wrap('<s></s>');
+                $(this).find('i').removeClass(incomplete).addClass("glyphicon glyphicon-ok text-success");
             };
             var step = function(){
                 $(this).find('i').removeClass(incomplete).addClass("glyphicon glyphicon-hand-right text-info");
@@ -58,14 +52,11 @@
                     });
                 } else {
                     $('#login').each(step);
+                    $('#profile a').popover('show');
                     throw Error("Not logged in");
                 }
             }).then(function(profile){
                 $('#profile').each(complete);
-                $('#securityclass a, #screen a').each(function(){
-                    this.href = profile + "?create=" + this.getAttribute("resource");
-                });
-                $('#monitor a').prop("href", profile);
                 return screener.listSecurityClasses();
             }).then(function(securityclasses){
                 if (securityclasses.length) {
@@ -92,45 +83,38 @@
 </head>
 <body>
     <div class="container">
-        <div class="page-header">
-            <h1>Getting Started with Probability Screener</h1>
+      <div class="jumbotron">
+        <h1>Probability Screener</h1>
+        <p class="lead">Thanks for using Probability Screener!</p>
+        <p>This application will assist you at:</p>
+        <ul>
+            <li>Filtering securities on user-defined metrics</li>
+            <li>Measuring the performance of system</li>
+        </ul>
+        <br/>
+        <p id="profile">
+            <a class="btn btn-lg btn-success" href="profile.xhtml?view" role="button"
+            data-content="Will prompt to Sign in or create a Yahoo account">Get Started</a>
+        </p>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-sm-6">
+          <h4 id="install"><i class="glyphicon glyphicon-minus text-muted"></i> Chrome App</h4>
+          <p>Used to retrieve data feeds from across the Web.</p>
+
+          <h4 id="login"><i class="glyphicon glyphicon-minus text-muted"></i> Yahoo User Account</h4>
+          <p>Used for authentication and email/password management.</p>
         </div>
-        <p class="lead">Thanks for using Probability Screener</p>
-        <div class="row">
-            <div class="col-md-offset-2 col-md-8">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        Just a few more steps to get started...
-                    </div>
-                    <ul class="list-group">
-                        <li id="install" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            Install Local Probability Screener Chrome App
-                        </li>
-                        <li id="login" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a href="/?login&amp;choice=/auth/yahoo%2Baccounts">Sign in</a> using a Yahoo Account
-                        </li>
-                        <li id="profile" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a href="../classes/Profile" resource="../classes/Profile">Create a profile</a>
-                        </li>
-                        <li id="securityclass" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a resource="../classes/SecurityClass">Define a Security Class</a>
-                        </li>
-                        <li id="screen" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a resource="../classes/Screen">Create a Screen</a>
-                        </li>
-                        <li id="monitor" class="list-group-item lead">
-                            <i class="glyphicon glyphicon-minus text-muted"></i>
-                            <a>Monitor screened securities</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+
+        <div class="col-sm-6">
+          <h4 id="screen"><i class="glyphicon glyphicon-minus text-muted"></i> Screens</h4>
+          <p>Can be created and saved with your profile for later review</p>
+
+          <h4 id="securityclass"><i class="glyphicon glyphicon-minus text-muted"></i> Security Classes</h4>
+          <p>Quick reference to a set of securities to screen</p>
         </div>
+      </div>
     </div>
 </body>
 </html>

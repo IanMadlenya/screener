@@ -1,0 +1,38 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title>Probability Screen</title>
+    <link id="queries" href="../queries/" />
+    <link id="create" href="/p/?create=" />
+    <link id="Profile" href="../classes/Profile" />
+    <link id="Screen" href="../classes/Screen" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/profile-create.js"></script>
+    <script type="text/javascript" src="../scripts/screen.js"></script>
+    <script type="text/javascript">
+        calli.getCurrentUserName().then(function(username){
+            return screener.getUserProfile();
+        }).then(function(profile){
+            return screener.setProfile(profile + "?view").then(function(){
+                window.location.replace(profile);
+            });
+        }, function(){
+            $('#profile-form').attr("action", $('#create').prop('href') + encodeURIComponent($('#Profile').prop('href')));
+        });
+    </script>
+</head>
+<body>
+    <xi:include href="../templates/profile-create.xhtml" xpointer="xpath(//*[@id='profile-form'])"></xi:include>
+    <xi:include href="../templates/screen-create.xhtml" xpointer="xpath(//*[@id='screen-form'])"></xi:include>
+</body>
+</html>

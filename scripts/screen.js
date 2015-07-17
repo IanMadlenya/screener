@@ -70,16 +70,16 @@ jQuery(function($){
             });
         };
         screener.listSecurityClasses().then(function(classes){
-            return classes.map(function(indicator){
+            return classes.map(function(cls){
                 return {
-                    value: indicator.iri,
-                    text: indicator.label
+                    value: cls.iri,
+                    text: cls.label
                 };
             });
         }).then(function(options){
             $('#security-class').selectize({
-                searchField: ["text", "value"],
                 options: options,
+                items: screener.getItem("security-class", '').split(' '),
                 closeAfterSelect: true,
                 load: function(query, callback) {
                     if (!query) callback();
@@ -98,9 +98,9 @@ jQuery(function($){
                         calli.error(error);
                     });
                 },
-                create: function(input, callback) {
+                create: $('#container-resource').attr('resource') && function(input, callback) {
                     var cls = $('#SecurityClass').prop('href');
-                    var container = $('#container-resource').prop('href') || window.location.pathname;
+                    var container = $('#container-resource').attr('resource') || window.location.pathname;
                     var url = container + "?create=" + encodeURIComponent(cls) + "#" + encodeURIComponent(input);
                     calli.createResource('#security-class', url).then(function(iri){
                         callback({
@@ -130,14 +130,20 @@ jQuery(function($){
                             escape(data.text) + '</div>';
                     }
                 }
-            }).change(updateWatchList);
+            }).change(function(event){
+                screener.setItem("security-class", ($(event.target).val() || []).join(' '));
+            }).change(updateWatchList).change();
         });
-        var lastWeek = new Date();
-        lastWeek.setDate(lastWeek.getDate() - 7);
-        $('#since').prop('valueAsDate', lastWeek).change(updateWatchList);
+        var lastWeek = new Date(new Date().toISOString().replace(/T.*/,''));
+        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 5) / 5 * 7);
+        $('#since').prop('valueAsDate', lastWeek).change(function(event){
+            var since = event.target.valueAsDate;
+            var today = new Date(new Date().toISOString().replace(/T.*/,''));
+            screener.setItem("since-days", (today.valueOf() - since.valueOf()) / 1000 / 60 / 60 / 24 / 7 * 5);
+        }).change(updateWatchList);
         $('div[rel="screener:forIndicator"]').parent().each(function(){
             $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
-        })
+        });
         $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
         $('#watch').siblings('.add').click(function(event){
             event.preventDefault();
@@ -153,12 +159,14 @@ jQuery(function($){
                 $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
             });
         });
-    
+        if (window.location.hash.length > 1) {
+            $('#label').val(decodeURIComponent(window.location.hash.substring(1)));
+        }
         $('#label-dialog').modal({
             show: false,
             backdrop: false
         }).on('shown.bs.modal', function () {
-            $('#label').focus()
+            $('#label').focus();
         });
         $('#store').click(function(event){
             $('#label-dialog').modal('show');
@@ -179,7 +187,7 @@ jQuery(function($){
         event.preventDefault();
         var creating = event.target.getAttribute("enctype") == "text/turtle";
         var slug = calli.slugify($('#label').val());
-        var ns = window.location.pathname.replace(/\/?$/, '/');
+        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
         var resource = creating ? ns + slug : $(event.target).attr('resource');
         var filters = $('[rel="screener:hasWatchCriteria"],[rel="screener:hasHoldCriteria"]');
         var counter = _.max([35].concat(filters.toArray().map(function(filter){
@@ -198,7 +206,11 @@ jQuery(function($){
             }
         });
         if (creating) {
-            calli.submitTurtle(event,slug);
+            event.target.setAttribute("resource", resource);
+            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+                screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
+                window.location.replace(redirect);
+            }).catch(calli.error);
         } else {
             calli.submitUpdate(comparision, event);
         }
@@ -268,8 +280,8 @@ jQuery(function($){
             return item.performance.reduce(function(profit, ret){
                 return profit + profit * ret / 100;
             }, 1) * 100 - 100;
-        })) / list.length;
-        var avg = performance * list.length / occurances;
+        })) / list.length || 0;
+        var avg = performance * list.length / occurances || 0;
         var sd = Math.sqrt(sum(_.flatten(list.map(function(item){
             return item.performance.map(function(num){
                 var diff = num - avg;
@@ -300,12 +312,12 @@ jQuery(function($){
             return (item.performance.reduce(function(profit, ret){
                 return profit + profit * ret / 100;
             }, 1) * 100 - 100) / item.exposure;
-        })) / list.length;
+        })) / list.length || 0;
         var exposure = sum(_.pluck(list, 'exposure'));
         var duration = (now.valueOf() - since.valueOf());
-        var growth = Math.pow(1 + performance / 100, 365 * 24 * 60 * 60 * 1000 / duration) - 1;
-        var risk_growth = Math.pow(1 + risk_adjusted / 100, 365 * 24 * 60 * 60 * 1000 / duration) - 1;
-        var avg_duration = exposure * duration / occurances;
+        var growth = cagr(performance, duration / (365 * 24 * 60 * 60 * 1000));
+        var risk_growth = cagr(risk_adjusted, duration / (365 * 24 * 60 * 60 * 1000));
+        var avg_duration = exposure * duration / occurances || 0;
         $('#security_count').text(list.length);
         $('#occurances').text(occurances);
         $('#average_duration').text(function(){
@@ -323,7 +335,7 @@ jQuery(function($){
         });
         $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
         $('#average_performance').text(avg.toFixed(2) + '%');
-        $('#percent_positive').text((winners.length / occurances * 100).toFixed(0) + '%');
+        $('#percent_positive').text((winners.length / occurances * 100 || 0).toFixed(0) + '%');
         $('#positive_excursion').text(drawup.toFixed(2) + '%');
         $('#negative_excursion').text(drawdown.toFixed(2) + '%');
         $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
@@ -331,6 +343,11 @@ jQuery(function($){
         $('#annual_growth').text((growth * 100).toFixed(2) + '%');
         $('#risk_adjusted').text((risk_growth * 100).toFixed(2) + '%');
         return list;
+    }
+
+    function cagr(rate, years) {
+        if (rate < 0) return -1 * cagr(Math.abs(rate), years);
+        else return Math.pow(1 + rate / 100, 1 / years) - 1;
     }
 
     function sum(numbers) {
