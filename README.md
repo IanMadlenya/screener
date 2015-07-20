@@ -14,11 +14,30 @@ The source code of this app is licensed under the BSD, a copy is provided in the
 ## Prerequisites
 
 1. You must have a recent version of Google Chrome Web browser installed. [Google Chrome can be download here](http://www.google.com/chrome/).
-2. You must have an active Google User Account. [A Google User Account can be created here](https://accounts.google.com/SignUp).
-3. You must have an active Yahoo! User Account. [A Yahoo! User Account can be created here](https://login.yahoo.com/).
-4. You must have some basic knowledge of stock trading. [Read about Stock Basics here](http://www.investopedia.com/university/stocks/).
+2. You must have an active Yahoo! User Account. [A Yahoo! User Account can be created here](https://login.yahoo.com/).
+3. You must have some basic knowledge of stock trading. [Read about Stock Basics here](http://www.investopedia.com/university/stocks/).
 
 ## Installation
+
+### Install from Binary
+
+> You will need to install and run the [Callimachus Web Server](http://callimachusproject.org/), version 1.4.
+
+The Probability Stock Screener source code is spread across two files:
+* *stockscreener.crx* contains the Chrome App data feed, it can be [downloaded here](https://github.com/ptrading/stockscreener/releases)
+* *screener.car* contains the Web application interface, it can be [downloaded here](https://github.com/ptrading/screener/releases)
+
+1. From the Callimachus [home folder](http://localhost:8080/?view) select "Import folder contents" from the main menu.
+2. Choose the screener CAR file and import into a sub folder, such as "screener".
+3. From the Callimachus [home folder](http://localhost:8080/?view) select "Folder" from the create menu.
+4. Create a folder named "p" directly in the home folder.
+5. Open the Extension tab in a Google Chrome Web Browser
+6. Using your computer's file manager, drag the stockscreener CRX file onto your Chrome Web browser extensions page
+7. Confirm New App by clicking the Add button
+8. Read the End User License Agreement for Probability Stock Screener
+9. Either accept terms or remove the Chrome App from the extensions page
+10. If you accepted terms, open your Web browser to the [launch target](http://localhost:8080/screener/launch) running in Callimachus
+11. Follow the onscreen instructions to start screening securities
 
 ### Install from Source Code
 
