@@ -31,6 +31,13 @@
 
 jQuery(function($){
 
+    if (window.location.hash.indexOf("#socket=") === 0) {
+        try {
+            window.localStorage.setItem("socket", window.location.hash.substring("#socket=".length));
+        } catch (e) {
+            if (console) console.error(e);
+        }
+    }
     screener.setProfile(window.location.href).catch(console.log.bind(console));
 
     (function(updateWatchList){
