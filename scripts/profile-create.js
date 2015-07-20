@@ -26,8 +26,9 @@ jQuery(function($){
     });
     calli.getCurrentUserName().then(function(username){
         if (!$('#name').val() && username) $('#name').val(username.replace(/@.*/,''));
-    });
-    calli.getCurrentUserAccount().then(function(iri){
+    }).then(function(){
+        return calli.getCurrentUserAccount();
+    }).then(function(iri){
         if (!iri) window.location.replace("/?login&return_to=" + encodeURIComponent(window.location.href));
         $('#members').empty().append($('<span></span>', {
             resource: iri

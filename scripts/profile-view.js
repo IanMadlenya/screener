@@ -31,6 +31,8 @@
 
 jQuery(function($){
 
+    screener.setProfile(window.location.href).catch(console.log.bind(console));
+
     (function(updateWatchList){
         screener.listSecurityClasses().then(function(classes){
             return classes.map(function(indicator){
