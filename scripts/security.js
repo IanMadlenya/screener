@@ -70,7 +70,9 @@ jQuery(function($){
             return new Date(datum.asof);
         };
         var interval = screener.getItem("security-chart-interval", 'd1');
-        var chart = d3.chart().width(document.documentElement.clientWidth).height(800).xPlot(asof);
+        var width = document.documentElement.clientWidth;
+        var height = Math.max(200,Math.min(document.documentElement.clientHeight,800));
+        var chart = d3.chart().width(width).height(height).xPlot(asof);
         chart.series("volume", d3.chart.series.bar('volume').y(d3.scale.linear().range(chart.y().range())));
         chart.series("poc poc5", d3.chart.series.line('POC(40)').xPlot(asof).datum([]));
         chart.series("band band5", d3.chart.series.band('HIGH_VALUE(40)', 'LOW_VALUE(40)').xPlot(asof).datum([]));
