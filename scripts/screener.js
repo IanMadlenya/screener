@@ -84,6 +84,12 @@
                 localStorage.removeItem(key);
             },
 
+            getProfile: function(){
+                return postDispatchMessage({
+                    cmd: 'profile'
+                });
+            },
+
             setProfile: function(profile){
                 return postDispatchMessage({
                     cmd: 'profile',
