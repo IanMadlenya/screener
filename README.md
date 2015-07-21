@@ -5,7 +5,7 @@ Thank you for your interest in Probability Stock Screener. This Web application 
 
 The Probability Stock Screener Web application is a tool investors and traders use to filter securities that fit a certain set of criteria. For example, users are able to screen for stocks by data including price, market capitalization, P/E ratio, dividend yield and 52-week price change percentage, average volume and average five-year return on investment (ROI). This screener also allow users to screen using technical indicator data. For example, one could filter for stocks that are trading above their 200-day moving average or whose Relative Strength Index (RSI) values are between a specified range.
 
-Active traders can use this screener to test probalility of set-ups for short and long-term results. Users can enter a varying number of filters; as more filters are applied, fewer stocks will be displayed on the screen. This screener allows investors and traders to analyze hundreds of stocks in a short period of time, making it possible to weed out those stocks that don't meet the user's requirements and to compare the performance of systems using historic data.
+Active traders can use this screener to test probability of set-ups for short and long-term results. Users can enter a varying number of filters; as more filters are applied, fewer stocks will be displayed on the screen. This screener allows investors and traders to analyze hundreds of stocks in a short period of time, making it possible to weed out those stocks that don't meet the user's requirements and to compare the performance of strategies using historic data.
 
 ## License
 
