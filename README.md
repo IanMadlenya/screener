@@ -19,6 +19,10 @@ The source code of this app is licensed under the BSD, a copy is provided in the
 
 ## Installation
 
+### Install from Chrome Web Store
+
+Using a Google Chrome Web browser navigate to [probabilitytrading.net](http://probabilitytrading.net/) and follow the install instructions.
+
 ### Install from Binary
 
 > You will need to install and run the [Callimachus Web Server](http://callimachusproject.org/), version 1.4.

@@ -8,6 +8,7 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link id="queries" href="../queries/" />
+    <link id="profile-url" href="../profile" />
     <style type="text/css">
         @media (min-width: 768px) {
           .container {
@@ -39,10 +40,8 @@
             };
             screener.ping().then(function(){
                 $('#install').each(complete);
+                $('#profile a').attr("href", $('#profile-url').prop("href"));
                 return calli.getCurrentUserName();
-            }, function(error){
-                $('#install').each(step);
-                return Promise.reject(error);
             }).then(function(username){
                 if (username) {
                     $('#login').each(complete);
@@ -86,21 +85,21 @@
       <div class="jumbotron">
         <h1>Probability Screener</h1>
         <p class="lead">Thanks for using Probability Screener!</p>
-        <p>This application will assist you at:</p>
+        <p>This application will assist you with:</p>
         <ul>
             <li>Filtering securities on user-defined metrics</li>
-            <li>Measuring the performance of system</li>
+            <li>Measuring the performance of strategies</li>
         </ul>
         <br/>
         <p id="profile">
-            <a class="btn btn-lg btn-success" href="../profile" role="button"
+            <a class="btn btn-lg btn-success" href="https://chrome.google.com/webstore/detail/bgdbcehfnglkbgimkncfimadfnifcjcn" role="button"
             data-content="Will prompt to Sign in or create a Yahoo account">Get Started</a>
         </p>
       </div>
 
       <div class="row marketing">
         <div class="col-sm-6">
-          <h4 id="install"><i class="glyphicon glyphicon-minus text-muted"></i> Chrome App</h4>
+          <h4 id="install"><i class="glyphicon glyphicon-hand-right text-info"></i> Chrome App</h4>
           <p>Used to retrieve data feeds from across the Web.</p>
 
           <h4 id="login"><i class="glyphicon glyphicon-minus text-muted"></i> Yahoo User Account</h4>
