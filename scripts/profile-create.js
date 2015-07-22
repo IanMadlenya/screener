@@ -25,7 +25,7 @@ jQuery(function($){
         });
     });
     calli.getCurrentUserName().then(function(username){
-        if (!$('#name').val() && username) $('#name').val(username.replace(/@.*/,''));
+        if (!$('#name').val() && username) $('#name').val(username.replace(/.*\//,'').replace(/@.*/,''));
     }).then(function(){
         return calli.getCurrentUserAccount();
     }).then(function(iri){
