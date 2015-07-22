@@ -49,6 +49,22 @@ jQuery(function($){
                 };
             });
         }).then(function(options){
+            return Promise.all(screener.getItem("security-class", '').split(' ').filter(function(iri){
+                return iri && _.pluck(options, 'value').indexOf(iri) < 0;
+            }).map(function(iri){
+                return screener.getSecurity(iri);
+            })).then(function(securities){
+                return securities.map(function(security){
+                    return {
+                        text: security.ticker,
+                        value: security.iri,
+                        title: security.name,
+                        type: security.type,
+                        mic: security.exchange.mic
+                    };
+                }).concat(options);
+            });
+        }).then(function(options){
             $('#security-class').selectize({
                 options: options,
                 items: screener.getItem("security-class", '').split(' '),
@@ -89,8 +105,7 @@ jQuery(function($){
                         '</div>';
                     },
                     item: function(data, escape) {
-                        if (data.title) return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
-                        else return '<div onclick="window.location=\'' + escape(data.value) + '?view\'">' +
+                        return '<div onclick="window.location=\'' + escape(data.value) + '?view\'" title="' + escape(data.title) + '">' +
                             escape(data.text) + '</div>';
                     }
                 }
@@ -99,7 +114,7 @@ jQuery(function($){
             }).change(updateWatchList).change();
         });
         var lastWeek = new Date(new Date().toISOString().replace(/T.*/,''));
-        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 5) / 5 * 7);
+        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 20) / 5 * 7);
         $('#since').prop('valueAsDate', lastWeek).change(function(event){
             var since = event.target.valueAsDate;
             var today = new Date(new Date().toISOString().replace(/T.*/,''));

@@ -77,6 +77,22 @@ jQuery(function($){
                 };
             });
         }).then(function(options){
+            return Promise.all(screener.getItem("security-class", '').split(' ').filter(function(iri){
+                return iri && _.pluck(options, 'value').indexOf(iri) < 0;
+            }).map(function(iri){
+                return screener.getSecurity(iri);
+            })).then(function(securities){
+                return securities.map(function(security){
+                    return {
+                        text: security.ticker,
+                        value: security.iri,
+                        title: security.name,
+                        type: security.type,
+                        mic: security.exchange.mic
+                    };
+                }).concat(options);
+            });
+        }).then(function(options){
             $('#security-class').selectize({
                 options: options,
                 items: screener.getItem("security-class", '').split(' '),
@@ -135,7 +151,7 @@ jQuery(function($){
             }).change(updateWatchList).change();
         });
         var lastWeek = new Date(new Date().toISOString().replace(/T.*/,''));
-        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 5) / 5 * 7);
+        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 20) / 5 * 7);
         $('#since').prop('valueAsDate', lastWeek).change(function(event){
             var since = event.target.valueAsDate;
             var today = new Date(new Date().toISOString().replace(/T.*/,''));
@@ -234,9 +250,14 @@ jQuery(function($){
                 while (thead.children().length > 2) thead.children().last().remove();
                 indicators.forEach(function(indicator){
                     thead.append($('<th></th>', {
-                        title: indicator.comment
+                        title: indicator.comment,
+                        "class": "text-nowrap",
+                        "style": "white-space:nowrap"
                     }).text(indicator.label));
                 });
+                if ($('#results-table').width() > $('#results-table').parent().width()) {
+                    $('#results-table').parent().removeClass("container");
+                }
                 var target = $('#results-table').closest('form').length ? "_blank" : "_self";
                 var rows = list.map(function(item){
                     // ticker
