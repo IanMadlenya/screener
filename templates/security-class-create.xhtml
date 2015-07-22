@@ -68,104 +68,106 @@
             <div class="page-header">
                 <h1>New Security Class</h1>
             </div>
-            <div class="form-group">
-                <label for="exchange">Exchange of Securities</label>
-                <xi:include href="../queries/exchange-list.rq?select&amp;rel=screener:ofExchange&amp;name=exchange&amp;id=exchange"></xi:include>
-                <div rel="screener:ofExchange" resource="?exchange"></div>
-                <script type="text/javascript">
-                    $('div[rel="screener:ofExchange"]').filter(calli.selectEachResourceIn('#exchange')).remove();
-                </script>
-            </div>
-            <div class="sectors-present row">
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label for="sectors">Sectors</label>
-                        <select id="sectors" class="form-control" multiple="multiple"
-                                onchange="calli.updateProperty(event, 'screener:includeSector')">
-                            <option property="screener:includeSector" selected="selected"
-                                content="?includeSector" value="{?includeSector}">{?includeSector}</option>
-                        </select>
+            <fieldset class="well">
+                <div class="form-group">
+                    <label for="exchange">Exchange of Securities</label>
+                    <xi:include href="../queries/exchange-list.rq?select&amp;rel=screener:ofExchange&amp;name=exchange&amp;id=exchange"></xi:include>
+                    <div rel="screener:ofExchange" resource="?exchange"></div>
+                    <script type="text/javascript">
+                        $('div[rel="screener:ofExchange"]').filter(calli.selectEachResourceIn('#exchange')).remove();
+                    </script>
+                </div>
+                <div class="sectors-present row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="sectors">Sectors</label>
+                            <select id="sectors" class="form-control" multiple="multiple"
+                                    onchange="calli.updateProperty(event, 'screener:includeSector')">
+                                <option property="screener:includeSector" selected="selected"
+                                    content="?includeSector" value="{?includeSector}">{?includeSector}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="industries">Industries</label>
+                            <select id="industries" class="form-control" multiple="multiple"
+                                    onchange="calli.updateProperty(event, 'screener:includeIndustry')">
+                                <option property="screener:includeIndustry" selected="selected"
+                                    content="?includeIndustry" value="{?includeIndustry}">{?includeIndustry}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="countries">Countries</label>
+                            <select id="countries" class="form-control" multiple="multiple"
+                                    onchange="calli.updateProperty(event, 'screener:includeCountry')">
+                                <option property="screener:includeCountry" selected="selected"
+                                    content="?includeCountry" value="{?includeCountry}">{?includeCountry}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label for="industries">Industries</label>
-                        <select id="industries" class="form-control" multiple="multiple"
-                                onchange="calli.updateProperty(event, 'screener:includeIndustry')">
-                            <option property="screener:includeIndustry" selected="selected"
-                                content="?includeIndustry" value="{?includeIndustry}">{?includeIndustry}</option>
-                        </select>
+                <div class="sectors-present form-group">
+                    <label for="marketcap">Market capitalization range</label>
+                    <input id="marketcap-min" type="range" list="marketcaps" min="0" max="1381" value="0" />
+                    <input id="marketcap-max" type="range" list="marketcaps" min="0" max="1381" value="1381" />
+                    <p class="help-block"></p>
+                    <datalist id="marketcaps">
+                        <option>0</option>
+                        <option>391</option>
+                        <option>552</option>
+                        <option>760</option>
+                        <option>921</option>
+                        <option>1220</option>
+                    </datalist>
+                    <span property="screener:mincap" datatype="xsd:integer" content="?mincap"></span>
+                    <span property="screener:maxcap" datatype="xsd:integer" content="?maxcap"></span>
+                </div>
+                <div class="row">
+                    <div class="sectors-present col-sm-6">
+                        <div class="form-group">
+                            <label for="exclude-securities">Excluded ticker symbols</label>
+                            <select id="exclude-securities" class="form-control" multiple="multiple"
+                                    onchange="calli.updateResource(event,'screener:exclude')">
+                                <option rel="screener:exclude" resource="?exclude" selected="selected">{?exclude}</option>
+                            </select>
+                            <p class="help-block">Space separated list of ticker symbols to exclude</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="include-securities"><span class="sectors-present">Additional </span>Included ticker symbols</label>
+                            <select id="include-securities" class="form-control" multiple="multiple"
+                                    onchange="calli.updateResource(event,'screener:include')">
+                                <option rel="screener:include" resource="?include" selected="selected">{?include}</option>
+                            </select>
+                            <p class="help-block">Space separated list of ticker symbols to include</p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
-                    <div class="form-group">
-                        <label for="countries">Countries</label>
-                        <select id="countries" class="form-control" multiple="multiple"
-                                onchange="calli.updateProperty(event, 'screener:includeCountry')">
-                            <option property="screener:includeCountry" selected="selected"
-                                content="?includeCountry" value="{?includeCountry}">{?includeCountry}</option>
-                        </select>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <button id="show-security-table" class="btn btn-warning" type="button">
+                            List securities
+                            <span class="glyphicon glyphicon-expand"></span>
+                        </button>
+                    </div>
+                    <div class="col-sm-3">
+                        <p></p>
+                        <p>
+                            Number of securities:
+                            <span id="security-count"></span>
+                        </p>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <div class="form-group">
+                            <button id="store" type="button" class="btn btn-primary">Store</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="sectors-present form-group">
-                <label for="marketcap">Market capitalization range</label>
-                <input id="marketcap-min" type="range" list="marketcaps" min="0" max="1381" value="0" />
-                <input id="marketcap-max" type="range" list="marketcaps" min="0" max="1381" value="1381" />
-                <p class="help-block"></p>
-                <datalist id="marketcaps">
-                    <option>0</option>
-                    <option>391</option>
-                    <option>552</option>
-                    <option>760</option>
-                    <option>921</option>
-                    <option>1220</option>
-                </datalist>
-                <span property="screener:mincap" datatype="xsd:integer" content="?mincap"></span>
-                <span property="screener:maxcap" datatype="xsd:integer" content="?maxcap"></span>
-            </div>
-            <div class="row">
-                <div class="sectors-present col-sm-6">
-                    <div class="form-group">
-                        <label for="exclude-securities">Excluded ticker symbols</label>
-                        <select id="exclude-securities" class="form-control" multiple="multiple"
-                                onchange="calli.updateResource(event,'screener:exclude')">
-                            <option rel="screener:exclude" resource="?exclude" selected="selected">{?exclude}</option>
-                        </select>
-                        <p class="help-block">Space separated list of ticker symbols to exclude</p>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label for="include-securities"><span class="sectors-present">Additional </span>Included ticker symbols</label>
-                        <select id="include-securities" class="form-control" multiple="multiple"
-                                onchange="calli.updateResource(event,'screener:include')">
-                            <option rel="screener:include" resource="?include" selected="selected">{?include}</option>
-                        </select>
-                        <p class="help-block">Space separated list of ticker symbols to include</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <button id="show-security-table" class="btn btn-warning" type="button">
-                        List securities
-                        <span class="glyphicon glyphicon-expand"></span>
-                    </button>
-                </div>
-                <div class="col-sm-3">
-                    <p></p>
-                    <p>
-                        Number of securities:
-                        <span id="security-count"></span>
-                    </p>
-                </div>
-                <div class="col-sm-6 text-right">
-                    <div class="form-group">
-                        <button id="store" type="button" class="btn btn-primary">Store</button>
-                    </div>
-                </div>
-            </div>
+            </fieldset>
         </div>
         <div class="collapse table-responsive">
             <table id="security-table" class="table table-condensed table-bordered table-hover">

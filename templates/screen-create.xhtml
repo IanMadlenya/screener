@@ -56,7 +56,7 @@
                     </div>
                 </div>
             </div>
-            <fieldset class="row">
+            <div class="row">
                 <div class="col-md-9 col-sm-8">
                     <div class="form-group">
                         <label for="security-class">Security Class</label>
@@ -69,65 +69,67 @@
                         <input type="date" class="form-control" id="since" />
                     </div>
                 </div>
-            </fieldset>
-            <fieldset>
-                <label>Watch criteria</label>
-                <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                <small class="text-muted">Criteria that must previously have been met for a security to appear on screen</small>
-                <div id="watch">
-                    <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                    <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <label class="input-group-addon input-sm">Lower</label>
-                                    <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+            </div>
+            <fieldset class="well">
+                <div>
+                    <label>Watch criteria</label>
+                    <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                    <small class="text-muted">Criteria that must previously have been met for a security to appear on screen</small>
+                    <div id="watch">
+                        <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                        <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <label class="input-group-addon input-sm">Upper</label>
-                                    <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <label class="input-group-addon input-sm">Lower</label>
+                                        <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <label class="input-group-addon input-sm">Upper</label>
+                                        <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </fieldset>
-            <fieldset>
-                <label>Hold criteria</label>
-                <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                <small class="text-muted">Criteria that must continue to be met for a security to stay on screen</small>
-                <div id="hold">
-                    <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                    <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <label class="input-group-addon input-sm">Lower</label>
-                                    <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                <div>
+                    <label>Hold criteria</label>
+                    <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                    <small class="text-muted">Criteria that must continue to be met for a security to stay on screen</small>
+                    <div id="hold">
+                        <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                        <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <label class="input-group-addon input-sm">Upper</label>
-                                    <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <label class="input-group-addon input-sm">Lower</label>
+                                        <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <label class="input-group-addon input-sm">Upper</label>
+                                        <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
