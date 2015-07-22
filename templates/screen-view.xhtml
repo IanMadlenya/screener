@@ -25,7 +25,9 @@
     </div>
     <div id="watch">
         <div rel="screener:hasWatchCriteria" resource="?watch">
-            <div rel="screener:forIndicator" resource="?windicator"></div>
+            <div rel="screener:forIndicator" resource="?watchIndicator"></div>
+            <div rel="screener:differenceFrom" resource="?watchDifference"></div>
+            <div rel="screener:percentOf" resource="?watchPercent"></div>
             <span property="screener:lower" content="?wl"></span>
             <span property="screener:upper" content="?wu"></span>
         </div>
@@ -33,6 +35,8 @@
     <div id="hold">
         <div rel="screener:hasHoldCriteria" resource="?hold">
             <div rel="screener:forIndicator" resource="?hindicator"></div>
+            <div rel="screener:differenceFrom" resource="?holdDifference"></div>
+            <div rel="screener:percentOf" resource="?holdPercent"></div>
             <span property="screener:lower" content="?hl"></span>
             <span property="screener:upper" content="?hu"></span>
         </div>

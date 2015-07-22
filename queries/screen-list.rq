@@ -11,7 +11,7 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?lower ?upper ?hasChangeReference {
+SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?differenceFrom ?percentOf ?lower ?upper {
     ?p foaf:name ?profile ;
         foaf:member <$user> ;
         calli:hasComponent ?iri .
@@ -21,6 +21,10 @@ SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?lo
         ?iri screener:hasWatchCriteria ?hasWatchCriteria .
         ?hasWatchCriteria screener:forIndicator ?forIndicator
         OPTIONAL {
+            ?hasWatchCriteria screener:differenceFrom ?differenceFrom
+        } OPTIONAL {
+            ?hasWatchCriteria screener:percentOf ?percentOf
+        } OPTIONAL {
             ?hasWatchCriteria screener:lower ?lower
         } OPTIONAL {
             ?hasWatchCriteria screener:upper ?upper
@@ -29,6 +33,10 @@ SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?lo
         ?iri screener:hasHoldCriteria ?hasHoldCriteria .
         ?hasHoldCriteria screener:forIndicator ?forIndicator
         OPTIONAL {
+            ?hasHoldCriteria screener:differenceFrom ?differenceFrom
+        } OPTIONAL {
+            ?hasHoldCriteria screener:percentOf ?percentOf
+        } OPTIONAL {
             ?hasHoldCriteria screener:lower ?lower
         } OPTIONAL {
             ?hasHoldCriteria screener:upper ?upper

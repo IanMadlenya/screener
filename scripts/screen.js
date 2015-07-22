@@ -65,7 +65,12 @@ jQuery(function($){
                             value: optgroup,
                             label: optgroup
                         };
-                    })
+                    }),
+                    render: {
+                        item: function(data, escape) {
+                            return '<div title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
+                        }
+                    }
                 }).change();
             });
         };
@@ -161,14 +166,14 @@ jQuery(function($){
             $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
         });
         $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
-        $('#watch').siblings('.add').click(function(event){
+        $('#watch').parent().find('a.add').click(function(event){
             event.preventDefault();
             calli.addResource(event,'#watch').then(function(div){
                 $(div).find('select,input').change(updateWatchList);
                 $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
             });
         });
-        $('#hold').siblings('.add').click(function(event){
+        $('#hold').parent().find('a.add').click(function(event){
             event.preventDefault();
             calli.addResource(event,'#hold').then(function(div){
                 $(div).find('select,input').change(updateWatchList);
@@ -383,6 +388,8 @@ jQuery(function($){
         }).map(function(elem){
             return {
                 forIndicator: $(elem).find('[rel="screener:forIndicator"]').attr("resource"),
+                differenceFrom: $(elem).find('[rel="screener:differenceFrom"]').attr("resource"),
+                percentOf: $(elem).find('[rel="screener:percentOf"]').attr("resource"),
                 lower: $(elem).find('[property="screener:lower"]').attr("content"),
                 upper: $(elem).find('[property="screener:upper"]').attr("content")
             };

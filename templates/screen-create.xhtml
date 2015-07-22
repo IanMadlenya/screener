@@ -11,6 +11,12 @@
     <title>New Screen</title>
     <link id="queries" href="../queries/" />
     <link id="SecurityClass" href="../classes/SecurityClass" />
+    <style type="text/css">
+        input[type="number"] {
+            padding-right: 0;
+            text-align: right;
+        }
+    </style>
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/screen.js"></script>
@@ -72,65 +78,91 @@
             </div>
             <fieldset class="well">
                 <div>
-                    <label>Watch criteria</label>
-                    <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                    <small class="text-muted">Criteria that must previously have been met for a security to appear on screen</small>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                            <label title="Criteria that must previously have been met for a security to appear on screen">Watch criteria value</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
+                        </div>
+                        <div class="col-sm-1">
+                            <label title="Lower value or percentage of acceptable range">Lower</label>
+                        </div>
+                        <div class="col-sm-1">
+                            <label title="Lower value or percentage of acceptable range">Upper</label>
+                        </div>
+                    </div>
                     <div id="watch">
                         <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                        <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
-                                    </select>
-                                </div>
+                            <div class="col-sm-4">
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                    <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <label class="input-group-addon input-sm">Lower</label>
-                                        <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
-                                    </div>
-                                </div>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicator">
+                                    <option rel="screener:differenceFrom" resource="?watchDifference" value="{?watchDifference}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <label class="input-group-addon input-sm">Upper</label>
-                                        <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
-                                    </div>
-                                </div>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicator">
+                                    <option rel="screener:percentOf" resource="?watchPercent" value="{?watchPercent}" selected="selected">{rdfs:label}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <label>Hold criteria</label>
-                    <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                    <small class="text-muted">Criteria that must continue to be met for a security to stay on screen</small>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
+                            <label title="Criteria that must continue to be met for a security to stay on screen">Hold criteria value</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label title="As of the last watch signal, subtracted from the current criteria value before checking the lower and upper bounds">Difference from watch</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value as of the last watch signal">Percentage of watch</label>
+                        </div>
+                        <div class="col-sm-1">
+                            <label title="Lower value or percentage of acceptable range">Lower</label>
+                        </div>
+                        <div class="col-sm-1">
+                            <label title="Lower value or percentage of acceptable range">Upper</label>
+                        </div>
+                    </div>
                     <div id="hold">
                         <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                        <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
-                                    </select>
-                                </div>
+                            <div class="col-sm-4">
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                    <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <label class="input-group-addon input-sm">Lower</label>
-                                        <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
-                                    </div>
-                                </div>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicator">
+                                    <option rel="screener:differenceFrom" resource="?holdDifference" value="{?holdDifference}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <label class="input-group-addon input-sm">Upper</label>
-                                        <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
-                                    </div>
-                                </div>
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicator">
+                                    <option rel="screener:percentOf" resource="?holdPercent" value="{?holdPercent}" selected="selected">{rdfs:label}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
                             </div>
                         </div>
                     </div>

@@ -447,10 +447,13 @@
         if (_.isEmpty(filters)) return Promise.resolve();
         return Promise.all(filters.map(function(filter){
             return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
-                return getIndicator(filter.hasChangeReference || filter.changeReference).then(function(changeReference){
-                    return _.extend({}, filter, {
-                        indicator: indicator,
-                        changeReference: changeReference
+                return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
+                    return getIndicator(filter.percentOf).then(function(percentOf){
+                        return _.extend({}, filter, {
+                            indicator: indicator,
+                            difference: difference,
+                            percentOf: percentOf
+                        });
                     });
                 });
             });
