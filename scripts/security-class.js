@@ -357,10 +357,30 @@ jQuery(function($){
             var rows = securities.map(function(security){
                 // ticker
                 var ticker = security.substring(exchange.length + 1);
-                return $('<tr></tr>').append($('<td></td>').append($('<a></a>', {
+                var th = $('<th></th>').append($('<a></a>', {
                     href: security,
                     target: target
-                }).text(ticker)));
+                }).text(ticker));
+                if ($('#security-table').closest('form').length) {
+                    th.append($('<a></a>',{
+                        "class": "glyphicon glyphicon-remove text-danger pull-right",
+                        "style": "text-decoration:none"
+                    }).click(function(event){
+                        if (_.contains($('#include-securities').val(), security)) {
+                            $('#include-securities')[0].selectize.removeItem(security);
+                        } else {
+                            $('#exclude-securities')[0].selectize.addOption({
+                                text: ticker,
+                                value: security,
+                                title: ticker,
+                                type: ''
+                            });
+                            $('#exclude-securities')[0].selectize.addItem(security);
+                        }
+                        $(event.target).closest('tr').remove();
+                    }));
+                }
+                return $('<tr></tr>').append(th);
             });
             $('#security-table tbody').empty().append(rows);
             var upper = new Date();
@@ -385,30 +405,6 @@ jQuery(function($){
                 var ticker = security.substring(exchange.length + 1);
                 return screener.getSecurity(security).then(function(result){
                     var th = $('<td></td>').text(result && result.name || '');
-                    if ($('#security-table').closest('form').length) {
-                        th.append($('<a></a>',{
-                            "class": "glyphicon glyphicon-remove text-danger",
-                            "style": "text-decoration:none"
-                        }).click(function(event){
-                            if (_.contains($('#include-securities').val(), security)) {
-                                $('#include-securities')[0].selectize.removeItem(security);
-                            } else {
-                                $('#exclude-securities')[0].selectize.addOption(result ? {
-                                    text: result.ticker,
-                                    value: security,
-                                    title: result.name,
-                                    type: result.type
-                                } : {
-                                    text: ticker,
-                                    value: security,
-                                    title: ticker,
-                                    type: ''
-                                });
-                                $('#exclude-securities')[0].selectize.addItem(security);
-                            }
-                            $(event.target).closest('tr').remove();
-                        }));
-                    }
                     return tr.append(th);
                 }).then(function(){
                     // close change volume
