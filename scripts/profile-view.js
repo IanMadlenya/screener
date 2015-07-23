@@ -159,67 +159,63 @@ jQuery(function($){
         var screens = $('#screen').val();
         if (_.isEmpty(securityClasses) || _.isEmpty(screens)) return;
         var now = new Date();
-        $('#results-table tbody').empty();
         return Promise.all(screens.map(function(screen){
             return screener.screen(securityClasses, screen, since, now).then(function(list){
                 return list.filter(function(item){
                     return item.signal != 'stop';
                 });
             }).then(function(list){
-                var rows = list.map(function(item){
-                    // ticker
-                    return $('<tr></tr>', {
-                        resource: item.security
-                    }).append($('<td></td>').append($('<a></a>', {
-                        href: item.security
-                    }).text(decodeURIComponent(item.security.replace(/^.*\//,'')))));
-                });
-                $('#results-table tbody').append(rows);
-                return Promise.all(list.map(function(item, i){
-                    var tr = rows[i];
-                    return screener.getSecurity(item.security).then(function(result){
-                        return tr.append($('<td></td>').text(result && result.name || ''));
-                    }).then(function(){
-                        return screener.load(item.security, ['asof', 'open','high','low','close'], 'd1', 2, now);
-                    }).then(function(data){
-                        if (!data.length) return;
-                        var close = data[data.length-1].close;
-                        var previous = data.length > 1 ? data[data.length-2].close : close;
-                        var change = Math.round(10000 * (close - previous) / previous) / 100;
-                        var volume = data[data.length-1].volume;
-                        return tr.append($('<td></td>', {
-                            "class": "text-right",
-                            "data-value": close
-                        }).text(screener.formatCurrency(close))).append($('<td></td>', {
-                            "class": (change < 0 ? "text-danger " : '') + "text-right",
-                            "data-value": change
-                        }).text(data.length > 1 && (change + '%') || '')).append($('<td></td>', {
-                            "class": "text-right hidden-xs",
-                            "data-value": volume
-                        }).text(screener.formatNumber(volume)));
-                    }).then(function(){
-                        var lower = new Date();
-                        lower.setFullYear(lower.getFullYear() - 1);
-                        return screener.load(item.security, ['asof', 'open','high','low','close'], 'd5', 5, lower, now);
-                    }).then(function(data){
-                        var high = _.max(_.pluck(data, 'high'));
-                        var low = _.min(_.pluck(data, 'low'));
-                        tr.append($('<td></td>', {
-                            "class": "text-right hidden-xs",
-                            "data-value": high
-                        }).text(screener.formatCurrency(high))).append($('<td></td>', {
-                            "class": "text-right hidden-xs",
-                            "data-value": low
-                        }).text(screener.formatCurrency(low)));
-                    }).then(function(){
-                        tr.append($('<td></td>', {
-                            "class": "text-right hidden-xs",
-                            "data-value": item.growth
-                        }).text(item.growth.toFixed(2) + '%'));
-                    });
-                }));
+                return _.pluck(list, 'security');
             });
-        })).then(function(){
+        })).then(_.flatten).then(_.uniq).then(function(securities){
+            var rows = securities.map(function(security){
+                // ticker
+                return $('<tr></tr>', {
+                    resource: security
+                }).append($('<td></td>').append($('<a></a>', {
+                    href: security
+                }).text(decodeURIComponent(security.replace(/^.*\//,'')))));
+            });
+            $('#results-table tbody').empty().append(rows);
+            return Promise.all(securities.map(function(security, i){
+                var tr = rows[i];
+                return screener.getSecurity(security).then(function(result){
+                    return tr.append($('<td></td>').text(result && result.name || ''));
+                }).then(function(){
+                    return screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, now);
+                }).then(function(data){
+                    if (!data.length) return;
+                    var close = data[data.length-1].close;
+                    var previous = data.length > 1 ? data[data.length-2].close : close;
+                    var change = Math.round(10000 * (close - previous) / previous) / 100;
+                    var volume = data[data.length-1].volume;
+                    return tr.append($('<td></td>', {
+                        "class": "text-right",
+                        "data-value": close
+                    }).text(screener.formatCurrency(close))).append($('<td></td>', {
+                        "class": (change < 0 ? "text-danger " : '') + "text-right",
+                        "data-value": change
+                    }).text(data.length > 1 && (change + '%') || '')).append($('<td></td>', {
+                        "class": "text-right hidden-xs",
+                        "data-value": volume
+                    }).text(screener.formatNumber(volume)));
+                }).then(function(){
+                    var lower = new Date();
+                    lower.setFullYear(lower.getFullYear() - 1);
+                    return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, now);
+                }).then(function(data){
+                    var high = _.max(_.pluck(data, 'high'));
+                    var low = _.min(_.pluck(data, 'low'));
+                    tr.append($('<td></td>', {
+                        "class": "text-right hidden-xs",
+                        "data-value": high
+                    }).text(screener.formatCurrency(high))).append($('<td></td>', {
+                        "class": "text-right hidden-xs",
+                        "data-value": low
+                    }).text(screener.formatCurrency(low)));
+                });
+            }));
+        }).then(function(){
             sortTable();
         });
     }
