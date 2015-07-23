@@ -38,7 +38,7 @@ jQuery(function($){
             show: false,
             backdrop: false
         }).on('shown.bs.modal', function () {
-            $('#label').focus()
+            $('#label').focus();
         });
         $('#store').click(function(event){
             $('#label-dialog').modal('show');
@@ -213,7 +213,7 @@ jQuery(function($){
                         if (!results) callback();
                         else if (results.length == 1) callback(results[0]);
                         else {
-                            callback();
+                            callback(results[0]);
                             _.defer(function(){
                                 results.forEach(function(result){
                                     $(id)[0].selectize.addItem(result.value);
@@ -233,9 +233,6 @@ jQuery(function($){
                     },
                     item: function(data, escape) {
                         return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
-                    },
-                    option_create: function(data, escape) {
-                        return '<div></div>';
                     }
                 }
             };
