@@ -56,14 +56,24 @@ jQuery(function($){
                             10 * +indicator.interval.value.substring(1);
                     return i * units.length + units.indexOf(indicator.unit.value);
                 });
-                return $(select).selectize({
-                    options: _.sortBy(options, function(indicator){
-                        return groups.indexOf(indicator.optgroup);
-                    }),
+                var sorted = options.map(function(option){
+                    return _.extend(option, {
+                        sort: groups.indexOf(option.optgroup)
+                    });
+                });
+                $(select).selectize({
+                    searchField: ['text', 'title'],
+                    sortField: [{field:'sort'}, {field:'text'}],
+                    options: sorted,
                     optgroups: groups.map(function(optgroup){
                         return {
                             value: optgroup,
-                            label: optgroup
+                            label: optgroup,
+                            sort: groups.indexOf(optgroup),
+                            references: sorted.filter(function(option){
+                                return groups.indexOf(option.optgroup) <= groups.indexOf(optgroup) &&
+                                    optgroups[option.optgroup].unit.label == optgroups[optgroup].unit.label;
+                            })
                         };
                     }),
                     render: {
@@ -72,6 +82,22 @@ jQuery(function($){
                         }
                     }
                 }).change();
+                return select.selectize;
+            });
+        };
+        var selectizeIndicatorReference = function(select) {
+            selectizeIndicator(select);
+            var indicator = $(select).closest('[resource]').find('[name="indicator"]');
+            indicator.change(function(){
+                var value = indicator.val();
+                if (!value || !indicator[0].selectize) return;
+                var option = indicator[0].selectize.options[value];
+                var optgroup = indicator[0].selectize.optgroups[option.optgroup];
+                var item = $(select).val();
+                select.selectize.clearOptions();
+                select.selectize.addOption(optgroup.references);
+                select.selectize.addItem(item);
+                select.selectize.refreshOptions(false);
             });
         };
         screener.listSecurityClasses().then(function(classes){
@@ -165,19 +191,28 @@ jQuery(function($){
         $('div[rel="screener:forIndicator"]').parent().each(function(){
             $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
         });
+        $('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
         $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
-        $('#watch').parent().find('a.add').click(function(event){
+        $('#watch').parent().find('.add').click(function(event){
             event.preventDefault();
             calli.addResource(event,'#watch').then(function(div){
                 $(div).find('select,input').change(updateWatchList);
-                $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
+                $(div).find('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
+                var indicators = $(div).find('select[name="indicator"]').toArray();
+                return Promise.all(indicators.map(selectizeIndicator)).then(function(selectizes){
+                    selectizes[0].focus();
+                });
             });
         });
         $('#hold').parent().find('a.add').click(function(event){
             event.preventDefault();
             calli.addResource(event,'#hold').then(function(div){
                 $(div).find('select,input').change(updateWatchList);
-                $(div).find('select[name="indicator"]').toArray().forEach(selectizeIndicator);
+                $(div).find('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
+                var indicators = $(div).find('select[name="indicator"]').toArray();
+                return Promise.all(indicators.map(selectizeIndicator)).then(function(selectizes){
+                    selectizes[0].focus();
+                });
             });
         });
         if (window.location.hash.length > 1) {
