@@ -265,7 +265,7 @@ jQuery(function($){
         }).css("cursor", "pointer");
     })(screener.debouncePromise(populate_list.bind(this, $('#security-table thead th.month').toArray().map(function(th){
         return $(th).text();
-    })), 100));
+    })), 500));
 
     var comparision = $('#security-class-form').attr("resource") && calli.copyResourceData('#security-class-form');
     $('#security-class-form').submit(function(event){

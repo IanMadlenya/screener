@@ -151,7 +151,7 @@ jQuery(function($){
         $('#results-table thead th').click(function(event){
             sortTable($(event.target).prevAll().length);
         }).css("cursor", "pointer");
-    })(screener.debouncePromise(updateWatchList));
+    })(screener.debouncePromise(updateWatchList, 500));
 
     function updateWatchList() {
         var securityClasses = $('#security-class').val();

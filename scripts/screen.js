@@ -191,6 +191,7 @@ jQuery(function($){
         $('div[rel="screener:forIndicator"]').parent().each(function(){
             $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
         });
+        $('select,input').change(updateWatchList);
         $('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
         $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
         $('#watch').parent().find('.add').click(function(event){
@@ -236,7 +237,7 @@ jQuery(function($){
         }).on('hidden.bs.collapse', function(){
             $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
-    })(screener.debouncePromise(updateWatchList));
+    })(screener.debouncePromise(updateWatchList, 500));
 
     var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
     $('#screen-form').submit(function(event){
@@ -283,17 +284,17 @@ jQuery(function($){
         return screener.screen(securityClasses, screen, since, now).then(function(list){
             updatePerformance(since, now, list);
             if ($('#results-table').is(":hidden")) return;
-            return Promise.all(hold.map(function(hold){
-                return screener.getIndicator(hold.forIndicator);
-            })).then(function(indicators){
+            return screener.inlineFilters(hold).then(function(filters){
                 var thead = $('#results-table thead tr');
                 while (thead.children().length > 2) thead.children().last().remove();
-                indicators.forEach(function(indicator){
+                filters.forEach(function(filter){
+                    var symbol = filter.percent ? ' %' :
+                        filter.difference ? ' Δ' : '';
                     thead.append($('<th></th>', {
-                        title: indicator.comment,
+                        title: filter.indicator.comment,
                         "class": "text-nowrap",
                         "style": "white-space:nowrap"
-                    }).text(indicator.label));
+                    }).text(filter.indicator.label + symbol));
                 });
                 if ($('#results-table').width() > $('#results-table').parent().width()) {
                     $('#results-table').parent().removeClass("container");
@@ -315,12 +316,14 @@ jQuery(function($){
                     return screener.getSecurity(item.security).then(function(result){
                         return tr.append($('<td></td>').text(result && result.name || ''));
                     }).then(function(){
-                        indicators.forEach(function(indicator){
-                            var value = item[indicator.interval.value][indicator.expression];
-                            var format = indicator.unit.value == 'price'  ?
-                                    '$' + value.toFixed(2) :
-                                indicator.unit.value == 'percent' ?
-                                    value.toFixed(2) + '%' :
+                        filters.forEach(function(filter){
+                            var ind = item[filter.indicator.interval.value][filter.indicator.expression];
+                            var diff = filter.difference ? item.watch[filter.difference.interval.value][filter.difference.expression] : 0;
+                            var prct = filter.percent ? item.watch[filter.percent.interval.value][filter.percent.expression] : 100;
+                            var value = (ind - diff) * 100 / prct;
+                            var unit = filter.percent ? 'percent' : filter.indicator.unit.value;
+                            var format = unit == 'price'  ? '$' + value.toFixed(2) :
+                                unit == 'percent' ? value.toFixed(2) + '%' :
                                 screener.formatNumber(value);
                             tr.append($('<td></td>', {
                                 "class": "text-right",

@@ -106,7 +106,7 @@
                         // ignore previous error
                     }).then(function(){
                         if (current === end) return new Promise(function(resolve){
-                            _.delay(resolve, wait); // wait for another call
+                            _.delay(resolve, wait || 0); // wait for another call
                         });
                     }).then(function() {
                         if (current === end) // no other calls
@@ -260,6 +260,23 @@
                     });
                 });
             }),
+
+            inlineFilters: function(filters) {
+                if (_.isEmpty(filters)) return Promise.resolve();
+                return Promise.all(filters.map(function(filter){
+                    return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
+                        return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
+                            return getIndicator(filter.percentOf || filter.percent).then(function(percent){
+                                return _.extend({}, filter, {
+                                    indicator: indicator,
+                                    difference: difference,
+                                    percent: percent
+                                });
+                            });
+                        });
+                    });
+                }));
+            },
 
             listSecurityClasses: function(){
                 return calli.getCurrentUserAccount().then(function(iri){
@@ -433,31 +450,14 @@
     function inlineScreen(screen) {
         if (_.isString(screen)) return inlineScreens([screen]).then(_.first);
         return Promise.all([
-            inlineFilters(screen.watch),
-            inlineFilters(screen.hold)
+            screener.inlineFilters(screen.watch),
+            screener.inlineFilters(screen.hold)
         ]).then(function(ar) {
             return _.extend({}, screen, {
                 watch: ar[0],
                 hold: ar[1]
             });
         });
-    }
-
-    function inlineFilters(filters) {
-        if (_.isEmpty(filters)) return Promise.resolve();
-        return Promise.all(filters.map(function(filter){
-            return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
-                return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
-                    return getIndicator(filter.percentOf || filter.percent).then(function(percent){
-                        return _.extend({}, filter, {
-                            indicator: indicator,
-                            difference: difference,
-                            percent: percent
-                        });
-                    });
-                });
-            });
-        }));
     }
 
     function getIndicator(iri) {
