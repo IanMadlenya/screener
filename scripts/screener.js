@@ -448,11 +448,11 @@
         return Promise.all(filters.map(function(filter){
             return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
                 return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
-                    return getIndicator(filter.percentOf).then(function(percentOf){
+                    return getIndicator(filter.percentOf || filter.percent).then(function(percent){
                         return _.extend({}, filter, {
                             indicator: indicator,
                             difference: difference,
-                            percentOf: percentOf
+                            percent: percent
                         });
                     });
                 });
