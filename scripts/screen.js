@@ -333,6 +333,8 @@ jQuery(function($){
                     });
                 }));
             });
+        }).then(function(){
+            screener.sortTable('#results-table');
         });
     }
 

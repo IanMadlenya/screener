@@ -139,6 +139,44 @@
                 return '$' + number.toFixed(2);
             },
 
+            sortTable: (function(sortedTables, sortedByColumnNumber, table, columnNumber) {
+                if (sortedTables.indexOf(table) < 0) {
+                    sortedTables.push(table);
+                }
+                $(table).children('thead').find('th').filter(function(){
+                    return $(this).css("cursor") != "pointer";
+                }).click(function(event){
+                    screener.sortTable(table, $(event.target).prevAll().length);
+                }).css("cursor", "pointer");
+                var lastSortedColumn = sortedByColumnNumber[sortedTables.indexOf(table)];
+                if (columnNumber === undefined && lastSortedColumn === undefined) {
+                    return;
+                } else if (columnNumber === undefined) {
+                    return screener.sortTable(table, lastSortedColumn);
+                } else {
+                    sortedByColumnNumber[sortedTables.indexOf(table)] = columnNumber;
+                }
+                var tbody = $(table).children('tbody');
+                tbody.append(tbody.children('tr').toArray().sort(function(a,b){
+                    var ca = $(a).children()[columnNumber];
+                    var cb = $(b).children()[columnNumber];
+                    if (!ca && !cb) {
+                        ca = $(a).children()[0];
+                        cb = $(b).children()[0];
+                    }
+                    if (!ca) return 1;
+                    if (!cb) return -1;
+                    var va = ca.getAttribute("data-value");
+                    var vb = cb.getAttribute("data-value");
+                    var ta = $(ca).text();
+                    var tb = $(cb).text();
+                    if (va || vb) return +vb - +va;
+                    else if (ta < tb) return -1;
+                    else if (ta > tb) return 1;
+                    else return 0;
+                }));
+            }).bind(this, [], []),
+
             ping: function() {
                 return postDispatchMessage("ping");
             },

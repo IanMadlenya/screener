@@ -148,9 +148,6 @@ jQuery(function($){
                 screener.setItem("screen", ($(event.target).val() || []).join(' '));
             }).change(updateWatchList).change();
         });
-        $('#results-table thead th').click(function(event){
-            sortTable($(event.target).prevAll().length);
-        }).css("cursor", "pointer");
     })(screener.debouncePromise(updateWatchList, 500));
 
     function updateWatchList() {
@@ -216,37 +213,7 @@ jQuery(function($){
                 });
             }));
         }).then(function(){
-            sortTable();
+            screener.sortTable('#results-table');
         });
-    }
-
-    var lastSortedColumn;
-    function sortTable(column) {
-        if (column === undefined && lastSortedColumn === undefined) {
-            return;
-        } else if (column === undefined) {
-            return sortTable(lastSortedColumn);
-        } else {
-            lastSortedColumn = column;
-        }
-        var tbody = $('#results-table tbody');
-        tbody.append(tbody.children('tr').toArray().sort(function(a,b){
-            var ca = $(a).children()[column];
-            var cb = $(b).children()[column];
-            if (!ca && !cb) {
-                ca = $(a).children()[0];
-                cb = $(b).children()[0];
-            }
-            if (!ca) return 1;
-            if (!cb) return -1;
-            var va = ca.getAttribute("data-value");
-            var vb = cb.getAttribute("data-value");
-            var ta = $(ca).text();
-            var tb = $(cb).text();
-            if (va || vb) return +vb - +va;
-            else if (ta < tb) return -1;
-            else if (ta > tb) return 1;
-            else return 0;
-        }));
     }
 });

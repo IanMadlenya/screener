@@ -260,9 +260,6 @@ jQuery(function($){
             $('#show-security-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
         populate_list();
-        $('#security-table thead th').click(function(event){
-            sortTable($(event.target).prevAll().length);
-        }).css("cursor", "pointer");
     })(screener.debouncePromise(populate_list.bind(this, $('#security-table thead th.month').toArray().map(function(th){
         return $(th).text();
     })), 500));
@@ -284,36 +281,6 @@ jQuery(function($){
             calli.submitUpdate(comparision, event);
         }
     });
-
-    var lastSortedColumn;
-    function sortTable(column) {
-        if (column === undefined && lastSortedColumn === undefined) {
-            return;
-        } else if (column === undefined) {
-            return sortTable(lastSortedColumn);
-        } else {
-            lastSortedColumn = column;
-        }
-        var tbody = $('#security-table tbody');
-        tbody.append(tbody.children('tr').toArray().sort(function(a,b){
-            var ca = $(a).children()[column];
-            var cb = $(b).children()[column];
-            if (!ca && !cb) {
-                ca = $(a).children()[0];
-                cb = $(b).children()[0];
-            }
-            if (!ca) return 1;
-            if (!cb) return -1;
-            var va = ca.getAttribute("data-value");
-            var vb = cb.getAttribute("data-value");
-            var ta = $(ca).text();
-            var tb = $(cb).text();
-            if (va || vb) return +vb - +va;
-            else if (ta < tb) return -1;
-            else if (ta > tb) return 1;
-            else return 0;
-        }));
-    }
 
     function populate_list(labels){
         if ($('#security-table').is(":hover")) return;
@@ -477,7 +444,7 @@ jQuery(function($){
                 }).catch(console.log.bind(console));
             }));
         }).then(function(){
-            sortTable();
+            screener.sortTable('#security-table');
         }).catch(calli.error);
     }
 });
