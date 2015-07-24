@@ -281,6 +281,7 @@ jQuery(function($){
         if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return;
         var now = new Date();
         var screen = {watch: watch, hold: hold};
+        $('.table').addClass("loading");
         return screener.screen(securityClasses, screen, since, now).then(function(list){
             updatePerformance(since, now, list);
             if ($('#results-table').is(":hidden")) return;
@@ -311,6 +312,7 @@ jQuery(function($){
                     }).text(decodeURIComponent(item.security.replace(/^.*\//,'')))));
                 });
                 $('#results-table tbody').empty().append(rows);
+                $('.table').removeClass("loading");
                 return Promise.all(list.map(function(item, i){
                     var tr = rows[i];
                     return screener.getSecurity(item.security).then(function(result){
@@ -335,6 +337,8 @@ jQuery(function($){
             });
         }).then(function(){
             screener.sortTable('#results-table');
+        }).catch(calli.error).then(function(){
+            $('.table').removeClass("loading");
         });
     }
 

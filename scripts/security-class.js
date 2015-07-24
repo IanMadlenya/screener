@@ -291,6 +291,7 @@ jQuery(function($){
         if (!exchange) return;
         var mincap = $('[property="screener:mincap"]').attr("content");
         var maxcap = $('[property="screener:maxcap"]').attr("content");
+        $('#security-table').addClass("loading");
         return Promise.resolve(sectors).then(function(sectors){
             if (!_.isEmpty(sectors)) {
                 $('#security-table').show();
@@ -347,6 +348,7 @@ jQuery(function($){
                 return $('<tr></tr>').append(th);
             });
             $('#security-table tbody').empty().append(rows);
+            $('#security-table').removeClass("loading");
             var upper = new Date();
             var lower = new Date();
             lower.setFullYear(lower.getFullYear() - 1);
@@ -445,6 +447,8 @@ jQuery(function($){
             }));
         }).then(function(){
             screener.sortTable('#security-table');
-        }).catch(calli.error);
+        }).catch(calli.error).then(function(){
+            $('#security-table').removeClass("loading");
+        });
     }
 });

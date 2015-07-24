@@ -156,6 +156,7 @@ jQuery(function($){
         var screens = $('#screen').val();
         if (_.isEmpty(securityClasses) || _.isEmpty(screens)) return;
         var now = new Date();
+        $('#results-table').addClass("loading");
         return Promise.all(screens.map(function(screen){
             return screener.screen(securityClasses, screen, since, now).then(function(list){
                 return list.filter(function(item){
@@ -174,6 +175,7 @@ jQuery(function($){
                 }).text(decodeURIComponent(security.replace(/^.*\//,'')))));
             });
             $('#results-table tbody').empty().append(rows);
+            $('#results-table').removeClass("loading");
             return Promise.all(securities.map(function(security, i){
                 var tr = rows[i];
                 return screener.getSecurity(security).then(function(result){
@@ -214,6 +216,8 @@ jQuery(function($){
             }));
         }).then(function(){
             screener.sortTable('#results-table');
+        }).catch(calli.error).then(function(){
+            $('#results-table').removeClass("loading");
         });
     }
 });
