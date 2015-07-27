@@ -186,7 +186,7 @@
                 return postDispatchMessage({
                     cmd: 'validate',
                     expression: expression,
-                    interval: int
+                    interval: {value: int}
                 });
             },
 
