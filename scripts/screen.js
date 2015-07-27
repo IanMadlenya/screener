@@ -378,29 +378,26 @@ jQuery(function($){
                 return item.negative_excursion;
             } else return drawdown;
         }, 0);
-        var risk_adjusted = sum(list.map(function(item){
-            return (item.performance.reduce(function(profit, ret){
-                return profit + profit * ret / 100;
-            }, 1) * 100 - 100) / item.exposure;
-        })) / list.length || 0;
         var exposure = sum(_.pluck(list, 'exposure'));
-        var duration = (now.valueOf() - since.valueOf());
-        var growth = cagr(performance, duration / (365 * 24 * 60 * 60 * 1000));
-        var risk_growth = cagr(risk_adjusted, duration / (365 * 24 * 60 * 60 * 1000));
-        var avg_duration = exposure * duration / occurances || 0;
+        var duration = sum(_.pluck(list, 'duration')) / list.length;
+        var growth = cagr(performance, duration);
+        var exposed_growth = cagr(performance, exposure /100 * duration / list.length);
+        var avg_duration = exposure /100 * duration / occurances || 0;
         $('#security_count').text(list.length);
         $('#occurances').text(occurances);
         $('#average_duration').text(function(){
-            if (avg_duration > 24 * 60 * 60 * 1000) {
-                return (avg_duration / 24 / 60 / 60 / 1000).toFixed(0) + ' d';
-            } else if (avg_duration > 60 * 60 * 1000) {
-                return (avg_duration / 60 / 60 / 1000).toFixed(0) + ' hr';
-            } else if (avg_duration > 60 * 1000) {
-                return (avg_duration / 60 / 1000).toFixed(0) + ' min';
-            } else if (avg_duration > 1000) {
-                return (avg_duration / 1000).toFixed(0) + ' sec';
+            if (avg_duration *52 > 1) {
+                return(avg_duration *52).toFixed(0) + 'w';
+            } else if (avg_duration *260 > 1) {
+                return(avg_duration *260).toFixed(0) + 'd';
+            } else if (avg_duration *260*6.5 > 1) {
+                return(avg_duration *260*6.5).toFixed(0) + 'h';
+            } else if (avg_duration *260*6.5*60 > 1) {
+                return(avg_duration *260*6.5*60).toFixed(0) + 'm';
+            } else if (avg_duration *260*6.5*60*60 > 1) {
+                return(avg_duration *260*6.5*60*60).toFixed(0) + 's';
             } else {
-                return avg_duration + ' ms';
+                return(avg_duration *260*6.5*60*60).toFixed(3) + 's';
             }
         });
         $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
@@ -411,7 +408,7 @@ jQuery(function($){
         $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
         $('#performance').text(performance.toFixed(2) + '%');
         $('#annual_growth').text((growth * 100).toFixed(2) + '%');
-        $('#risk_adjusted').text((risk_growth * 100).toFixed(2) + '%');
+        $('#exposed_growth').text((exposed_growth * 100).toFixed(2) + '%');
         return list;
     }
 
