@@ -319,18 +319,22 @@ jQuery(function($){
                         return tr.append($('<td></td>').text(result && result.name || ''));
                     }).then(function(){
                         filters.forEach(function(filter){
-                            var ind = item[filter.indicator.interval.value][filter.indicator.expression];
-                            var diff = filter.difference ? item.watch[filter.difference.interval.value][filter.difference.expression] : 0;
-                            var prct = filter.percent ? item.watch[filter.percent.interval.value][filter.percent.expression] : 100;
-                            var value = (ind - diff) * 100 / prct;
-                            var unit = filter.percent ? 'percent' : filter.indicator.unit.value;
-                            var format = unit == 'price'  ? '$' + value.toFixed(2) :
-                                unit == 'percent' ? value.toFixed(2) + '%' :
-                                screener.formatNumber(value);
-                            tr.append($('<td></td>', {
-                                "class": "text-right",
-                                "data-value": value
-                            }).text(format));
+                            try {
+                                var ind = item[filter.indicator.interval.value][filter.indicator.expression];
+                                var diff = filter.difference ? item.watch[filter.difference.interval.value][filter.difference.expression] : 0;
+                                var prct = filter.percent ? item.watch[filter.percent.interval.value][filter.percent.expression] : 100;
+                                var value = (ind - diff) * 100 / prct;
+                                var unit = filter.percent ? 'percent' : filter.indicator.unit.value;
+                                var format = unit == 'price'  ? '$' + value.toFixed(2) :
+                                    unit == 'percent' ? value.toFixed(2) + '%' :
+                                    screener.formatNumber(value);
+                                tr.append($('<td></td>', {
+                                    "class": "text-right",
+                                    "data-value": value
+                                }).text(format));
+                            } catch(e) {
+                                tr.append($('<td></td>'));
+                            }
                         });
                     });
                 }));

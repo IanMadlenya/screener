@@ -300,7 +300,7 @@
             }),
 
             inlineFilters: function(filters) {
-                if (_.isEmpty(filters)) return Promise.resolve();
+                if (_.isEmpty(filters)) return Promise.resolve([]);
                 return Promise.all(filters.map(function(filter){
                     return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
                         return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
@@ -639,8 +639,11 @@
                 var socket, buffer;
                 return new Promise(function(callback){
                     socket = new WebSocket(url);
-                    socket.addEventListener("close", function() {
+                    socket.addEventListener("close", function(event) {
                         dispatch.openPromise = null;
+                        _.values(dispatch.outstanding).forEach(function(pending){
+                            pending.reject(event);
+                        });
                     });
                     socket.addEventListener("open", callback);
                     socket.addEventListener("message", function(event) {
@@ -721,11 +724,9 @@
         var abs = Math.abs(num);
         var sign = num == abs ? '' : '-';
         var scale = Math.floor(Math.log(abs)/Math.log(10) / 3) * 3;
-        var suffix = getScaleSuffix(scale);
+        var suffix = scale >= 3 || scale <= -6 ? getScaleSuffix(scale) : '';
         var pow = Math.pow(10, Math.abs(scale));
-        var value = scale >= 3 ? Math.round(abs * 100 / pow) / 100 :
-            scale <= -6 ? Math.round(abs * 100 * pow) / 100 :
-            Math.round(abs * 100) / 100;
+        var value = suffix ? (abs / pow).toFixed(2) : abs.toFixed(2);
         return sign + value + suffix;
     }
 

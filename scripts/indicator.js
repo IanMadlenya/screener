@@ -96,7 +96,7 @@ jQuery(function($){
             }, function(){
                 group.addClass('has-error has-feedback');
                 $('<span></span>', {
-                    "class": "glyphicon glyphicon-ok form-control-feedback"
+                    "class": "glyphicon glyphicon-remove form-control-feedback"
                 }).appendTo(group);
             });
         }
