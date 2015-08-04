@@ -4,12 +4,11 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "Momentum indicator that uses James F. Dalton's Point of Control indicator. This method attempts to predict price turning points by comparing the closing price of a security to its price range." ;
-    rdfs:label "40-day Slow Point of Control Oscillator" ;
-    screener:expression "POCO(40,3,3)" ;
+    rdfs:comment "Hourly date code (incremented by 1/24 each hour)" ;
+    rdfs:label "Hourly Date Value" ;
+    screener:expression "WORKDAY(asof)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/d1> ;
-    screener:hasUnit <../../units/percent> ;
-    screener:isDerivedFrom <max(40,high)> , <min(40,low)> , <poc(20)> , <poco(40,3,1)> .
+    screener:hasInterval <../../intervals/m60> ;
+    screener:hasUnit <../../units/relative> .

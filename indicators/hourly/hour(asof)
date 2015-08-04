@@ -4,11 +4,11 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "The most common price during the last 20 trading days" ;
-    rdfs:label "20-day Point of Control" ;
-    screener:expression "POC(20)" ;
+    rdfs:comment "The hour of the day: 0-24 (local to the timezone of the exchange). 12 is noon, 16 is 4pm." ;
+    rdfs:label "Hour of Day (24hr format)" ;
+    screener:expression "HOUR(asof)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/d1> ;
-    screener:hasUnit <../../units/price> .
+    screener:hasInterval <../../intervals/m60> ;
+    screener:hasUnit <../../units/discrete> .

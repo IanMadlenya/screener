@@ -4,12 +4,12 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "Momentum indicator that uses support and resistance levels. Dr. George Lane promoted this indicator in the 1950s. The term stochastic refers to the location of a current price in relation to its price range over a period of time. This method attempts to predict price turning points by comparing the closing price of a security to its price range." ;
-    rdfs:label "Choppy Stochastic Oscillator" ;
-    screener:expression "STO(14,1,1)" ;
+    rdfs:comment "Momentum indicator that uses James F. Dalton's Time Price Opportunity (TPO) count indicator. This method attempts to predict price turning points by comparing the number of TPO at or below the closing price of a security." ;
+    rdfs:label "40-day TPO Count" ;
+    screener:expression "TPOC(40,close)" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     screener:hasInterval <../../intervals/d1> ;
     screener:hasUnit <../../units/percent> ;
-    screener:isDerivedFrom <max(14,high)> , <min(14,low)> .
+    screener:isDerivedFrom <max(40,high)> , <min(40,low)> , <poc(40)> .
