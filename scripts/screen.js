@@ -41,6 +41,7 @@ jQuery(function($){
                     return {
                         value: indicator.iri,
                         text: indicator.label,
+                        expression: indicator.expression,
                         optgroup: optgroup,
                         title: indicator.comment
                     };
@@ -62,7 +63,7 @@ jQuery(function($){
                     });
                 });
                 $(select).selectize({
-                    searchField: ['text', 'title'],
+                    searchField: ['text', 'title', 'expression'],
                     sortField: [{field:'sort'}, {field:'text'}],
                     options: sorted,
                     optgroups: groups.map(function(optgroup){
@@ -189,7 +190,7 @@ jQuery(function($){
             screener.setItem("since-days", (today.valueOf() - since.valueOf()) / 1000 / 60 / 60 / 24 / 7 * 5);
         }).change(updateWatchList);
         $('div[rel="screener:forIndicator"]').parent().each(function(){
-            $(this).children('div[rel="screener:forIndicator"]').filter(calli.checkEachResourceIn($(this).children('select')[0])).remove();
+            $(this).children('div[rel="screener:forIndicator"]').filter(calli.selectEachResourceIn($(this).children('select')[0])).remove();
         });
         $('select,input').change(updateWatchList);
         $('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
@@ -417,6 +418,7 @@ jQuery(function($){
     }
 
     function cagr(rate, years) {
+        if (!years) return 0;
         if (rate < 0) return -1 * cagr(Math.abs(rate), years);
         else return Math.pow(1 + rate / 100, 1 / years) - 1;
     }

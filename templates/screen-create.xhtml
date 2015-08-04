@@ -55,7 +55,7 @@
                                 <xi:include href="../queries/categories-list.rq?select&amp;rel=screener:category&amp;name=categories&amp;id=categories&amp;multiple=multiple"></xi:include>
                                 <div rel="screener:category" resource="?category"></div>
                                 <script type="text/javascript">
-                                    $('div[rel="screener:category"]').filter(calli.checkEachResourceIn('#categories')).remove();
+                                    $('div[rel="screener:category"]').remove();
                                     $('#categories').selectize();
                                 </script>
                             </div>
