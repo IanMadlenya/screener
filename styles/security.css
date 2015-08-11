@@ -1,5 +1,9 @@
 /* security.css */
 
+nav.hidden-logout {
+    display: none;
+}
+
 .floating-header {
     position: absolute;
     z-index: -1;
