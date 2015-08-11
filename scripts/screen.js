@@ -54,7 +54,7 @@ jQuery(function($){
                             indicator.interval.value == 'quarter' ? 2 :
                             indicator.interval.value == 'd5' ? 3 :
                             indicator.interval.value == 'd1' ? 4 :
-                            10 * +indicator.interval.value.substring(1);
+                            1000 - indicator.interval.value.substring(1);
                     return i * units.length + units.indexOf(indicator.unit.value);
                 });
                 var sorted = options.map(function(option){
@@ -238,7 +238,7 @@ jQuery(function($){
         }).on('hidden.bs.collapse', function(){
             $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
-    })(screener.debouncePromise(updateWatchList, 500));
+    })(screener.debouncePromise(updateWatchList, 1000));
 
     var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
     $('#screen-form').submit(function(event){
@@ -247,6 +247,33 @@ jQuery(function($){
         var slug = calli.slugify($('#label').val());
         var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
         var resource = creating ? ns + slug : $(event.target).attr('resource');
+        updateFilters(resource);
+        if (creating) {
+            event.target.setAttribute("resource", resource);
+            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+                screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
+                window.location.replace(redirect);
+            }).catch(calli.error);
+        } else {
+            calli.submitUpdate(comparision, event);
+        }
+    });
+    $('#saveas').click(function(event){
+        event.preventDefault();
+        var form = $(event.target).closest('form')[0];
+        var slug = calli.slugify($('#label').val());
+        var type = $('#resource-type').attr('href');
+        var container = $('#container-resource').attr('resource');
+        var resource = container.replace(/\/?$/, '/') + slug;
+        updateFilters(resource);
+        form.setAttribute("resource", resource);
+        calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
+            screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
+            window.location.replace(redirect);
+        }).catch(calli.error);
+    });
+
+    function updateFilters(resource) {
         var filters = $('[rel="screener:hasWatchCriteria"],[rel="screener:hasHoldCriteria"]');
         var counter = _.max([35].concat(filters.toArray().map(function(filter){
             return filter.getAttribute("resource");
@@ -263,16 +290,7 @@ jQuery(function($){
                 $(this).remove();
             }
         });
-        if (creating) {
-            event.target.setAttribute("resource", resource);
-            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
-                screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
-                window.location.replace(redirect);
-            }).catch(calli.error);
-        } else {
-            calli.submitUpdate(comparision, event);
-        }
-    });
+    }
 
     function updateWatchList() {
         var securityClasses = $('#security-class').val();
