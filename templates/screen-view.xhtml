@@ -14,8 +14,8 @@
     <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
     <style type="text/css">
         .loading td {
-            transition: color 5s ease-out;
-            color: transparent !important;
+            transition: opacity 5s ease-out;
+            opacity: 0.2;
         }
     </style>
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
@@ -43,6 +43,8 @@
             <div rel="screener:forIndicator" resource="?hindicator"></div>
             <div rel="screener:differenceFrom" resource="?holdDifference"></div>
             <div rel="screener:percentOf" resource="?holdPercent"></div>
+            <div rel="screener:differenceFromWatch" resource="?holdDifferenceWatch"></div>
+            <div rel="screener:percentOfWatch" resource="?holdPercentWatch"></div>
             <span property="screener:lower" content="?hl"></span>
             <span property="screener:upper" content="?hu"></span>
         </div>

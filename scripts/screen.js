@@ -88,7 +88,25 @@ jQuery(function($){
         };
         var selectizeIndicatorReference = function(select) {
             selectizeIndicator(select);
-            var indicator = $(select).closest('[resource]').find('[name="indicator"]');
+            var row = $(select).closest('[resource]');
+            var watch = row.find('[name="indicatorWatch"]');
+            var checked = row.find('[rel="screener:differenceFromWatch"]').attr("resource") || row.find('[rel="screener:percentOfWatch"]').attr("resource");
+            watch.prop("checked", checked).change(function(){
+                if (watch.prop("checked")) {
+                    row.find(".watch-reference").removeClass("hidden");
+                    row.find(".hold-reference").addClass("hidden");
+                    row.find(".hold-reference").find("select").toArray().forEach(function(select){
+                        select.selectize && select.selectize.clear();
+                    });
+                } else {
+                    row.find(".hold-reference").removeClass("hidden");
+                    row.find(".watch-reference").addClass("hidden");
+                    row.find(".watch-reference").find("select").toArray().forEach(function(select){
+                        select.selectize && select.selectize.clear();
+                    });
+                }
+            }).change();
+            var indicator = row.find('[name="indicator"]');
             indicator.change(function(){
                 var value = indicator.val();
                 if (!value || !indicator[0].selectize) return;
@@ -308,16 +326,18 @@ jQuery(function($){
                 var thead = $('#results-table thead tr');
                 while (thead.children().length > 2) thead.children().last().remove();
                 filters.forEach(function(filter){
-                    var symbol = filter.percent ? ' %' :
-                        filter.difference ? ' Δ' : '';
+                    var symbol = filter.percent || filter.percentWatch ? ' %' :
+                        filter.difference || filter.differenceWatch ? ' Δ' : '';
                     thead.append($('<th></th>', {
                         title: filter.indicator.comment,
-                        "class": "text-nowrap",
+                        "class": "text-nowrap text-center",
                         "style": "white-space:nowrap"
                     }).text(filter.indicator.label + symbol));
                 });
                 if ($('#results-table').width() > $('#results-table').parent().width()) {
                     $('#results-table').parent().removeClass("container");
+                    thead.children('th').removeClass("text-nowrap");
+                    thead.children('th').css("white-space", "normal");
                 }
                 var target = $('#results-table').closest('form').length ? "_blank" : "_self";
                 var rows = list.map(function(item){
@@ -340,10 +360,13 @@ jQuery(function($){
                         filters.forEach(function(filter){
                             try {
                                 var ind = item[filter.indicator.interval.value][filter.indicator.expression];
-                                var diff = filter.difference ? item.watch[filter.difference.interval.value][filter.difference.expression] : 0;
-                                var prct = filter.percent ? item.watch[filter.percent.interval.value][filter.percent.expression] : 100;
-                                var value = (ind - diff) * 100 / prct;
-                                var unit = filter.percent ? 'percent' : filter.indicator.unit.value;
+                                var reference = filter.differenceWatch || filter.percentWatch ? item.watch : item;
+                                var diff = filter.difference || filter.differenceWatch;
+                                var dvalue = diff ? reference[diff.interval.value][diff.expression] : 0;
+                                var percent = filter.percent || filter.percentWatch;
+                                var prct = percent ? reference[percent.interval.value][percent.expression] : 100;
+                                var value = (ind - dvalue) * 100 / prct;
+                                var unit = percent ? 'percent' : filter.indicator.unit.value;
                                 var format = unit == 'price'  ? '$' + value.toFixed(2) :
                                     unit == 'percent' ? value.toFixed(2) + '%' :
                                     screener.formatNumber(value);
@@ -455,6 +478,8 @@ jQuery(function($){
                 forIndicator: $(elem).find('[rel="screener:forIndicator"]').attr("resource"),
                 differenceFrom: $(elem).find('[rel="screener:differenceFrom"]').attr("resource"),
                 percentOf: $(elem).find('[rel="screener:percentOf"]').attr("resource"),
+                differenceFromWatch: $(elem).find('[rel="screener:differenceFromWatch"]').attr("resource"),
+                percentOfWatch: $(elem).find('[rel="screener:percentOfWatch"]').attr("resource"),
                 lower: $(elem).find('[property="screener:lower"]').attr("content"),
                 upper: $(elem).find('[property="screener:upper"]').attr("content")
             };

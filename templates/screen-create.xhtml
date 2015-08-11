@@ -18,8 +18,8 @@
             text-align: right;
         }
         .loading td {
-            transition: color 5s ease-out;
-            color: transparent !important;
+            transition: opacity 5s ease-out;
+            opacity: 0.2;
         }
     </style>
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
@@ -119,25 +119,28 @@
                                 </select>
                             </div>
                             <div class="col-sm-1">
-                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal" />
                             </div>
                             <div class="col-sm-1">
-                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
                             <label title="Criteria that must continue to be met for a security to stay on screen">Hold criteria value</label>
                         </div>
-                        <div class="col-sm-3">
-                            <label title="As of the last watch signal, subtracted from the current criteria value before checking the lower and upper bounds">Difference from watch</label>
+                        <div class="col-sm-1">
+                            <label title="If the difference and percent should be as of the last watch signal. Otherwise they are as of the hold value">Compare</label>
                         </div>
                         <div class="col-sm-3">
-                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value as of the last watch signal">Percentage of watch</label>
+                            <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
                         </div>
                         <div class="col-sm-1">
                             <label title="Lower value or percentage of acceptable range">Lower</label>
@@ -148,26 +151,43 @@
                     </div>
                     <div id="hold">
                         <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                                 <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
                                     <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
                                 </select>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
+                                <div class="checkbox">
+                                    <label title="If the difference and percent should be as of the last watch signal. Otherwise they are as of the hold value">
+                                        <input type="checkbox" name="indicatorWatch" /> Watch
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 hold-reference">
                                 <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicatorReference">
                                     <option rel="screener:differenceFrom" resource="?holdDifference" value="{?holdDifference}" selected="selected">{rdfs:label}</option>
                                 </select>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-3 hold-reference">
                                 <select class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicatorReference">
                                     <option rel="screener:percentOf" resource="?holdPercent" value="{?holdPercent}" selected="selected">{rdfs:label}</option>
                                 </select>
                             </div>
-                            <div class="col-sm-1">
-                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:integer" />
+                            <div class="col-sm-3 watch-reference hidden">
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFromWatch')" name="indicatorReference">
+                                    <option rel="screener:differenceFromWatch" resource="?holdDifferenceWatch" value="{?holdDifferenceWatch}" selected="selected">{rdfs:label}</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3 watch-reference hidden">
+                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOfWatch')" name="indicatorReference">
+                                    <option rel="screener:percentOfWatch" resource="?holdPercentWatch" value="{?holdPercentWatch}" selected="selected">{rdfs:label}</option>
+                                </select>
                             </div>
                             <div class="col-sm-1">
-                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:integer" />
+                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal" />
+                            </div>
+                            <div class="col-sm-1">
+                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal" />
                             </div>
                         </div>
                     </div>

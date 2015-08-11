@@ -305,10 +305,16 @@
                     return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
                         return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
                             return getIndicator(filter.percentOf || filter.percent).then(function(percent){
-                                return _.extend({}, filter, {
-                                    indicator: indicator,
-                                    difference: difference,
-                                    percent: percent
+                                return getIndicator(filter.differenceFromWatch || filter.differenceWatch).then(function(differenceWatch){
+                                    return getIndicator(filter.percentOfWatch || filter.percentWatch).then(function(percentWatch){
+                                        return _.extend({}, filter, {
+                                            indicator: indicator,
+                                            difference: difference,
+                                            percent: percent,
+                                            differenceWatch: differenceWatch,
+                                            percentWatch: percentWatch
+                                        });
+                                    });
                                 });
                             });
                         });

@@ -122,8 +122,26 @@ screener:forIndicator a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain screener:Filter;
     rdfs:range screener:Indicator.
 
-screener:hasChangeReference a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "has change reference";
+screener:differenceFrom a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "difference from";
+    rdfs:comment "Entry reference indicator used for relative change value with indicator";
+    rdfs:domain screener:Filter;
+    rdfs:range screener:Indicator.
+
+screener:percentOf a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "percent of";
+    rdfs:comment "Entry reference indicator used for relative change value with indicator";
+    rdfs:domain screener:Filter;
+    rdfs:range screener:Indicator.
+
+screener:differenceFromWatch a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "difference from watch";
+    rdfs:comment "Entry reference indicator used for relative change value with indicator";
+    rdfs:domain screener:Filter;
+    rdfs:range screener:Indicator.
+
+screener:percentOfWatch a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "percent of watch";
     rdfs:comment "Entry reference indicator used for relative change value with indicator";
     rdfs:domain screener:Filter;
     rdfs:range screener:Indicator.
