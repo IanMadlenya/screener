@@ -4,6 +4,10 @@ nav.hidden-logout {
     display: none;
 }
 
+.navbar-relative-bottom {
+    display: none;
+}
+
 .floating-header {
     position: absolute;
     z-index: -1;
