@@ -5,7 +5,7 @@
 
 <> a <../../classes/Indicator> , screener:Indicator ;
     rdfs:comment "The mean of the previous 20 days' volume " ;
-    rdfs:label "20-day Simple Moving Average of Volume" ;
+    rdfs:label "20-day Volume MA" ;
     screener:expression "SMA(20,volume)" ;
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
