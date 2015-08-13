@@ -190,6 +190,7 @@ jQuery(function($){
                     var volume = data[data.length-1].volume;
                     return tr.append($('<td></td>', {
                         "class": "text-right",
+                        "title": new Date(data[data.length-1].asof).toLocaleString(),
                         "data-value": close
                     }).text(screener.formatCurrency(close))).append($('<td></td>', {
                         "class": (change < 0 ? "text-danger " : '') + "text-right",
