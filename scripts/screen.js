@@ -256,7 +256,7 @@ jQuery(function($){
         }).on('hidden.bs.collapse', function(){
             $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
-    })(screener.debouncePromise(updateWatchList, 1000));
+    })(screener.debouncePromise(updateWatchList.bind(this, {}), 1000));
 
     var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
     $('#screen-form').submit(function(event){
@@ -310,7 +310,7 @@ jQuery(function($){
         });
     }
 
-    function updateWatchList() {
+    function updateWatchList(cache) {
         var securityClasses = $('#security-class').val();
         var since = $('#since').prop('valueAsDate');
         var watch = readFilters('[rel="screener:hasWatchCriteria"]');
@@ -319,9 +319,16 @@ jQuery(function($){
         var now = new Date();
         var screen = {watch: watch, hold: hold};
         $('.table').addClass("loading");
-        return screener.screen(securityClasses, screen, since, now).then(function(list){
+        var key = JSON.stringify([securityClasses, screen, since]);
+        if (cache[key]) {
+            cache[key] = cache[key].catch(function(){
+                return screener.screen(securityClasses, screen, since);
+            });
+        } else {
+            cache[key] = screener.screen(securityClasses, screen, since);
+        }
+        return cache[key].then(function(list){
             updatePerformance(since, now, list);
-            if ($('#results-table').is(":hidden")) return;
             return screener.inlineFilters(hold).then(function(filters){
                 var thead = $('#results-table thead tr');
                 while (thead.children().length > 2) thead.children().last().remove();
