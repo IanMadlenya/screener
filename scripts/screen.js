@@ -256,7 +256,7 @@ jQuery(function($){
         }).on('hidden.bs.collapse', function(){
             $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
-    })(screener.debouncePromise(updateWatchList.bind(this, {}), 1000));
+    })(loading(updateWatchList.bind(this, {})));
 
     var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
     $('#screen-form').submit(function(event){
@@ -310,6 +310,24 @@ jQuery(function($){
         });
     }
 
+    function loading(fn) {
+        var loading = 0;
+        var debounce = screener.debouncePromise(fn, 2000);
+        return function() {
+            var counter = ++loading;
+            $('.table').addClass("loading");
+            return debounce.apply(this, arguments).then(function(resolved) {
+                if (counter == loading)
+                    $('.table').removeClass("loading");
+                return resolved;
+            }, function(error) {
+                if (counter == loading)
+                    $('.table').removeClass("loading");
+                calli.error(error);
+            });
+        };
+    }
+
     function updateWatchList(cache) {
         var securityClasses = $('#security-class').val();
         var since = $('#since').prop('valueAsDate');
@@ -318,7 +336,6 @@ jQuery(function($){
         if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return;
         var now = new Date();
         var screen = {watch: watch, hold: hold};
-        $('.table').addClass("loading");
         var key = JSON.stringify([securityClasses, screen, since]);
         if (cache[key]) {
             cache[key] = cache[key].catch(function(){
@@ -327,6 +344,7 @@ jQuery(function($){
         } else {
             cache[key] = screener.screen(securityClasses, screen, since);
         }
+        $('.table').addClass("loading");
         return cache[key].then(function(list){
             updatePerformance(since, now, list);
             return screener.inlineFilters(hold).then(function(filters){
@@ -390,8 +408,6 @@ jQuery(function($){
             });
         }).then(function(){
             screener.sortTable('#results-table');
-        }).catch(calli.error).then(function(){
-            $('.table').removeClass("loading");
         });
     }
 
@@ -439,15 +455,15 @@ jQuery(function($){
         $('#security_count').text(list.length);
         $('#occurances').text(occurances);
         $('#average_duration').text(function(){
-            if (avg_duration *52 > 1) {
+            if (avg_duration *52 > 1.5) {
                 return(avg_duration *52).toFixed(0) + 'w';
-            } else if (avg_duration *260 > 1) {
+            } else if (avg_duration *260 > 1.5) {
                 return(avg_duration *260).toFixed(0) + 'd';
-            } else if (avg_duration *260*6.5 > 1) {
+            } else if (avg_duration *260*6.5 > 1.5) {
                 return(avg_duration *260*6.5).toFixed(0) + 'h';
-            } else if (avg_duration *260*6.5*60 > 1) {
+            } else if (avg_duration *260*6.5*60 > 1.5) {
                 return(avg_duration *260*6.5*60).toFixed(0) + 'm';
-            } else if (avg_duration *260*6.5*60*60 > 1) {
+            } else if (avg_duration *260*6.5*60*60 > 1.5) {
                 return(avg_duration *260*6.5*60*60).toFixed(0) + 's';
             } else {
                 return(avg_duration *260*6.5*60*60).toFixed(3) + 's';
