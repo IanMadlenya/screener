@@ -1,0 +1,14 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "Used to quantify the amount of variation of daily price range. A standard deviation close to 0 indicates that the prices tend to be very close to the average price, while a high standard deviation indicates that the prices are spread out over a wider range." ;
+    rdfs:label "20-day Time Weighted StDev" ;
+    screener:expression "TWSTDEV(20,close)" ;
+    calli:administrator </auth/groups/admin> , </auth/groups/super> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    screener:hasInterval <../../intervals/d1> ;
+    screener:hasUnit <../../units/price> .
