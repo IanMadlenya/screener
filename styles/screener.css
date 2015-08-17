@@ -1,0 +1,16 @@
+/* screener.css */
+
+input[type="number"] {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: right;
+}
+
+.selectize-input.items a {
+    color: inherit;
+}
+
+.loading td {
+    transition: opacity 5s ease-out;
+    opacity: 0.2;
+}
