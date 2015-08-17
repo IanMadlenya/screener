@@ -79,7 +79,7 @@ jQuery(function($){
                     }),
                     render: {
                         item: function(data, escape) {
-                            return '<div title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
+                            return '<div title="' + escape(data.title || '') + '">' + escape(data.text) + '</div>';
                         }
                     }
                 }).change();
@@ -180,7 +180,7 @@ jQuery(function($){
                 },
                 render: {
                     option: function(data, escape) {
-                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title) + '">' +
+                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title || '') + '">' +
                             (data.title ?
                                 (
                                     '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
@@ -191,9 +191,9 @@ jQuery(function($){
                         '</div>';
                     },
                     item: function(data, escape) {
-                        if (data.title) return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
-                        else return '<div onclick="calli.createResource(this, \'' + escape(data.value) + '?edit\').then(undefined, calli.error)">' +
-                            escape(data.text) + '</div>';
+                        var target = $('#screen-form').closest('form').length ? "_blank" : "_self";
+                        return '<div class="" title="' + escape(data.title || '') +
+                            '"><a href="' + escape(data.value) + '?edit" target="' + target + '">' + escape(data.text) + '</a></div>';
                     }
                 }
             }).change(function(event){
@@ -338,14 +338,17 @@ jQuery(function($){
         var screen = {watch: watch, hold: hold};
         var key = JSON.stringify([securityClasses, screen, since]);
         if (cache[key]) {
-            cache[key] = cache[key].catch(function(){
+            cache[key].promise = cache[key].promise.catch(function(){
                 return screener.screen(securityClasses, screen, since);
             });
         } else {
-            cache[key] = screener.screen(securityClasses, screen, since);
+            cache[key] = {
+                asof: new Date(),
+                promise: screener.screen(securityClasses, screen, since)
+            };
         }
         $('.table').addClass("loading");
-        return cache[key].then(function(list){
+        return cache[key].promise.then(function(list){
             updatePerformance(since, now, list);
             return screener.inlineFilters(hold).then(function(filters){
                 var thead = $('#results-table thead tr');

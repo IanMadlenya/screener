@@ -52,8 +52,10 @@ jQuery(function($){
             return Promise.all(screener.getItem("security-class", '').split(' ').filter(function(iri){
                 return iri && _.pluck(options, 'value').indexOf(iri) < 0;
             }).map(function(iri){
-                return screener.getSecurity(iri);
-            })).then(function(securities){
+                return screener.getSecurity(iri).catch(function(error){
+                    console.error(error);
+                });
+            })).then(_.compact).then(function(securities){
                 return securities.map(function(security){
                     return {
                         text: security.ticker,
@@ -94,7 +96,7 @@ jQuery(function($){
                 },
                 render: {
                     option: function(data, escape) {
-                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title) + '">' +
+                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title || '') + '">' +
                             (data.title ?
                                 (
                                     '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
@@ -105,8 +107,8 @@ jQuery(function($){
                         '</div>';
                     },
                     item: function(data, escape) {
-                        return '<div onclick="window.location=\'' + escape(data.value) + '?view\'" title="' + escape(data.title) + '">' +
-                            escape(data.text) + '</div>';
+                        return '<div title="' + escape(data.title || '') + '"><a href="' + escape(data.value) + '?view">' +
+                            escape(data.text) + '</a></div>';
                     }
                 }
             }).change(function(event){
@@ -140,8 +142,8 @@ jQuery(function($){
                 },
                 render: {
                     item: function(data, escape) {
-                        return '<div onclick="window.location=\'' + escape(data.value) + '?view\'">' +
-                            escape(data.text) + '</div>';
+                        return '<div><a href="' + escape(data.value) + '?view">' +
+                            escape(data.text) + '</a></div>';
                     }
                 }
             }).change(function(event){

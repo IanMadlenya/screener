@@ -228,11 +228,11 @@ jQuery(function($){
                 render: {
                     option: function(data, escape) {
                         return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +
-                            escape(data.title) + '"><b>' + escape(data.text) + "</b> | " +
-                            escape(data.title) + ' <small class="text-muted">(' + escape(data.type) + ')</small></div>';
+                            escape(data.title || '') + '"><b>' + escape(data.text) + "</b> | " +
+                            escape(data.title || '') + ' <small class="text-muted">(' + escape(data.type) + ')</small></div>';
                     },
                     item: function(data, escape) {
-                        return '<div class="" title="' + escape(data.title) + '">' + escape(data.text) + '</div>';
+                        return '<div class="" title="' + escape(data.title || '') + '">' + escape(data.text) + '</div>';
                     }
                 }
             };
