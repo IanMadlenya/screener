@@ -279,6 +279,8 @@
                 return calli.getJSON(url).then(tableToObjectArray).then(function(list){
                     return Promise.all(list.map(inlineIndicator));
                 }).then(function(list){
+                    return _.filter(list, 'interval');
+                }).then(function(list){
                     var validate = _.memoize(function(interval) {
                         return postDispatchMessage({
                             cmd: 'validate',
