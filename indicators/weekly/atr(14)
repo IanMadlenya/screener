@@ -11,4 +11,4 @@
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     screener:hasInterval <../../intervals/d5> ;
-    screener:hasUnit <../../units/relative> .
+    screener:hasUnit <../../units/price> .
