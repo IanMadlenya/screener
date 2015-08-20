@@ -9,7 +9,12 @@
     xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link id="resource-type" href="../classes/SecurityClass" />
+    <link id="Screen" href="../classes/Screen" />
+    <link title="New Screen" about="?this" href="../classes/Screen" target="_blank"
+        onmouseover="this.href='{^calli:hasComponent}?create='+encodeURIComponent($('#Screen').prop('href'))" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <link title="New Security Class" about="?this" href="../classes/SecurityClass" target="_blank"
+        onmouseover="this.href='{^calli:hasComponent}?create='+encodeURIComponent($('#SecurityClass').prop('href'))" />
     <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
     <link id="queries" href="../queries/" />
     <link rel="stylesheet" href="../styles/screener.css" />

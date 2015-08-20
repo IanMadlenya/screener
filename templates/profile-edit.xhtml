@@ -7,6 +7,12 @@
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
     <title resource="?this">{foaf:name}</title>
+    <link id="Screen" href="../classes/Screen" />
+    <link title="New Screen" href="../classes/Screen" target="_blank"
+        onmouseover="this.href='?create='+encodeURIComponent($('#Screen').prop('href'))" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <link title="New Security Class" href="../classes/SecurityClass" target="_blank"
+        onmouseover="this.href='?create='+encodeURIComponent($('#SecurityClass').prop('href'))" />
     <link rel="stylesheet" href="../styles/screener.css" />
 </head>
 <body resource="?this">
