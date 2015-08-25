@@ -50,9 +50,9 @@
         var axis = d3.selectAll([]);
         var x_orig = d3.time.scale().domain([moment().subtract(1,'years').toDate(), new Date()]).range([0,width-margin.left-margin.right]);
         var x = x_orig.copy();
-        var y = d3.scale.linear().domain([0,100]).range([height-margin.bottom-margin.top,0]);
+        var y = d3.scale.log().domain([10,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis().ticks(30);
-        var yAxis = d3.svg.axis().orient("right");
+        var yAxis = d3.svg.axis().orient("right").tickFormat(d3.format(',.2f'));
         var yRule = 0;
         var clip = 'clip-' + Math.random().toString(16).slice(2);
         var listeners = {};
@@ -132,6 +132,11 @@
                 var x0 = chart.x().copy();
                 var y0 = chart.y().copy();
                 var yDomain = ydomain(x0, chart.innerWidth(), series, chart.y().domain());
+                if (Math.sign(yDomain[0]) == Math.sign(yDomain[yDomain.length-1])) {
+                    chart.yAxis().tickValues(d3.scale.linear().domain(yDomain).range(chart.y().range()).ticks(20));
+                } else {
+                    chart.y(d3.scale.linear().domain(yDomain).range([height-margin.bottom-margin.top,0]));
+                }
                 var y = y0.domain(yDomain);
                 return function(t) {
                     if (chart.datum().length != domain.length) return;
@@ -512,6 +517,16 @@
             if (!arguments.length) return datum || chart.datum();
             if (!Array.isArray(_datum)) throw Error("datum must be an Array");
             datum = _datum;
+            return series;
+        };
+        series.remove = function() {
+            var hash = chart.series();
+            for (var cls in hash) {
+                if (hash[cls] === series) {
+                    chart.selectAll('.' + cls.replace(/ /g, '.')).remove();
+                    delete hash[cls];
+                }
+            }
             return series;
         };
         return series;

@@ -10,8 +10,12 @@ nav.hidden-logout {
 
 .floating-header {
     position: absolute;
-    z-index: -1;
-    margin: 2em;
+    padding: 2em 0 0 2em;
+    background: linear-gradient(to right, white, rgba(255,255,255,0.75), rgba(255,255,255,0));
+}
+
+#indicator-list {
+    text-shadow: 1px 1px 0 gray;
 }
 
 rect.pane {
@@ -51,26 +55,21 @@ g.rule line {
     stroke-opacity: 0.1;
 }
 
-g.volume rect {
-    fill: orange;
-    fill-opacity: 0.3;
-}
-
-g.volume rect.up {
-    fill: green;
-}
-
-g.volume rect.down {
-    fill: red;
-}
-
-g.price path {
+g.ohlc path {
     shape-rendering: crispEdges;
     stroke: black;
-    stroke-opacity: 0.7;
+    stroke-width: 1px;
 }
 
-g.poc path {
+g.ohlc.up path {
+    stroke: green;
+}
+
+g.ohlc.down path {
+    stroke: red;
+}
+
+g.line path {
     stroke: black;
     fill: none;
 }
@@ -79,68 +78,310 @@ g.band path {
     fill: black;
 }
 
-g.poc.poc0 path {
-    stroke: red;
-    stroke-opacity: 0.25;
+/* black */
+
+.black,
+.black a {
+    color: black;
+}
+
+g.line.black path {
+    stroke: black;
+    stroke-opacity: 0.4;
     stroke-width: 0.5pt;
 }
 
-g.band.band0 path {
-    fill: red;
+g.ohlc.black path {
+    stroke: black;
+    stroke-opacity: 0.4;
+}
+
+g.band.black path {
+    fill: black;
     fill-opacity: 0.05;
 }
 
-g.poc.poc1 path {
+g.bar.black rect {
+    fill: black;
+    fill-opacity: 0.1;
+}
+
+/* brown */
+
+.brown,
+.brown a {
+    color: brown;
+}
+
+g.line.brown path {
+    stroke: brown;
+    stroke-opacity: 0.45;
+    stroke-width: 0.7pt;
+}
+
+g.ohlc.brown path {
+    stroke: brown;
+    stroke-opacity: 0.45;
+}
+
+g.band.brown path {
+    fill: brown;
+    fill-opacity: 0.07;
+}
+
+g.bar.brown rect {
+    fill: brown;
+    fill-opacity: 0.12;
+}
+
+/* red */
+
+.red,
+.red a {
+    color: red;
+}
+
+g.line.red path {
+    stroke: red;
+    stroke-opacity: 0.5;
+    stroke-width: 0.9pt;
+}
+
+g.ohlc.red path {
+    stroke: red;
+    stroke-opacity: 0.5;
+}
+
+g.band.red path {
+    fill: red;
+    fill-opacity: 0.09;
+}
+
+g.bar.red rect {
+    fill: red;
+    fill-opacity: 0.14;
+}
+
+/* orange */
+
+.orange,
+.orange a {
+    color: orange;
+}
+
+g.line.orange path {
     stroke: orange;
-    stroke-opacity: 0.4;
-    stroke-width: 0.8pt;
-}
-
-g.band.band1 path {
-    fill: orange;
-    fill-opacity: 0.08;
-}
-
-g.poc.poc2 path {
-    stroke: yellow;
     stroke-opacity: 0.55;
     stroke-width: 1.1pt;
 }
 
-g.band.band2 path {
-    fill: yellow;
+g.ohlc.orange path {
+    stroke: orange;
+    stroke-opacity: 0.55;
+}
+
+g.band.orange path {
+    fill: orange;
     fill-opacity: 0.11;
 }
 
-g.poc.poc3 path {
+g.bar.orange rect {
+    fill: orange;
+    fill-opacity: 0.16;
+}
+
+/* yellow */
+
+.yellow,
+.yellow a {
+    color: yellow;
+}
+
+g.line.yellow path {
+    stroke: yellow;
+    stroke-opacity: 0.6;
+    stroke-width: 1.3pt;
+}
+
+g.ohlc.yellow path {
+    stroke: yellow;
+    stroke-opacity: 0.6;
+}
+
+g.band.yellow path {
+    fill: yellow;
+    fill-opacity: 0.13;
+}
+
+g.bar.yellow rect {
+    fill: yellow;
+    fill-opacity: 0.18;
+}
+
+/* green */
+
+.green,
+.green a {
+    color: green;
+}
+
+g.line.green path {
     stroke: green;
-    stroke-opacity: 0.7;
-    stroke-width: 1.4pt;
+    stroke-opacity: 0.65;
+    stroke-width: 1.5pt;
 }
 
-g.band3 path {
+g.ohlc.green path {
+    stroke: green;
+    stroke-opacity: 0.65;
+}
+
+g.band.green path {
     fill: green;
-    fill-opacity: 0.14;
+    fill-opacity: 0.15;
 }
 
-g.poc4 path {
-    stroke: blue;
-    stroke-opacity: 0.85;
+g.bar.green rect {
+    fill: green;
+    fill-opacity: 0.20;
+}
+
+/* cyan */
+
+.cyan,
+.cyan a {
+    color: cyan;
+}
+
+g.line.cyan path {
+    stroke: cyan;
+    stroke-opacity: 0.7;
     stroke-width: 1.7pt;
 }
 
-g.band4 path {
-    fill: blue;
+g.ohlc.cyan path {
+    stroke: cyan;
+    stroke-opacity: 0.7;
+}
+
+g.band.cyan path {
+    fill: cyan;
     fill-opacity: 0.17;
 }
 
-g.poc5 path {
+g.bar.cyan rect {
+    fill: cyan;
+    fill-opacity: 0.22;
+}
+
+/* blue */
+
+.blue,
+.blue a {
+    color: blue;
+}
+
+g.line.blue path {
+    stroke: blue;
+    stroke-opacity: 0.75;
+    stroke-width: 1.9pt;
+}
+
+g.ohlc.blue path {
+    stroke: blue;
+    stroke-opacity: 0.75;
+}
+
+g.band.blue path {
+    fill: blue;
+    fill-opacity: 0.19;
+}
+
+g.bar.blue rect {
+    fill: blue;
+    fill-opacity: 0.24;
+}
+
+/* indigo */
+
+.indigo,
+.indigo a {
+    color: indigo;
+}
+
+g.line.indigo path {
+    stroke: indigo;
+    stroke-opacity: 0.8;
+    stroke-width: 2.1pt;
+}
+
+g.ohlc.indigo path {
+    stroke: indigo;
+    stroke-opacity: 0.8;
+}
+
+g.band.indigo path {
+    fill: indigo;
+    fill-opacity: 0.21;
+}
+
+g.bar.indigo rect {
+    fill: indigo;
+    fill-opacity: 0.26;
+}
+
+/* magenta */
+
+.magenta,
+.magenta a {
+    color: magenta;
+}
+
+g.line.magenta path {
     stroke: violet;
-    stroke-opacity: 1;
+    stroke-opacity: 0.85;
     stroke-width: 2.3pt;
 }
 
-g.band5 path {
+g.ohlc.magenta path {
+    stroke: violet;
+    stroke-opacity: 0.85;
+}
+
+g.band.magenta path {
     fill: violet;
     fill-opacity: 0.23;
+}
+
+g.bar.magenta rect {
+    fill: magenta;
+    fill-opacity: 0.28;
+}
+
+/* violet */
+
+.violet,
+.violet a {
+    color: violet;
+}
+
+g.line.violet path {
+    stroke: violet;
+    stroke-opacity: 0.9;
+    stroke-width: 2.5pt;
+}
+
+g.ohlc.violet path {
+    stroke: violet;
+    stroke-opacity: 0.9;
+}
+
+g.band.violet path {
+    fill: violet;
+    fill-opacity: 0.25;
+}
+
+g.bar.violet rect {
+    fill: violet;
+    fill-opacity: 0.3;
 }

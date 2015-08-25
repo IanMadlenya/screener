@@ -265,10 +265,8 @@
                 var url = $('#queries').prop('href') + 'interval-list.rq?tqx=out:table';
                 return calli.getJSON(url).then(tableToObjectArray).then(function(list){
                     return postDispatchMessage("indicator-list").then(function(indicators){
-                        return indicators.map(function(indicator){
-                            return _.find(list, function(item){
-                                return item.value == indicator;
-                            });
+                        return list.filter(function(item){
+                            return indicators.indexOf(item.value) >= 0;
                         });
                     });
                 });

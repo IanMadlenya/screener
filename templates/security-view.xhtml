@@ -9,6 +9,7 @@
     <link rel="version-history" href="?history" />
     <link rel="stylesheet" href="../styles/security.css" />
     <link id="queries" href="../queries/" />
+    <link class="show-indicator-modal" title="Add indicator" href="javascript:void(0)" />
     <script type="text/javascript" src="../assets/typeahead.js/bloodhound.js"></script>
     <script type="text/javascript" src="../assets/typeahead.js/typeahead.jquery.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -22,8 +23,93 @@
 </head>
 <body>
     <div class="floating-header">
-        <div class="container">
-            <h1 id="page-title"></h1>
+        <h4 id="page-title"></h4>
+        <div id="indicator-list"></div>
+        <small>
+            <a class="show-indicator-modal" href="javascript:void(0)">
+                <span class="glyphicon glyphicon-plus"></span>
+            </a>
+        </small>
+    </div>
+    <div id="add-indicator-modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title">Add Indicator</h4>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="return false">
+                        <input type="hidden" id="indicator-id" />
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label title="Primary indicator to chart">Indicator</label>
+                                    <select id="forIndicator" class="form-control" name="indicator">
+                                        <option></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label title="Chart the difference between these two indicators">Difference from</label>
+                                    <select id="differenceFrom" class="form-control" name="indicator">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label title="Chart the value as a percent of this indicator">Percent of</label>
+                                    <select id="percentOf" class="form-control" name="indicator">
+                                        <option></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label title="Chart this lower bands">Lower band</label>
+                                    <input id="lower" class="lower-input form-control input-sm" type="number" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <label title="Chart this upper band">Upper band</label>
+                                    <input id="upper" class="upper-input form-control input-sm" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Style</label>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <select id="style" class="form-control">
+                                        <option value="line">Line</option>
+                                        <option value="bar">Bar</option>
+                                        <option value="band">Band</option>
+                                        <option value="ohlc">OHLC Bars</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <select id="color" class="form-control">
+                                        <option value="black">Black</option>
+                                        <option value="brown">Brown</option>
+                                        <option value="red">Red</option>
+                                        <option value="orange">Orange</option>
+                                        <option value="yellow">Yellow</option>
+                                        <option value="green">Green</option>
+                                        <option value="cyan">Cyan</option>
+                                        <option value="blue">Blue</option>
+                                        <option value="indigo">Indigo</option>
+                                        <option value="magenta">Magenta</option>
+                                        <option value="violet">Violet</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="add-indicator-btn" type="button" class="btn btn-primary">Add Indicator to chart</button>
+                </div>
+            </div>
         </div>
     </div>
     <svg xmlns="http://www.w3.org/2000/svg" id="ohlc-div">
@@ -33,6 +119,5 @@
             </clippath>
         </defs>
     </svg>
-    <div id="candlestick-div"></div>
 </body>
 </html>

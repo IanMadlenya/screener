@@ -107,7 +107,7 @@ jQuery(function($){
                         '</div>';
                     },
                     item: function(data, escape) {
-                        return '<div title="' + escape(data.title || '') + '"><a href="' + escape(data.value) + '?view">' +
+                        return '<div title="' + escape(data.title || '') + '"><a href="' + escape(data.value) + '">' +
                             escape(data.text) + '</a></div>';
                     }
                 }
@@ -142,7 +142,7 @@ jQuery(function($){
                 },
                 render: {
                     item: function(data, escape) {
-                        return '<div><a href="' + escape(data.value) + '?view">' +
+                        return '<div><a href="' + escape(data.value) + '">' +
                             escape(data.text) + '</a></div>';
                     }
                 }
