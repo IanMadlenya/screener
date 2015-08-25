@@ -334,22 +334,22 @@ jQuery(function($){
         var watch = readFilters('[rel="screener:hasWatchCriteria"]');
         var hold = readFilters('[rel="screener:hasHoldCriteria"]');
         if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return;
-        var now = new Date();
+        var now = new Date(screener.getItem("now", new Date()));
         var screen = {watch: watch, hold: hold};
         var key = JSON.stringify([securityClasses, screen, since]);
         if (cache[key]) {
             cache[key].promise = cache[key].promise.catch(function(){
-                return screener.screen(securityClasses, screen, since);
+                return screener.screen(securityClasses, screen, since, now);
             });
         } else {
             cache[key] = {
                 asof: new Date(),
-                promise: screener.screen(securityClasses, screen, since)
+                promise: screener.screen(securityClasses, screen, since, now)
             };
         }
         $('.table').addClass("loading");
         return cache[key].promise.then(function(list){
-            updatePerformance(since, now, list);
+            updatePerformance(list);
             return screener.inlineFilters(hold).then(function(filters){
                 var thead = $('#results-table thead tr');
                 while (thead.children().length > 2) thead.children().last().remove();
@@ -423,7 +423,7 @@ jQuery(function($){
         thead.children('th').css("white-space", "normal");
     }
 
-    function updatePerformance(since, now, list) {
+    function updatePerformance(list) {
         var occurances = sum(list.map(function(item){
             return item.performance.length;
         }));
