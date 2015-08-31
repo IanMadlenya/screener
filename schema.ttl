@@ -224,6 +224,18 @@ screener:marketClosesAt a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain screener:Exchange;
     rdfs:range xsd:time.
 
+screener:premarketOpensAt a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "pre-market opens at";
+    rdfs:comment "The time at which the pre-market trading session is opened, in the time zone of this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:time.
+
+screener:afterHoursClosesAt a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "after hours closes at";
+    rdfs:comment "The time at which the after hours trading session is closed, in the time zone of this exchange";
+    rdfs:domain screener:Exchange;
+    rdfs:range xsd:time.
+
 screener:inTimeZone a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "in time zone";
     rdfs:comment "Time zone of the primary location of this exchange";

@@ -8,11 +8,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?marketOpensAt ?marketClosesAt ?tz ?marketLang ?mic ?morningstarCode ?exch ?yahooSuffix ?dtnPrefix {
+SELECT ?iri ?label ?marketOpensAt ?marketClosesAt ?premarketOpensAt ?afterHoursClosesAt ?tz ?marketLang ?mic ?morningstarCode ?exch ?yahooSuffix ?dtnPrefix {
     ?iri a screener:Exchange;
         rdfs:label ?label;
         screener:marketOpensAt ?marketOpensAt;
         screener:marketClosesAt ?marketClosesAt;
+        screener:premarketOpensAt ?premarketOpensAt;
+        screener:afterHoursClosesAt ?afterHoursClosesAt;
         screener:inTimeZone ?inTimeZone;
         screener:marketLang ?marketLang;
         screener:mic ?mic;

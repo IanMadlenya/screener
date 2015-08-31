@@ -8,6 +8,8 @@
 <> a <../classes/Exchange> , screener:Exchange ;
     rdfs:comment "Nasdaq Capital Market is a equity market for companies that have relatively small levels of market capitalization. Listing requirements for such \"small cap\" companies are less stringent than for other Nasdaq markets that list larger companies with significantly higher market capitalization" ;
     rdfs:label "NASDAQ Capital Market" ;
+    screener:acronym "NCM" ;
+    screener:afterHoursClosesAt "20:00:00"^^xsd:time ;
     screener:exch "NCM" ;
     screener:marketClosesAt "16:00:00"^^xsd:time ;
     screener:marketID 5 ;
@@ -15,6 +17,7 @@
     screener:marketOpensAt "09:30:00"^^xsd:time ;
     screener:mic "XNCM" ;
     screener:morningstarCode "XNAS" ;
+    screener:premarketOpensAt "04:00:00"^^xsd:time ;
     calli:administrator </auth/groups/admin> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
