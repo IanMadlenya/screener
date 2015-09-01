@@ -489,7 +489,7 @@ jQuery(function($){
         $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
         $('#performance').text(performance.toFixed(2) + '%');
         $('#annual_growth').text((growth * 100).toFixed(2) + '%');
-        $('#exposed_growth').text((exposed_growth * 100).toFixed(2) + '%');
+        $('#exposed_growth').text(Math.abs(exposed_growth) < 1000 ? (exposed_growth * 100).toFixed(2) + '%' : '');
         return list;
     }
 
