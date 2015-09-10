@@ -30,23 +30,9 @@
  */
 
 jQuery(function($){
-    $('.show-indicator-modal').click(function(event){
-        event.preventDefault();
-        $('#indicator-id').val('i' + new Date().valueOf().toString(16));
-        $('#forIndicator').prop('selectize').clear();
-        $('#differenceFrom').prop('selectize').clear();
-        $('#percentOf').prop('selectize').clear();
-        $('#lower').val('');
-        $('#upper').val('');
-        $('#style').val('line');
-        $('#color').prop('selectize').setValue('black');
-        $('#add-indicator-modal').modal('show');
-    });
-    $('#add-indicator-modal').modal({
-        show: false
-    }).on('shown.bs.modal', function () {
-        // TODO list charts in #position
-    });
+
+    setTitleToSecurity(window.location.href.substring(0, window.location.href.indexOf('?')));
+
     $('#color').selectize({
         render: {
             option: function(data, escape) {
@@ -114,116 +100,198 @@ jQuery(function($){
         }).change();
     });
 
-    return Promise.resolve(window.location.href.substring(0, window.location.href.indexOf('?'))).then(function(security){
-        return setTitleToSecurity(security).then(function(){
-            return screener.listIntervals();
-        }).then(function(list){
-            return _.pluck(list, 'value');
-        }).then(function(list){
-            return _.without(list, 'annual','quarter');
-        }).then(function(list){
-            return list.reverse();
-        }).then(function(intervals){
-            var chart = d3.chart();
-            return mapEachSeries(addSeries.bind(this, chart)).then(function(){
-                var redraw = drawOhlcChartData(intervals, security, chart);
-                $('#add-indicator-btn').click(function(event){
-                    var style = $('#style').val();
-                    var color = $('#color').val();
-                    var id = $('#indicator-id').val();
-                    addSeries(chart, {
-                        forIndicator: $('#forIndicator').val(),
-                        differenceFrom: $('#differenceFrom').val(),
-                        percentOf: $('#percentOf').val(),
-                        lower: $('#lower').val(),
-                        upper: $('#upper').val(),
-                        style: style,
-                        color: color,
-                        id: id,
-                        className: style + " " + color + " " + id
-                    }).then(function(){
-                        $('#add-indicator-modal').modal('hide');
-                        redraw();
-                    });
+    getArrayOfSortedSeries().reduce(function(promise, series){
+        return promise.then(addSeries.bind(this, series));
+    }, Promise.resolve()).then(getIntervals).then(function(intervals){
+        var security = window.location.href.substring(0, window.location.href.indexOf('?'));
+        var blocks = [];
+        var redraw = function(){
+            var graphics = $('.chart').find('svg').toArray();
+            blocks.push.apply(blocks, graphics.filter(function(svg){
+                return _.pluck(blocks, 'svg').indexOf(svg) < 0;
+            }).map(function(svg){
+                var first = $(svg).closest('.chart').find('.series').first();
+                var block = {
+                    svg: svg,
+                    chart: d3.chart(),
+                    unit: first.data("unit"),
+                    id: first.data("id")
+                };
+                block.redraw = drawOhlcChartData(intervals, security, block);
+                return block;
+            }));
+            return Promise.all(blocks.map(function(block){
+                _.keys(block.chart.series()).filter(function(cls){
+                    var id = cls.replace(/.* /,'');
+                    if (!$('#series-' + id).length) {
+                        delete block.chart.series()[cls];
+                    }
                 });
-            });
+                return block.redraw();
+            }));
+        };
+        $('#add-indicator-btn').click(function(event){
+            var style = $('#style').val();
+            var color = $('#color').val();
+            var id = $('#indicator-id').val();
+            var position = $('#position').val() || id;
+            var placement = position == id ? 'with' : $('#placement').val();
+            addSeries({
+                forIndicator: $('#forIndicator').val(),
+                differenceFrom: $('#differenceFrom').val(),
+                percentOf: $('#percentOf').val(),
+                lower: $('#lower').val(),
+                upper: $('#upper').val(),
+                style: style,
+                color: color,
+                id: id,
+                placement: placement,
+                position: position,
+                className: style + " " + color + " " + id
+            }, redraw).then(function(){
+                screener.setItem("series", JSON.stringify(getArrayOfSeriesInDOM()));
+            }).then(function(series){
+                $('#add-indicator-modal').modal('hide');
+            }).catch(calli.error);
         });
+        return redraw();
     }).catch(calli.error);
 
-    function addSeries(chart, series){
-        return screener.inlineFilters([series]).then(function(array){
-            return array[0];
-        }).then(function(series){
-            var old = refreshSeries(series);
-            if (old && chart.series(old.className)) {
-                chart.series(old.className).remove();
-                $('#h6-' + old.id + ' .glyphicon-eye-close').toggleClass("glyphicon-eye-close glyphicon-eye-open");
-                $('#h6-' + old.id + '>span').text(getSeriesLabel(series));
-                $('#h6-' + old.id).attr("class", series.color);
-            } else {
-                $('#indicator-list').append($('<h6></h6>', {
-                    "id": 'h6-' + series.id,
-                    "class": series.color
-                }).append(
-                    $('<span></span>').text(getSeriesLabel(series))
-                ).append(
-                    $('<small></small>', {
-                        "class": "settings"
-                    }).append(' ').append($('<a></a>', {
-                        "class": "glyphicon glyphicon-eye-open"
-                    }).click(function(event){
-                        event.preventDefault();
-                        $(event.target).toggleClass("glyphicon-eye-close glyphicon-eye-open");
-                        if ($(event.target).hasClass("glyphicon-eye-open")) {
-                            $('.' + series.id).show();
-                        } else {
-                            $('.' + series.id).hide();
-                        }
-                    })).append(' ').append($('<a></a>', {
-                        "class": "glyphicon glyphicon-cog"
-                    }).click(function(event){
-                        event.preventDefault();
-                        var s = refreshSeries(series);
-                        $('#indicator-id').val(s.id);
-                        $('#forIndicator').prop('selectize').setValue(s.forIndicator);
-                        $('#differenceFrom').prop('selectize').setValue(s.differenceFrom);
-                        $('#percentOf').prop('selectize').setValue(s.percentOf);
-                        $('#lower').val(s.lower);
-                        $('#upper').val(s.upper);
-                        $('#style').val(s.style);
-                        $('#color').prop('selectize').setValue(s.color);
-                        $('#add-indicator-modal').modal('show');
-                    })).append(' ').append($('<a></a>', {
-                        "class": "glyphicon glyphicon-remove"
-                    }).click(function(event){
-                        event.preventDefault();
-                        screener.setItem("series", JSON.stringify(getArrayOfSeries().filter(function(item){
-                            if (series.id != item.id) return true;
-                            chart.series(series.className).remove();
-                            $('#h6-' + series.id).remove();
-                            return false;
-                        })));
-                    })).append(' ')
-                ));
-            }
-        }).then(function(){
-            var array = getArrayOfSeries();
-            var idx = _.findIndex(array, function(item) {
-                return item.id == series.id;
+    function addSeries(series, redraw){
+        var populatePosition = function() {
+            var ordered = $('#charts').find(".chart").toArray().map(function(chart){
+                var first = $(chart).find('.series').first();
+                return {
+                    value: first.data("id"),
+                    text: first.find('.text').text()
+                };
             });
-            if (idx < 0) {
-                array = array.concat(series);
-            } else {
-                array.splice(idx, 1, series);
-            }
-            screener.setItem("series", JSON.stringify(array));
+            $('#position').empty().append(ordered.map(function(opt){
+                return $('<option></option>', {
+                    value: opt.value
+                }).text(opt.text);
+            })).val($(chartBlock).find('.series').first().data("id"));
+        };
+        var withChart = series.placement == 'with' ? $('#series-' + series.position).closest('.chart') : $();
+        var chartBlock = withChart.length ? withChart : $('<div></div>', {
+            "class": "chart"
+        }).append($('<div></div>', {
+            "class": "indicator-list"
+        }).append($('<a></a>', {
+            href: "javascript:void(0)"
+        }).append($('<span></span>',{
+            "class": "glyphicon glyphicon-plus"
+        })).click(function(event){
+            event.preventDefault();
+            $('#indicator-id').val('i' + new Date().valueOf().toString(16));
+            $('#forIndicator').prop('selectize').clear();
+            $('#differenceFrom').prop('selectize').clear();
+            $('#percentOf').prop('selectize').clear();
+            $('#lower').val('');
+            $('#upper').val('');
+            $('#style').val('line');
+            $('#color').prop('selectize').setValue('black');
+            $('#placement').val('with');
+            populatePosition();
+            $('#add-indicator-modal').modal('show');
+        }))).append(document.createElementNS("http://www.w3.org/2000/svg", "svg"));
+        var list = chartBlock.children('.indicator-list');
+        if (!$('#charts').children('.chart').length) {
+            list.prepend($('#page-title'));
+        }
+        var span = $('<span></span>', {
+            "class": "text"
         });
+        var seriesHeading = $('<h6></h6>', {
+            id: "series-" + series.id,
+            "class": "series " + series.color
+        }).data(_.omit(series, 'placement', 'position')).append(span).append(' ').append($('<span></span>', {
+            "class": "value"
+        })).append(' ').append(
+            $('<small></small>', {
+                "class": "settings"
+            }).append(' ').append($('<a></a>', {
+                "class": "glyphicon glyphicon-eye-open"
+            }).click(function(event){
+                event.preventDefault();
+                $(event.target).toggleClass("glyphicon-eye-close glyphicon-eye-open");
+                if ($(event.target).hasClass("glyphicon-eye-open")) {
+                    $('.' + series.id).show();
+                } else {
+                    $('.' + series.id).hide();
+                }
+            })).append(' ').append($('<a></a>', {
+                "class": "glyphicon glyphicon-cog"
+            }).click(function(event){
+                event.preventDefault();
+                $('#add-indicator-modal').modal('show');
+                var s = seriesHeading.data();
+                $('#indicator-id').val(s.id);
+                $('#forIndicator').prop('selectize').setValue(s.forIndicator);
+                $('#differenceFrom').prop('selectize').setValue(s.differenceFrom);
+                $('#percentOf').prop('selectize').setValue(s.percentOf);
+                $('#lower').val(s.lower);
+                $('#upper').val(s.upper);
+                $('#style').val(s.style);
+                $('#color').prop('selectize').setValue(s.color);
+                $('#placement').val('with');
+                populatePosition();
+            })).append(' ').append($('<a></a>', {
+                "class": "glyphicon glyphicon-remove"
+            }).click(function(event){
+                event.preventDefault();
+                var title = $('#page-title');
+                seriesHeading.remove();
+                $('.' + series.id).remove();
+                screener.setItem("series", JSON.stringify(getArrayOfSeriesInDOM()));
+                if (list.children('h6').length < 1) {
+                    chartBlock.remove();
+                    if ($('.indicator-list').length) {
+                        $('.indicator-list').first().prepend(title);
+                    } else {
+                        window.location.reload(); // no more charts
+                    }
+                }
+                redraw();
+            })).append(' ')
+        );
+        if (series.placement == 'before') {
+            $('.' + series.position).closest('.chart').before(chartBlock);
+        } else if (series.placement == 'after') {
+            $('.' + series.position).closest('.chart').after(chartBlock);
+        } else if (!withChart.length) {
+            $('#charts').append(chartBlock);
+        }
+        var existing = $('#series-' + series.id);
+        if (existing.length && list.toArray().indexOf(existing) >= 0) {
+            existing.replaceWith(seriesHeading);
+        } else {
+            if (existing.closest('.indicator-list').children('h6').length < 2) {
+                var title = $('#page-title');
+                $(existing).closest('.chart').remove();
+                if ($('.indicator-list').length) {
+                    $('.indicator-list').first().prepend(title);
+                }
+            }
+            existing.remove();
+            $('.' + series.id).remove();
+            list.children('a').before(seriesHeading);
+        }
+        return screener.inlineFilters([series]).then(_.first).then(function(series){
+            span.text(getSeriesLabel(series));
+            seriesHeading.data("unit", getSeriesUnit(series));
+            return series;
+        }).then(redraw);
     }
 
     function getSeriesLabel(series) {
         var label = series.indicator ? series.indicator.label : 'Price';
         var suffix = series.percent && series.style != 'band' ? ' %' : series.difference ? ' Δ' : '';
         return label + suffix;
+    }
+
+    function getSeriesUnit(series) {
+        return series.percent && series.style != 'band' ? 'percent' : series.indicator ? series.indicator.unit.value : 'price';
     }
 
     function setTitleToSecurity(security) {
@@ -242,15 +310,76 @@ jQuery(function($){
             $('title').text(title);
             $('#page-title').text(title);
             return security;
+        }).catch(calli.error);
+    }
+
+    function getIntervals() {
+        return screener.listIntervals().then(function(list){
+            return _.pluck(list, 'value');
+        }).then(function(list){
+            return _.without(list, 'annual','quarter');
+        }).then(function(list){
+            return list.reverse();
         });
+    }
+
+    function getArrayOfSortedSeries() {
+        return _.flatten(getArrayOfSeries().reduce(function(blocks, series){
+            var block = _.find(blocks, function(block){
+                return _.find(block, function(item){
+                    return !item.placement ||
+                        item.placement == 'with' && item.position == series.id ||
+                        series.placement == 'with' && series.position == item.id;
+                });
+            });
+            if (block) {
+                block.push(series);
+            } else {
+                blocks.push([series]);
+            }
+            return blocks;
+        }, []).reduce(function(blocks, block){
+            var idx = _.findIndex(blocks, function(b){
+                return b.some(function(item){
+                    return item.placement == 'below' && _.pluck(block.series, 'id').indexOf(item.position) >= 0;
+                }) || block.some(function(item){
+                    return item.placement == 'above' && _.pluck(b.series, 'id').indexOf(item.position) >= 0;
+                });
+            });
+            if (idx < 0) {
+                blocks.push(block);
+            } else {
+                blocks.splice(idx, 0, block);
+            }
+            return blocks;
+        }, []).map(function(items, i, blocks){
+            return items.map(function(series, j, items){
+                if (i === 0 && j === 0) {
+                    return _.extend(series, {
+                        placement: 'with',
+                        position: series.id
+                    });
+                } else if (j === 0) {
+                    return _.extend(series, {
+                        placement: 'below',
+                        position: blocks[i-1][0].id
+                    });
+                } else {
+                    return _.extend(series, {
+                        placement: 'with',
+                        position: items[0].id
+                    });
+                }
+            });
+        }));
     }
 
     function getArrayOfSeries() {
         var json = null;
         try {
-            json = JSON.parse(screener.getItem("series"));
+            json = JSON.parse(screener.getItem("series", '[]'));
         } catch(e) {
-            console.log(screener.getItem("series"));
+            console.log(screener.getItem("series", '[]'));
             console.log(e);
         }
         if (!_.isEmpty(json)) return json;
@@ -265,30 +394,53 @@ jQuery(function($){
         return array;
     }
 
-    function mapEachSeries(fn) {
-        var json = getArrayOfSeries();
-        return screener.inlineFilters(json).then(function(json){
-            return Promise.all(json.map(fn));
+    function mapEachSeries(within, fn) {
+        var items = $(within).find('.series');
+        return screener.inlineFilters(getArrayOfSeriesInDOM(items)).then(function(items){
+            return Promise.all(items.filter(function(series){
+                return !series.forIndicator === !series.indicator &&
+                    !series.differenceFrom === !series.difference &&
+                    !series.percentOf === !series.percent;
+            }).map(fn));
         });
     }
 
-    function refreshSeries(toBeRefreshed) {
-        return _.find(getArrayOfSeries(), function(series){
-            return series.id == toBeRefreshed.id;
+    function getArrayOfSeriesInDOM(selector) {
+        return $(selector || '.series').toArray().map(function(h6){
+            var after = $(h6).closest('.chart').prev('.chart').find('.series').first().data("id");
+            var first = $(h6).siblings('.series').first().data("id");
+            var before = $(h6).closest('.chart').next('.chart').find('.series').first().data("id");
+            var series = $(h6).data();
+            return {
+                id: series.id,
+                forIndicator: series.forIndicator,
+                differenceFrom: series.differenceFrom,
+                percentOf: series.percentOf,
+                lower: series.lower,
+                upper: series.upper,
+                style: series.style,
+                color: series.color,
+                className: series.style + " " + series.color + " " + series.id,
+                placement: first && first != series.id ? 'with' : after ? 'after' : before ? 'before' : 'with',
+                position: first && first != series.id ? first : after ? after : before ? before : series.id
+            };
         });
     }
 
-    function drawOhlcChartData(intervals, security, chart) {
+    function drawOhlcChartData(intervals, security, block) {
         var asof = function(datum) {
             return new Date(datum.asof);
         };
         var interval = screener.getItem("security-chart-interval", 'd1');
         var width = document.documentElement.clientWidth;
         var height = Math.max(200,Math.min(document.documentElement.clientHeight,800));
-        chart.width(width).height(height).xPlot(asof);
+        var chart = block.chart;
+        var svg = block.svg;
+        var within = $(svg).closest('.chart').find('.indicator-list');
+        chart.width(width).height(block.unit == 'price' ? height : height/3).xPlot(asof);
         $(window).resize(function(){
             chart.width(document.documentElement.clientWidth);
-            d3.select('#ohlc-div').call(chart);
+            d3.select(svg).call(chart);
         });
         var loaded = new Date();
         var redrawCounter = 0;
@@ -306,11 +458,11 @@ jQuery(function($){
                 drawing = drawing.then(function(){
                     if (counter != redrawCounter) return;
                     console.log("Loading", int, begin, end);
-                    return loadChartData(chart, security, intervals, int, begin, end).then(function(){
+                    return loadChartData(chart, security, within, block.unit, intervals, int, begin, end).then(function(){
                         interval = int;
                         loaded = new Date(Math.min(Date.now(), end.valueOf()));
                         if (delay || int == optimalInterval(intervals, int, chart)) {
-                            d3.select('#ohlc-div').call(chart);
+                            d3.select(svg).call(chart);
                         }
                         _.delay(function(){
                             redraw(false, (delay || 500)*2); // check if more adjustments are needed
@@ -323,7 +475,7 @@ jQuery(function($){
         }, 500);
         var length = Math.max(+screener.getItem("security-chart-length", 250), 100);
         var drawing = screener.load(security, ['asof'], interval, length, loaded).then(function(data){
-            return loadChartData(chart, security, intervals, interval, data[0].asof, data[data.length-1].asof);
+            return loadChartData(chart, security, within, block.unit, intervals, interval, data[0].asof, data[data.length-1].asof);
         }).then(function(){
             var data = chart.datum();
             chart.x(chart.x().domain([new Date(data[0].asof), new Date()]).range([0,chart.innerWidth()]));
@@ -333,14 +485,14 @@ jQuery(function($){
         }).then(function(data){
             chart.rule(data[0].close);
         }).then(function(){
-            d3.select('#ohlc-div').call(chart);
+            d3.select(svg).call(chart);
             redraw(false);
         });
         chart.zoomend(redraw.bind(this, false));
         return redraw.bind(this, true);
     }
 
-    function loadChartData(chart, security, intervals, interval, lower, upper) {
+    function loadChartData(chart, security, within, base_unit, intervals, interval, lower, upper) {
         var earliest = {asof: new Date().toISOString()};
         return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, 1, lower, upper).then(function(data){
             if (data.length) earliest.asof = data[0].asof;
@@ -354,7 +506,8 @@ jQuery(function($){
                 chart.scaleExtent([Math.min(d/5 /ppp*5,1), Math.max(d*6.5*60 /ppp*5,1)]);
             }
         }).then(function(){
-            return mapEachSeries(function(series){
+            var first = $(within).find('.series').first().data("id");
+            return mapEachSeries(within, function(series){
                 if (series.indicator && intervals.indexOf(series.indicator.interval.value) < intervals.indexOf(interval)) {
                     if (chart.series(series.className)) chart.series(series.className).datum([]);
                 } else return Promise.resolve(['asof', 'open', 'high', 'low', 'close'].concat(_.pluck(_.compact(
@@ -394,7 +547,7 @@ jQuery(function($){
                     } else {
                         console.error("Unknown series style " + series.style);
                     }
-                    var unit = series.percent && series.style != 'band' ? 'percent' : series.indicator ? series.indicator.unit.value : 'price';
+                    var unit = getSeriesUnit(series);
                     if (unit == 'percent') {
                         var values = data.map(primary);
                         var domain = [Math.min(_.min(values), 0), Math.max(_.max(values), 0)];
@@ -405,7 +558,11 @@ jQuery(function($){
                             domain[1] = Math.max(domain[1], 100);
                         }
                         var y = d3.scale.linear().range(chart.y().range()).domain(domain);
-                        chart.series(series.className).y(y);
+                        if (unit = base_unit) {
+                            chart.y(y);
+                        } else {
+                            chart.series(series.className).y(y);
+                        }
                     } else if (unit != 'price') {
                         var values = data.map(primary);
                         var domain = [_.min(values), _.max(values)];
@@ -420,12 +577,25 @@ jQuery(function($){
                             domain[1] = Math.max(domain[1], 0);
                         }
                         var y = d3.scale.linear().range(chart.y().range()).domain(domain);
-                        chart.series(series.className).y(y);
+                        if (unit = base_unit) {
+                            chart.y(y);
+                        } else {
+                            chart.series(series.className).y(y);
+                        }
                     }
                     if (data) {
                         chart.series(series.className).datum(data);
+                        $('#series-' + series.id).find('.value').text(screener.formatNumber(primary(_.last(data))));
+                    } else if (!series.indicator) {
+                        $('#series-' + series.id).find('.value').text(primary(_.last(chart.datum())));
                     }
                 });
+            }).then(function(){
+                var list = $(within).closest('.indicator-list');
+                var sorted = _.sortBy(list.find('.series').toArray(), function(series){
+                    return parseFloat($(series).find('.value').text() || '0');
+                }).reverse();
+                $(list).children('a').before(sorted);
             });
         }).then(function(){
             console.log("Loaded", interval, chart.datum().length, chart.datum()[0] && chart.datum()[0].asof);

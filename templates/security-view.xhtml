@@ -22,15 +22,7 @@
     <script type="text/javascript" src="../scripts/security.js"></script>
 </head>
 <body>
-    <div class="floating-header">
-        <h4 id="page-title"></h4>
-        <div id="indicator-list"></div>
-        <small>
-            <a class="show-indicator-modal" href="javascript:void(0)">
-                <span class="glyphicon glyphicon-plus"></span>
-            </a>
-        </small>
-    </div>
+    <h4 id="page-title"></h4>
     <div id="add-indicator-modal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -108,9 +100,9 @@
                             <div class="row">
                                 <div class="col-sm-6">
                                     <select id="placement" class="form-control">
-                                        <option value="above">Above</option>
+                                        <option value="before">Above</option>
                                         <option value="with" selected="selected">With</option>
-                                        <option value="below">Below</option>
+                                        <option value="after">Below</option>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
@@ -129,12 +121,6 @@
             </div>
         </div>
     </div>
-    <svg xmlns="http://www.w3.org/2000/svg" id="ohlc-div">
-        <defs>
-            <clippath>
-                <rect />
-            </clippath>
-        </defs>
-    </svg>
+    <div id="charts"></div>
 </body>
 </html>

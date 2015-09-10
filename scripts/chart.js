@@ -52,7 +52,7 @@
         var x = x_orig.copy();
         var y = d3.scale.log().domain([10,100]).range([height-margin.bottom-margin.top,0]);
         var xAxis = d3.svg.axis().ticks(30);
-        var yAxis = d3.svg.axis().orient("right").tickFormat(d3.format(',.2f'));
+        var yAxis = d3.svg.axis().orient("right").tickFormat(d3.format('.2f'));
         var yRule = 0;
         var clip = 'clip-' + Math.random().toString(16).slice(2);
         var listeners = {};

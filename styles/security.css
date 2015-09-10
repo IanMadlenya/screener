@@ -8,14 +8,19 @@ nav.hidden-logout {
     display: none;
 }
 
-.floating-header {
+.indicator-list {
     position: absolute;
     padding: 2em 0 0 2em;
     background: linear-gradient(to right, white, rgba(255,255,255,0.75), rgba(255,255,255,0));
 }
 
-#indicator-list {
+.indicator-list .series {
     text-shadow: 1px 1px 0 gray;
+}
+
+.indicator-list .glyphicon {
+    color: gray;
+    text-shadow: none;
 }
 
 rect.pane {
