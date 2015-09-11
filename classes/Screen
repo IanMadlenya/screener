@@ -7,7 +7,7 @@
 
 <> a </callimachus/1.4/types/Class> , owl:Class ;
     dcterms:created "2014-03-10T13:35:21.101Z"^^xsd:dateTime ;
-    dcterms:modified "2015-06-15T16:52:35.121Z"^^xsd:dateTime ;
+    dcterms:modified "2015-06-15T16:52:35.121Z"^^xsd:dateTime , "2015-09-11T13:31:31.260Z"^^xsd:dateTime ;
     rdfs:comment "Investors and traders can use these to filter stocks based on user-defined metrics. Stock screeners allow users to select trading instruments that fit a certain profile set of criteria." ;
     rdfs:label "Screen" ;
     calli:administrator </auth/groups/admin> ;
@@ -18,5 +18,6 @@
     calli:icon <../images/screen.png> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
     calli:subscriber </auth/groups/everyone> ;
+    calli:thumbnail <../images/screen.svg> ;
     calli:view <../templates/screen-view.xhtml> ;
     rdfs:subClassOf </callimachus/1.4/types/Editable> , </callimachus/1.4/types/Serviceable> , </callimachus/1.4/types/Viewable> .
