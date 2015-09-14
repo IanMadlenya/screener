@@ -1,0 +1,126 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:screener="https://probabilitytrading.net/screener/2014/schema.ttl#">
+<head>
+    <title>New Criteria</title>
+    <link id="queries" href="../queries/" />
+    <link id="Screen" href="../classes/Screen" />
+    <link title="New Screen" href="../classes/Screen" target="_blank"
+        onmouseover="this.href='?create='+encodeURIComponent($('#Screen').prop('href'))" />
+    <link id="SecurityClass" href="../classes/SecurityClass" />
+    <link title="New Security Class" href="../classes/SecurityClass" target="_blank"
+        onmouseover="this.href='?create='+encodeURIComponent($('#SecurityClass').prop('href'))" />
+    <link rel="stylesheet" href="../styles/screener.css" />
+    <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../scripts/screener.js"></script>
+    <script type="text/javascript" src="../scripts/criteria.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>New Criteria</h1>
+        </div>
+        <form role="form" method="POST" action="" enctype="text/turtle" resource="" typeof="screener:Criteria"
+                onsubmit="calli.submitTurtle(event,calli.slugify($('#label').val()))">
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="label">Label</label>
+                            <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus"
+                                onchange="calli.updateProperty(event,'rdfs:label')" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <textarea id="comment" class="form-control" rows="3"
+                                onchange="calli.updateProperty(event,'rdfs:comemnt')">{rdfs:comment}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="forIndicator" title="Primary criteria value">Indicator</label>
+                            <select id="forIndicator" class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                <option rel="screener:forIndicator" resource="?forIndicator" value="{?forIndicator}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden">
+                            <label for="forWatchIndicator" title="Primary criteria value">Indicator</label>
+                            <select id="forWatchIndicator" class="form-control" onchange="calli.updateResource(event,'screener:forWatchIndicator')" name="indicator">
+                                <option rel="screener:forWatchIndicator" resource="?forWatchIndicator" value="{?forWatchIndicator}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label title="If checked criteria value is compared with indicator values as they were when the security was watched">
+                                    <input id="holdReference" type="checkbox" checked="checked" /> Re-evaluate difference and percent at each bar
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="differenceFrom" title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                            <select id="differenceFrom" class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicatorReference">
+                                <option rel="screener:differenceFrom" resource="?differenceFrom" value="{?differenceFrom}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="percentOf" title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
+                            <select id="percentOf" class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicatorReference">
+                                <option rel="screener:percentOf" resource="?percentOf" value="{?percentOf}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group hidden">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="differenceFromWatch" title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                            <select id="differenceFromWatch" class="form-control" onchange="calli.updateResource(event,'screener:differenceFromWatch')" name="indicatorReference">
+                                <option rel="screener:differenceFromWatch" resource="?differenceFromWatch" value="{?differenceFromWatch}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="percentOfWatch" title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
+                            <select id="percentOfWatch" class="form-control" onchange="calli.updateResource(event,'screener:percentOfWatch')" name="indicatorReference">
+                                <option rel="screener:percentOfWatch" resource="?percentOfWatch" value="{?percentOfWatch}" selected="selected">{rdfs:label}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label for="lower" title="Lower value or percentage of acceptable range of securities to include">Lower accepted bound</label>
+                            <input id="lower" class="form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal"
+                                onchange="calli.updateProperty(event,'screener:lower')" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="upper" title="Upper value or percentage of acceptable range of securities to include">Upper accepted bound</label>
+                            <input id="upper" class="form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal"
+                                onchange="calli.updateProperty(event,'screener:upper')" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</body>
+</html>

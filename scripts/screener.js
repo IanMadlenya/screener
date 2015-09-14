@@ -302,36 +302,34 @@
             inlineFilters: function(filters) {
                 if (_.isEmpty(filters)) return Promise.resolve([]);
                 return Promise.all(filters.map(function(filter){
-                    return getIndicator(filter.indicator || filter.forIndicator).then(function(indicator){
-                        return getIndicator(filter.differenceFrom || filter.difference).then(function(difference){
-                            return getIndicator(filter.percentOf || filter.percent).then(function(percent){
-                                return getIndicator(filter.differenceFromWatch || filter.differenceWatch).then(function(differenceWatch){
-                                    return getIndicator(filter.percentOfWatch || filter.percentWatch).then(function(percentWatch){
-                                        return _.extend({}, filter, {
-                                            indicator: indicator,
-                                            difference: difference,
-                                            percent: percent,
-                                            differenceWatch: differenceWatch,
-                                            percentWatch: percentWatch
-                                        });
-                                    });
-                                });
-                            });
+                    if (_.isString(filter)) return screener.listCriteria().then(function(list){
+                        return _.find(list, function(criteria){
+                            return criteria.iri == filter;
                         });
                     });
+                    else return inlineCriteria(filter);
                 }));
             },
 
-            listSecurityClasses: function(){
+            listCriteria: _.throttle(function(){
+                return calli.getCurrentUserAccount().then(function(iri){
+                    var url = "criteria-list.rq?tqx=out:table&user=" + encodeURIComponent(iri);
+                    return calli.getJSON($('#queries').prop('href') + url);
+                }).then(tableToObjectArray).then(function(list){
+                    return Promise.all(list.map(inlineCriteria));
+                });
+            }, 1000),
+
+            listSecurityClasses: _.throttle(function(){
                 return calli.getCurrentUserAccount().then(function(iri){
                     var url = "security-class.rq?tqx=out:table&user=" + encodeURIComponent(iri);
                     return calli.getJSON($('#queries').prop('href') + url);
                 }).then(tableToObjectArray).then(function(list){
                     return Promise.all(list.map(inlineSecurityClass));
                 });
-            },
+            }, 1000),
 
-            listScreens: function() {
+            listScreens: _.throttle(function() {
                 return calli.getCurrentUserAccount().then(function(iri){
                     var url = "screen-list.rq?tqx=out:table&user=" + encodeURIComponent(iri);
                     return calli.getJSON($('#queries').prop('href') + url);
@@ -347,7 +345,7 @@
                         };
                     });
                 });
-            },
+            }, 1000),
 
             resetSecurity: function(security){
                 return getExchangeOfSecurity(security).then(function(exchange){
@@ -568,6 +566,29 @@
                 includes: split(sc.includes, ' ').map(prefix),
                 excludes: split(sc.excludes, ' ').map(prefix)
             });
+        });
+    }
+
+    function inlineCriteria(criteria) {
+        return Promise.all([
+                criteria.indicator || criteria.forIndicator,
+                criteria.indicatorWatch || criteria.forWatchIndicator,
+                criteria.difference || criteria.differenceFrom,
+                criteria.differenceWatch || criteria.differenceFromWatch,
+                criteria.percent || criteria.percentOf,
+                criteria.percentWatch || criteria.percentOfWatch
+        ].map(function(indicator){
+            return getIndicator(indicator);
+        })).then(function(indicators){
+            return _.object([
+                'indicator', 'indicatorWatch',
+                'difference', 'differenceWatch',
+                'percent', 'percentWatch'
+            ], indicators);
+        }).then(function(indicators){
+            return _.extend({}, criteria, indicators);
+        }).then(function(criteria){
+            return _.omit(criteria, _.isNull);
         });
     }
 
