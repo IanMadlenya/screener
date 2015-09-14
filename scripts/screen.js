@@ -31,94 +31,63 @@
 
 jQuery(function($){
 
-    (function(updateWatchList){
-        var selectizeIndicator = function(select) {
-            var optgroups = {};
-            return screener.listIndicators().then(function(list){
-                return list.map(function(indicator){
-                    var optgroup = indicator.interval.label + ' ' + indicator.unit.label;
-                    optgroups[optgroup] = indicator;
-                    return {
-                        value: indicator.iri,
-                        text: indicator.label,
-                        expression: indicator.expression,
-                        optgroup: optgroup,
-                        title: indicator.comment
-                    };
-                });
-            }).then(function(options){
-                var units = _.pluck(_.sortBy(_.pluck(optgroups, 'unit'), 'label'), 'value');
-                var groups = _.sortBy(_.uniq(_.pluck(options, 'optgroup')), function(optgroup){
-                    var indicator = optgroups[optgroup];
-                    var i = indicator.interval.value == 'annual' ? 1 :
-                            indicator.interval.value == 'quarter' ? 2 :
-                            indicator.interval.value == 'd5' ? 3 :
-                            indicator.interval.value == 'd1' ? 4 :
-                            1000 - indicator.interval.value.substring(1);
-                    return i * units.length + units.indexOf(indicator.unit.value);
-                });
-                var sorted = options.map(function(option){
-                    return _.extend(option, {
-                        sort: groups.indexOf(option.optgroup)
-                    });
-                });
+    initializeCriteriaSelect();
+    initializeSecurityClassSelect();
+    initializeSinceInput();
+    initializeResultsTable();
+    initializeFormActions();
+    initializeWatchList();
+
+    function initializeCriteriaSelect() {
+        screener.listCriteria().then(function(list){
+            return list.map(function(criteria){
+                return {
+                    value: criteria.iri,
+                    text: criteria.label,
+                    title: criteria.comment
+                };
+            });
+        }).then(function(options){
+            $('select[name="criteria"]').toArray().forEach(function(select){
                 $(select).selectize({
-                    searchField: ['text', 'title', 'expression'],
-                    sortField: [{field:'sort'}, {field:'text'}],
-                    options: sorted,
-                    optgroups: groups.map(function(optgroup){
-                        return {
-                            value: optgroup,
-                            label: optgroup,
-                            sort: groups.indexOf(optgroup),
-                            references: sorted.filter(function(option){
-                                return groups.indexOf(option.optgroup) <= groups.indexOf(optgroup) &&
-                                    optgroups[option.optgroup].unit.label == optgroups[optgroup].unit.label;
-                            })
-                        };
-                    }),
+                    searchField: ['text', 'title'],
+                    options: options,
                     render: {
-                        item: function(data, escape) {
-                            return '<div title="' + escape(data.title || '') + '">' + escape(data.text) + '</div>';
+                        item: function(data, escape){
+                            return '<div title="' + escape(data.title || '') + '"><a href="' +
+                                escape(data.value) + '?edit" onclick="calli.createResource(event)">' + escape(data.text) + '</a></div>';
                         }
+                    },
+                    create: function(input, callback) {
+                        var cls = $('#Criteria').prop('href');
+                        var container = $('#container-resource').attr('resource') || window.location.pathname;
+                        var url = container + "?create=" + encodeURIComponent(cls) + "#" + encodeURIComponent(input);
+                        calli.createResource(select, url).then(function(iri){
+                            return screener.listCriteria().then(function(list){
+                                return _.find(list, function(criteria){
+                                    return criteria.iri == iri;
+                                }) || {
+                                    value: iri,
+                                    text: input
+                                };
+                            });
+                        }).then(function(criteria){
+                            return {
+                                value: criteria.iri,
+                                text: criteria.label,
+                                title: criteria.comment
+                            };
+                        }).then(callback, function(error){
+                            callback();
+                            call.error(error);
+                        });
                     }
                 }).change();
-                return select.selectize;
             });
-        };
-        var selectizeIndicatorReference = function(select) {
-            selectizeIndicator(select);
-            var row = $(select).closest('[resource]');
-            var watch = row.find('[name="indicatorWatch"]');
-            var checked = row.find('[rel="screener:differenceFromWatch"]').attr("resource") || row.find('[rel="screener:percentOfWatch"]').attr("resource");
-            watch.prop("checked", checked).change(function(){
-                if (watch.prop("checked")) {
-                    row.find(".watch-reference").removeClass("hidden");
-                    row.find(".hold-reference").addClass("hidden");
-                    row.find(".hold-reference").find("select").toArray().forEach(function(select){
-                        select.selectize && select.selectize.clear();
-                    });
-                } else {
-                    row.find(".hold-reference").removeClass("hidden");
-                    row.find(".watch-reference").addClass("hidden");
-                    row.find(".watch-reference").find("select").toArray().forEach(function(select){
-                        select.selectize && select.selectize.clear();
-                    });
-                }
-            }).change();
-            var indicator = row.find('[name="indicator"]');
-            indicator.change(function(){
-                var value = indicator.val();
-                if (!value || !indicator[0].selectize) return;
-                var option = indicator[0].selectize.options[value];
-                var optgroup = indicator[0].selectize.optgroups[option.optgroup];
-                var item = $(select).val();
-                select.selectize.clearOptions();
-                select.selectize.addOption(optgroup.references);
-                select.selectize.addItem(item);
-                select.selectize.refreshOptions(false);
-            });
-        };
+        });
+    }
+
+    function initializeSecurityClassSelect() {
         screener.listSecurityClasses().then(function(classes){
             return classes.map(function(cls){
                 return {
@@ -198,46 +167,32 @@ jQuery(function($){
                 }
             }).change(function(event){
                 screener.setItem("security-class", ($(event.target).val() || []).join(' '));
-            }).change(updateWatchList).change();
+            }).change();
         });
+    }
+
+    function initializeSinceInput() {
         var lastWeek = new Date(new Date().toISOString().replace(/T.*/,''));
         lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 20) / 5 * 7);
         $('#since').prop('valueAsDate', lastWeek).change(function(event){
             var since = event.target.valueAsDate;
             var today = new Date(new Date().toISOString().replace(/T.*/,''));
             screener.setItem("since-days", (today.valueOf() - since.valueOf()) / 1000 / 60 / 60 / 24 / 7 * 5);
-        }).change(updateWatchList);
-        $('div[rel="screener:forIndicator"]').parent().each(function(){
-            $(this).children('div[rel="screener:forIndicator"]').filter(calli.selectEachResourceIn($(this).children('select')[0])).remove();
         });
-        $('select,input').change(updateWatchList);
-        $('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
-        $('select[name="indicator"]').toArray().forEach(selectizeIndicator);
-        $('#watch').parent().find('.add').click(function(event){
-            event.preventDefault();
-            calli.addResource(event,'#watch').then(function(div){
-                $(div).find('select,input').change(updateWatchList);
-                $(div).find('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
-                var indicators = $(div).find('select[name="indicator"]').toArray();
-                return Promise.all(indicators.map(selectizeIndicator)).then(function(selectizes){
-                    selectizes[0].focus();
-                });
-            });
+    }
+
+    function initializeResultsTable() {
+        $('#show-results-table').click(function(event){
+            $('#results-table').parent().collapse('toggle');
         });
-        $('#hold').parent().find('a.add').click(function(event){
-            event.preventDefault();
-            calli.addResource(event,'#hold').then(function(div){
-                $(div).find('select,input').change(updateWatchList);
-                $(div).find('select[name="indicatorReference"]').toArray().forEach(selectizeIndicatorReference);
-                var indicators = $(div).find('select[name="indicator"]').toArray();
-                return Promise.all(indicators.map(selectizeIndicator)).then(function(selectizes){
-                    selectizes[0].focus();
-                });
-            });
+        $('#results-table').parent().on('show.bs.collapse', function(){
+            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-expand').addClass('glyphicon-collapse-down');
+        }).on('hidden.bs.collapse', function(){
+            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
         });
-        if (window.location.hash.length > 1) {
-            $('#label').val(decodeURIComponent(window.location.hash.substring(1)));
-        }
+    }
+
+    function initializeFormActions() {
         $('#label-dialog').modal({
             show: false,
             backdrop: false
@@ -247,73 +202,46 @@ jQuery(function($){
         $('#store').click(function(event){
             $('#label-dialog').modal('show');
         });
-        $('#show-results-table').click(function(event){
-            $('#results-table').parent().collapse('toggle');
-            updateWatchList();
+        var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
+        if (window.location.hash.length > 1) {
+            $('#label').val(decodeURIComponent(window.location.hash.substring(1)));
+        }
+        $('#screen-form').submit(function(event){
+            event.preventDefault();
+            var creating = event.target.getAttribute("enctype") == "text/turtle";
+            var slug = calli.slugify($('#label').val());
+            var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
+            var resource = creating ? ns + slug : $(event.target).attr('resource');
+            if (creating) {
+                event.target.setAttribute("resource", resource);
+                calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+                    screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
+                    window.location.replace(redirect);
+                }).catch(calli.error);
+            } else {
+                calli.submitUpdate(comparision, event);
+            }
         });
-        $('#results-table').parent().on('show.bs.collapse', function(){
-            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-expand').addClass('glyphicon-collapse-down');
-        }).on('hidden.bs.collapse', function(){
-            $('#show-results-table').children('.glyphicon').removeClass('glyphicon-collapse-down').addClass('glyphicon-expand');
-        });
-    })(loading(updateWatchList.bind(this, {})));
-
-    var comparision = $('#screen-form').attr("resource") && calli.copyResourceData('#screen-form');
-    $('#screen-form').submit(function(event){
-        event.preventDefault();
-        var creating = event.target.getAttribute("enctype") == "text/turtle";
-        var slug = calli.slugify($('#label').val());
-        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
-        var resource = creating ? ns + slug : $(event.target).attr('resource');
-        updateFilters(resource);
-        if (creating) {
-            event.target.setAttribute("resource", resource);
-            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+        $('#saveas').click(function(event){
+            event.preventDefault();
+            var form = $(event.target).closest('form')[0];
+            var slug = calli.slugify($('#label').val());
+            var type = $('#Screen').attr('href');
+            var container = $('#container-resource').attr('resource');
+            var resource = container.replace(/\/?$/, '/') + slug;
+            form.setAttribute("resource", resource);
+            calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
                 screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
                 window.location.replace(redirect);
             }).catch(calli.error);
-        } else {
-            calli.submitUpdate(comparision, event);
-        }
-    });
-    $('#saveas').click(function(event){
-        event.preventDefault();
-        var form = $(event.target).closest('form')[0];
-        var slug = calli.slugify($('#label').val());
-        var type = $('#Screen').attr('href');
-        var container = $('#container-resource').attr('resource');
-        var resource = container.replace(/\/?$/, '/') + slug;
-        updateFilters(resource);
-        form.setAttribute("resource", resource);
-        calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
-            screener.setItem("screen", screener.getItem("screen",'').split(' ').concat(redirect).join(' '));
-            window.location.replace(redirect);
-        }).catch(calli.error);
-    });
-
-    function updateFilters(resource) {
-        var filters = $('[rel="screener:hasWatchCriteria"],[rel="screener:hasHoldCriteria"]');
-        var counter = _.max([35].concat(filters.toArray().map(function(filter){
-            return filter.getAttribute("resource");
-        }).filter(function(iri){
-            return iri.match(/#\w\w$/);
-        }).map(function(iri){
-            return parseInt(iri.substring(iri.lastIndexOf('#') + 1), 36);
-        })));
-        filters.each(function(){
-            var indicator = $(this).find('[rel="screener:forIndicator"]').attr("resource");
-            if (indicator) {
-                $(this).attr("resource", resource + "#" + (++counter).toString(36));
-            } else {
-                $(this).remove();
-            }
         });
     }
 
-    function loading(fn) {
+    function initializeWatchList() {
+        var fn = updateWatchList.bind(this, {});
         var loading = 0;
         var debounce = screener.debouncePromise(fn, 2000);
-        return function() {
+        $('select,input').change(function() {
             var counter = ++loading;
             $('.table').addClass("loading");
             return debounce.apply(this, arguments).then(function(resolved) {
@@ -325,30 +253,38 @@ jQuery(function($){
                     $('.table').removeClass("loading");
                 return Promise.reject(error);
             });
-        };
+        });
     }
 
     function updateWatchList(cache) {
         var securityClasses = $('#security-class').val();
         var since = $('#since').prop('valueAsDate');
-        var watch = readFilters('[rel="screener:hasWatchCriteria"]');
-        var hold = readFilters('[rel="screener:hasHoldCriteria"]');
-        if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return;
-        var now = new Date(screener.getItem("now", new Date()));
-        var screen = {watch: watch, hold: hold};
-        var key = JSON.stringify([securityClasses, screen, since]);
-        if (cache[key]) {
-            cache[key].promise = cache[key].promise.catch(function(){
-                return screener.screen(securityClasses, screen, since, now);
-            });
-        } else {
-            cache[key] = {
-                asof: new Date(),
-                promise: screener.screen(securityClasses, screen, since, now)
-            };
-        }
+        var watch = $('[rel="screener:hasWatchCriteria"]').toArray().map(function(element){
+            return element.getAttribute("resource");
+        });
+        var hold = $('[rel="screener:hasHoldCriteria"]').toArray().map(function(element){
+            return element.getAttribute("resource");
+        });
+        if (_.isEmpty(securityClasses) || _.isEmpty(watch)) return Promise.resolve();
         $('.table').addClass("loading");
-        return cache[key].promise.then(function(list){
+        return Promise.all([screener.inlineFilters(watch), screener.inlineFilters(hold)]).then(function(two){
+            var watch = two[0];
+            var hold = two[1];
+            var now = new Date(screener.getItem("now", new Date()));
+            var screen = {watch: watch, hold: hold};
+            var key = JSON.stringify([securityClasses, screen, since]);
+            if (cache[key]) {
+                cache[key].promise = cache[key].promise.catch(function(){
+                    return screener.screen(securityClasses, screen, since, now);
+                });
+            } else {
+                cache[key] = {
+                    asof: new Date(),
+                    promise: screener.screen(securityClasses, screen, since, now)
+                };
+            }
+            return cache[key].promise;
+        }).then(function(list){
             updatePerformance(list);
             return screener.inlineFilters(hold).then(function(filters){
                 var thead = $('#results-table thead tr');
@@ -503,21 +439,5 @@ jQuery(function($){
         return numbers.reduce(function(sum, num){
             return sum + num;
         }, 0);
-    }
-
-    function readFilters(filterElements) {
-        return $(filterElements).toArray().filter(function(elem){
-            return $(elem).find('[rel="screener:forIndicator"]').attr("resource");
-        }).map(function(elem){
-            return {
-                forIndicator: $(elem).find('[rel="screener:forIndicator"]').attr("resource"),
-                differenceFrom: $(elem).find('[rel="screener:differenceFrom"]').attr("resource"),
-                percentOf: $(elem).find('[rel="screener:percentOf"]').attr("resource"),
-                differenceFromWatch: $(elem).find('[rel="screener:differenceFromWatch"]').attr("resource"),
-                percentOfWatch: $(elem).find('[rel="screener:percentOfWatch"]').attr("resource"),
-                lower: $(elem).find('[property="screener:lower"]').attr("content"),
-                upper: $(elem).find('[property="screener:upper"]').attr("content")
-            };
-        });
     }
 });

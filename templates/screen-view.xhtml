@@ -9,6 +9,7 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link id="queries" href="../queries/" />
+    <link id="Criteria" href="../classes/Criteria" />
     <link id="Screen" href="../classes/Screen" />
     <link title="New Screen" about="?this" href="../classes/Screen"
         onmouseover="this.href='{^calli:hasComponent}?create='+encodeURIComponent($('#Screen').prop('href'))" />
@@ -28,26 +29,8 @@
         </div>
         <p property="rdfs:comment"></p>
     </div>
-    <div id="watch">
-        <div rel="screener:hasWatchCriteria" resource="?watch">
-            <div rel="screener:forIndicator" resource="?watchIndicator"></div>
-            <div rel="screener:differenceFrom" resource="?watchDifference"></div>
-            <div rel="screener:percentOf" resource="?watchPercent"></div>
-            <span property="screener:lower" content="?wl"></span>
-            <span property="screener:upper" content="?wu"></span>
-        </div>
-    </div>
-    <div id="hold">
-        <div rel="screener:hasHoldCriteria" resource="?hold">
-            <div rel="screener:forIndicator" resource="?hindicator"></div>
-            <div rel="screener:differenceFrom" resource="?holdDifference"></div>
-            <div rel="screener:percentOf" resource="?holdPercent"></div>
-            <div rel="screener:differenceFromWatch" resource="?holdDifferenceWatch"></div>
-            <div rel="screener:percentOfWatch" resource="?holdPercentWatch"></div>
-            <span property="screener:lower" content="?hl"></span>
-            <span property="screener:upper" content="?hu"></span>
-        </div>
-    </div>
+    <div rel="screener:hasWatchCriteria" resource="?watch"></div>
+    <div rel="screener:hasHoldCriteria" resource="?hold"></div>
     <div class="container">
         <form id="backtesting-form" role="form">
             <fieldset class="row">

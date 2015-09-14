@@ -10,6 +10,7 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link id="queries" href="../queries/" />
+    <link id="Criteria" href="../classes/Criteria" />
     <link id="Screen" href="../classes/Screen" />
     <link title="New Screen" about="?this" href="../classes/Screen" target="_blank"
         onmouseover="this.href='{^calli:hasComponent}?create='+encodeURIComponent($('#Screen').prop('href'))" />
@@ -53,118 +54,18 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                            <label title="Criteria that must previously have been met for a security to appear on screen">Watch criteria value</label>
-                        </div>
-                        <div class="col-sm-3">
-                            <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
-                        </div>
-                        <div class="col-sm-3">
-                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
-                        </div>
-                        <div class="col-sm-1">
-                            <label title="Lower value or percentage of acceptable range">Lower</label>
-                        </div>
-                        <div class="col-sm-1">
-                            <label title="Lower value or percentage of acceptable range">Upper</label>
-                        </div>
-                    </div>
-                    <div id="watch">
-                        <div class="row" rel="screener:hasWatchCriteria" resource="?watch">
-                            <div class="col-sm-4">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                    <option rel="screener:forIndicator" resource="?watchIndicator" value="{?watchIndicator}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-3">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicatorReference">
-                                    <option rel="screener:differenceFrom" resource="?watchDifference" value="{?watchDifference}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-3">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicatorReference">
-                                    <option rel="screener:percentOf" resource="?watchPercent" value="{?watchPercent}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-1">
-                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal"
-                                    onchange="calli.updateProperty(event,'screener:lower')" />
-                            </div>
-                            <div class="col-sm-1">
-                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal"
-                                    onchange="calli.updateProperty(event,'screener:upper')" />
-                            </div>
-                        </div>
-                    </div>
+                    <label for="hasWatchCriteria" title="Criteria that must previously have been met for a security to appear on screen">Watch criteria</label>
+                    <select id="hasWatchCriteria" name="criteria" class="form-control" multiple="multiple"
+                            onchange="calli.updateResource(event, 'screener:hasWatchCriteria')">
+                        <option rel="screener:hasWatchCriteria" resource="?hasWatchCriteria" value="{?hasWatchCriteria}" selected="selected">{rdfs:label}</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <a href="javascript:void(0)" title="Another filter" class="glyphicon glyphicon-plus add"></a>
-                            <label title="Criteria that must continue to be met for a security to stay on screen">Hold criteria value</label>
-                        </div>
-                        <div class="col-sm-1">
-                            <label title="If the difference and percent should be as of the last watch signal. Otherwise they are as of the hold value">Compare</label>
-                        </div>
-                        <div class="col-sm-3">
-                            <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
-                        </div>
-                        <div class="col-sm-3">
-                            <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
-                        </div>
-                        <div class="col-sm-1">
-                            <label title="Lower value or percentage of acceptable range">Lower</label>
-                        </div>
-                        <div class="col-sm-1">
-                            <label title="Lower value or percentage of acceptable range">Upper</label>
-                        </div>
-                    </div>
-                    <div id="hold">
-                        <div class="row" rel="screener:hasHoldCriteria" resource="?hold">
-                            <div class="col-sm-3">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
-                                    <option rel="screener:forIndicator" resource="?holdIndicator" value="{?holdIndicator}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-1">
-                                <div class="checkbox">
-                                    <label title="If the difference and percent should be as of the last watch signal. Otherwise they are as of the hold value">
-                                        <input type="checkbox" name="indicatorWatch" /> Watch
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-sm-3 hold-reference">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicatorReference">
-                                    <option rel="screener:differenceFrom" resource="?holdDifference" value="{?holdDifference}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-3 hold-reference">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicatorReference">
-                                    <option rel="screener:percentOf" resource="?holdPercent" value="{?holdPercent}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-3 watch-reference hidden">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:differenceFromWatch')" name="indicatorReference">
-                                    <option rel="screener:differenceFromWatch" resource="?holdDifferenceWatch" value="{?holdDifferenceWatch}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-3 watch-reference hidden">
-                                <select class="form-control" onchange="calli.updateResource(event,'screener:percentOfWatch')" name="indicatorReference">
-                                    <option rel="screener:percentOfWatch" resource="?holdPercentWatch" value="{?holdPercentWatch}" selected="selected">{rdfs:label}</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-1">
-                                <input class="lower-input form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal"
-                                    onchange="calli.updateProperty(event,'screener:lower')" />
-                            </div>
-                            <div class="col-sm-1">
-                                <input class="upper-input form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal"
-                                    onchange="calli.updateProperty(event,'screener:upper')" />
-                            </div>
-                        </div>
-                    </div>
+                    <label for="hasHoldCriteria" title="Criteria that must continue to be met for a security to stay on screen">Hold criteria</label>
+                    <select id="hasHoldCriteria" name="criteria" class="form-control" multiple="multiple"
+                            onchange="calli.updateResource(event, 'screener:hasHoldCriteria')">
+                        <option rel="screener:hasHoldCriteria" resource="?hasHoldCriteria" value="{?hasHoldCriteria}" selected="selected">{rdfs:label}</option>
+                    </select>
                 </div>
                 <div class="form-group text-right">
                     <button type="submit" class="btn btn-primary">Save</button>
