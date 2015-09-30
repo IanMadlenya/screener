@@ -41,87 +41,6 @@ jQuery(function($){
     screener.setProfile(window.location.href).catch(console.log.bind(console));
 
     (function(updateWatchList){
-        screener.listSecurityClasses().then(function(classes){
-            return classes.map(function(indicator){
-                return {
-                    value: indicator.iri,
-                    text: indicator.label
-                };
-            });
-        }).then(function(options){
-            return Promise.all(screener.getItem("security-class", '').split(' ').filter(function(iri){
-                return iri && _.pluck(options, 'value').indexOf(iri) < 0;
-            }).map(function(iri){
-                return screener.getSecurity(iri).catch(function(error){
-                    console.error(error);
-                });
-            })).then(_.compact).then(function(securities){
-                return securities.map(function(security){
-                    return {
-                        text: security.ticker,
-                        value: security.iri,
-                        title: security.name,
-                        type: security.type,
-                        mic: security.exchange.mic
-                    };
-                }).concat(options);
-            });
-        }).then(function(options){
-            $('#security-class').selectize({
-                options: options,
-                items: screener.getItem("security-class", '').split(' '),
-                closeAfterSelect: true,
-                load: function(query, callback) {
-                    if (!query) callback();
-                    return screener.lookup(query).then(function(securities){
-                        return securities.map(function(security){
-                            return {
-                                text: security.ticker,
-                                value: security.iri,
-                                title: security.name,
-                                type: security.type,
-                                mic: security.exchange.mic
-                            };
-                        });
-                    }).then(callback, function(error){
-                        callback();
-                        calli.error(error);
-                    });
-                },
-                create: function(input, callback) {
-                    var cls = $('#SecurityClass').prop('href');
-                    var container = $('#container-resource').attr('resource') || window.location.pathname;
-                    var url = container + "?create=" + encodeURIComponent(cls) + "#" + encodeURIComponent(input);
-                    window.location = url;
-                },
-                render: {
-                    option: function(data, escape) {
-                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title || '') + '">' +
-                            (data.title ?
-                                (
-                                    '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
-                                    ' <small class="text-muted">(' + escape(data.mic + ' ' + data.type) + ')</small>'
-                                ) :
-                               escape(data.text)
-                            ) +
-                        '</div>';
-                    },
-                    item: function(data, escape) {
-                        return '<div title="' + escape(data.title || '') + '"><a href="' + escape(data.value) + '">' +
-                            escape(data.text) + '</a></div>';
-                    }
-                }
-            }).change(function(event){
-                screener.setItem("security-class", ($(event.target).val() || []).join(' '));
-            }).change(updateWatchList).change();
-        });
-        var lastWeek = new Date(new Date().toISOString().replace(/T.*/,''));
-        lastWeek.setDate(lastWeek.getDate() -  screener.getItem("since-days", 20) / 5 * 7);
-        $('#since').prop('valueAsDate', lastWeek).change(function(event){
-            var since = event.target.valueAsDate;
-            var today = new Date(new Date().toISOString().replace(/T.*/,''));
-            screener.setItem("since-days", (today.valueOf() - since.valueOf()) / 1000 / 60 / 60 / 24 / 7 * 5);
-        }).change(updateWatchList);
         screener.listScreens().then(function(screens){
             return screens.map(function(screen){
                 return {
@@ -153,21 +72,23 @@ jQuery(function($){
     })(screener.debouncePromise(updateWatchList, 500));
 
     function updateWatchList() {
-        var securityClasses = $('#security-class').val();
-        var since = $('#since').prop('valueAsDate');
-        var screens = $('#screen').val();
-        if (_.isEmpty(securityClasses) || _.isEmpty(screens)) return;
-        var now = new Date();
+        if (_.isEmpty($('#screen').val())) return;
         $('#results-table').addClass("loading");
-        return Promise.all(screens.map(function(screen){
-            return screener.screen(securityClasses, screen, since, now).then(function(list){
-                return list.filter(function(item){
-                    return item.signal != 'stop';
-                });
-            }).then(function(list){
-                return _.pluck(list, 'security');
+        return screener.listScreens().then(function(screens){
+            return screens.filter(function(screen){
+                return $('#screen').val().indexOf(screen.iri) >= 0;
             });
-        })).then(_.flatten).then(_.uniq).then(function(securities){
+        }).then(function(screens){
+            return Promise.all(screens.map(function(screen){
+                return screener.screen(screen.securityClasses, screen.criteria, screen.lookback).then(function(list){
+                    return list.filter(function(item){
+                        return item.signal != 'stop';
+                    });
+                }).then(function(list){
+                    return _.pluck(list, 'security');
+                });
+            }));
+        }).then(_.flatten).then(_.uniq).then(function(securities){
             var rows = securities.map(function(security){
                 // ticker
                 return $('<tr></tr>', {
@@ -183,7 +104,7 @@ jQuery(function($){
                 return screener.getSecurity(security).then(function(result){
                     return tr.append($('<td></td>').text(result && result.name || ''));
                 }).then(function(){
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, now);
+                    return screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, new Date());
                 }).then(function(data){
                     if (!data.length) return;
                     var close = data[data.length-1].close;
@@ -204,7 +125,7 @@ jQuery(function($){
                 }).then(function(){
                     var lower = new Date();
                     lower.setFullYear(lower.getFullYear() - 1);
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, now);
+                    return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, new Date());
                 }).then(function(data){
                     var high = _.max(_.pluck(data, 'high'));
                     var low = _.min(_.pluck(data, 'low'));

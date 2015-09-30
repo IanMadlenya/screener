@@ -87,6 +87,9 @@
             getProfile: function(){
                 return postDispatchMessage({
                     cmd: 'profile'
+                }).then(function(iri){
+                    if (_.isString(iri)) return iri;
+                    else return undefined; // no profile
                 });
             },
 
@@ -146,7 +149,9 @@
                 $(table).children('thead').find('th').filter(function(){
                     return $(this).css("cursor") != "pointer";
                 }).click(function(event){
-                    screener.sortTable(table, $(event.target).prevAll().length);
+                    screener.sortTable(table, $(event.target).prevAll().toArray().reduce(function(cols, col){
+                        return +(col.getAttribute("colspan") || 1) + cols;
+                    }, +(event.target.getAttribute("colspan") || 1) - 1));
                 }).css("cursor", "pointer");
                 var lastSortedColumn = sortedByColumnNumber[sortedTables.indexOf(table)];
                 if (columnNumber === undefined && lastSortedColumn === undefined) {
@@ -302,23 +307,9 @@
             inlineFilters: function(filters) {
                 if (_.isEmpty(filters)) return Promise.resolve([]);
                 return Promise.all(filters.map(function(filter){
-                    if (_.isString(filter)) return screener.listCriteria().then(function(list){
-                        return _.find(list, function(criteria){
-                            return criteria.iri == filter;
-                        });
-                    });
-                    else return inlineCriteria(filter);
+                    return inlineCriteria(filter);
                 }));
             },
-
-            listCriteria: _.throttle(function(){
-                return calli.getCurrentUserAccount().then(function(iri){
-                    var url = "criteria-list.rq?tqx=out:table&user=" + encodeURIComponent(iri);
-                    return calli.getJSON($('#queries').prop('href') + url);
-                }).then(tableToObjectArray).then(function(list){
-                    return Promise.all(list.map(inlineCriteria));
-                });
-            }, 1000),
 
             listSecurityClasses: _.throttle(function(){
                 return calli.getCurrentUserAccount().then(function(iri){
@@ -333,17 +324,28 @@
                 return calli.getCurrentUserAccount().then(function(iri){
                     var url = "screen-list.rq?tqx=out:table&user=" + encodeURIComponent(iri);
                     return calli.getJSON($('#queries').prop('href') + url);
-                }).then(tableToObjectArray).then(function(list) {
-                    return _.groupBy(list, 'iri');
-                }).then(function(grouped){
-                    return _.map(grouped, function(filters){
-                        return {
-                            iri: filters[0].iri,
-                            label: filters[0].label,
-                            watch: _.filter(filters, 'hasWatchCriteria'),
-                            hold: _.filter(filters, 'hasHoldCriteria')
-                        };
+                }).then(tableToObjectArray).then(function(list){
+                    var criteria = _.mapObject(_.groupBy(list.filter(function(item){
+                        return item.criteria;
+                    }), 'iri'), function(filters, iri) {
+                        return filters.map(function(item){
+                            return _.extend(_.omit(item, 'criteria', 'criteria_label', 'criteria_comment'), {
+                                iri: item.criteria,
+                                label: item.criteria_label,
+                                comment: item.criteria_comment
+                            });
+                        });
                     });
+                    var screens = _.sortBy(_.values(_.mapObject(_.groupBy(list.filter(function(item){
+                        return !item.criteria;
+                    }), 'iri'), function(items, iri) {
+                        return _.extend.apply(_, items);
+                    })).map(function(screen){
+                        return _.extend(screen, {
+                            criteria: _.sortBy(criteria[screen.iri], 'iri')
+                        });
+                    }), 'label');
+                    return Promise.all(screens.map(inlineScreen));
                 });
             }, 1000),
 
@@ -357,10 +359,33 @@
                 });
             },
 
+            now: function() {
+                return new Date(screener.getItem("now", new Date()));
+            },
+
+            promiseWorkday: function(start_date, days) {
+                if (_.isFinite(start_date)) return screener.promiseWorkday(screener.now(), start_date);
+                if (_.isDate(days)) return Promise.resolve(days);
+                var w = days < 0 ? Math.ceil(days / 5) : Math.floor(days / 5);
+                var d = days - w * 5;
+                var since = new Date(new Date(start_date || screener.now()).toISOString().replace(/T.*/,''));
+                since.setMinutes(since.getMinutes() + since.getTimezoneOffset());
+                if (days < 0 && since.getDay() === 0) {
+                    since.setDate(since.getDate() - 1);
+                } else if (days > 0 && since.getDay() === 7) {
+                    since.setDate(since.getDate() + 1);
+                }
+                since.setDate(since.getDate() + w * 7 + d);
+                if (since.getDay() === 0 || since.getDay() == 7) {
+                    since.setDate(since.getDate() + 2 * days / Math.abs(days));
+                }
+                return Promise.resolve(since);
+            },
+
             lookup: function(symbol, exchange) {
                 if (!exchange && symbol.indexOf('://') > 0) {
                     exchange = symbol.replace(/\/[^\/]*$/,'');
-                    symbol = symbol.replace(/^.*\//,'');
+                    symbol = decodeURIComponent(symbol.replace(/^.*\//,''));
                 }
                 var exchanges = exchange ?
                     Promise.all([getExchange(exchange)]) :
@@ -387,7 +412,7 @@
 
             getSecurity: _.memoize(function(security){
                 var ticker = decodeURIComponent(security.replace(/^.*\//,''));
-                var exchange = getExchange(security.replace(/\/[^\/]*$/,''));
+                var exchange = security.replace(/\/[^\/]*$/,'');
                 return screener.lookup(ticker, exchange).then(function(securities){
                     return _.find(securities, function(item){
                         return item.iri == security;
@@ -418,25 +443,31 @@
 
             /*
              * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
-             * screen: {watch:[{indicator:{expression:$expression, interval: $interval}}]}
-             * begin: new Date()
+             * criteria: [{indicator:{expression:$expression, interval: $interval}}]
+             * begin: new Date() || days
              * end: new Date()
              * load:
              * * When false, don't load anything and reject on any error, but include result (if available) as warning
              * * When undefined, load if needed and treat warning as success
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            screen: function(securityClasses, screen, begin, end, load) {
-                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                    return inlineScreen(screen).then(function(screen){
-                        return {
-                            cmd: 'screen',
-                            begin: begin,
-                            end: end,
-                            load: load,
-                            securityClasses: securityClasses,
-                            screen: screen
-                        };
+            screen: function(securityClasses, criteria, begin, end, load) {
+                var endDate = end || screener.now();
+                return Promise.resolve(begin).then(function(begin){
+                    if (_.isDate(begin)) return begin;
+                    return screener.promiseWorkday(endDate, -begin);
+                }).then(function(beginDate){
+                    return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
+                        return screener.inlineFilters(criteria).then(function(criteria){
+                            return {
+                                cmd: 'screen',
+                                begin: beginDate,
+                                end: endDate,
+                                load: load,
+                                securityClasses: securityClasses,
+                                criteria: criteria
+                            };
+                        });
                     });
                 }).then(postDispatchMessage).catch(function(data){
                     if (load !== false && data.status == 'warning')
@@ -447,25 +478,31 @@
 
             /*
              * securityClasses: [{ofExchange:$iri, includes:[$ticker]}]
-             * screen: {watch:[{indicator:{expression:$expression, interval: $interval}}]}
-             * begin: new Date()
+             * criteria: [{indicator:{expression:$expression, interval: $interval}}]
+             * begin: new Date() || days
              * end: new Date()
              * load:
              * * When false, don't load anything and reject on any error, but include result (if available) as warning
              * * When undefined, load if needed and treat warning as success
              * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            signals: function(securityClasses, screen, begin, end, load) {
-                return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                    return inlineScreen(screen).then(function(screen){
-                        return {
-                            cmd: 'signals',
-                            begin: begin,
-                            end: end,
-                            load: load,
-                            securityClasses: securityClasses,
-                            screen: screen
-                        };
+            signals: function(securityClasses, criteria, begin, end, load) {
+                var endDate = end || screener.now();
+                return Promise.resolve(begin).then(function(begin){
+                    if (_.isDate(begin)) return begin;
+                    return screener.promiseWorkday(endDate, -begin);
+                }).then(function(beginDate){
+                    return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
+                        return screener.inlineFilters(criteria).then(function(criteria){
+                            return {
+                                cmd: 'signals',
+                                begin: beginDate,
+                                end: endDate,
+                                load: load,
+                                securityClasses: securityClasses,
+                                criteria: criteria
+                            };
+                        });
                     });
                 }).then(postDispatchMessage).catch(function(data){
                     if (load !== false && data.status == 'warning')
@@ -492,12 +529,12 @@
     function inlineScreen(screen) {
         if (_.isString(screen)) return inlineScreens([screen]).then(_.first);
         return Promise.all([
-            screener.inlineFilters(screen.watch),
-            screener.inlineFilters(screen.hold)
-        ]).then(function(ar) {
+            inlineSecurityClasses(split(screen.securityClasses || screen.forSecurity)),
+            screener.inlineFilters(screen.criteria)
+        ]).then(function(array) {
             return _.extend({}, screen, {
-                watch: ar[0],
-                hold: ar[1]
+                securityClasses: array[0],
+                criteria: array[1]
             });
         });
     }
@@ -563,8 +600,8 @@
                 sectors: split(sc.sectors || sc.includeSectors, '\t'),
                 industries: split(sc.industries || sc.includeIndustries, '\t'),
                 countries: split(sc.countries || sc.includeCountries, '\t'),
-                includes: split(sc.includes, ' ').map(prefix),
-                excludes: split(sc.excludes, ' ').map(prefix)
+                includes: split(sc.includes).map(prefix),
+                excludes: split(sc.excludes).map(prefix)
             });
         });
     }
@@ -589,11 +626,13 @@
             return _.extend({}, criteria, indicators);
         }).then(function(criteria){
             return _.omit(criteria, _.isNull);
+        }).then(function(criteria){
+            return _.omit(criteria, _.isUndefined);
         });
     }
 
     function split(list, by) {
-        return _.isArray(list) ? list : _.compact((list || '').split(by));
+        return _.isArray(list) ? list : _.compact((list || '').split(by || ' '));
     }
 
     function getExchange(iri) {
@@ -646,7 +685,7 @@
 
     function tableToObjectArray(table){
         return table.rows.map(function(row){
-            return _.object(table.columns, row);
+            return _.omit(_.object(table.columns, row), _.isNull);
         });
     }
 
@@ -744,7 +783,7 @@
         return dispatch;
     }
 
-    function suffixScale(getScaleSuffix, number, significant) {
+    function suffixScale(getScaleSuffix, number) {
         var num = parseFloat(number);
         if (num === 0.0)
             return '' + num;
@@ -753,8 +792,9 @@
         var scale = Math.floor(Math.log(abs)/Math.log(10) / 3) * 3;
         var suffix = scale >= 3 || scale <= -6 ? getScaleSuffix(scale) : '';
         var pow = Math.pow(10, Math.abs(scale));
-        var value = suffix ? (abs / pow).toFixed(2) : abs.toFixed(2);
-        return sign + value + suffix;
+        var value = suffix ? (abs / pow) : abs;
+        if (value == Math.round(value)) return sign + value + suffix;
+        else return sign + value.toFixed(2) + suffix;
     }
 
     function getScaleSuffix (scale) {

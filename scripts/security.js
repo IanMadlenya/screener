@@ -101,7 +101,7 @@ jQuery(function($){
     });
 
     getArrayOfSortedSeries().reduce(function(promise, series){
-        return promise.then(addSeries.bind(this, series));
+        return promise.then(addSeries.bind(this, series, _.noop));
     }, Promise.resolve()).then(getIntervals).then(function(intervals){
         var security = window.location.href.substring(0, window.location.href.indexOf('?'));
         var blocks = [];
@@ -315,11 +315,9 @@ jQuery(function($){
 
     function getIntervals() {
         return screener.listIntervals().then(function(list){
-            return _.pluck(list, 'value');
-        }).then(function(list){
-            return _.without(list, 'annual','quarter');
-        }).then(function(list){
-            return list.reverse();
+            return _.indexBy(list.filter(function(interval){
+                return interval.value != 'annual' && interval.value != 'quarter';
+            }), 'value');
         });
     }
 
@@ -460,7 +458,9 @@ jQuery(function($){
                     console.log("Loading", int, begin, end);
                     return loadChartData(chart, security, within, block.unit, intervals, int, begin, end).then(function(){
                         interval = int;
-                        loaded = new Date(Math.min(Date.now(), end.valueOf()));
+                        var next = _.isEmpty(chart.datum()) ? end.valueOf() :
+                            new Date(_.last(chart.datum()).asof).valueOf() + intervals[int].millis;
+                        loaded = new Date(Math.max(end.valueOf(), next));
                         if (delay || int == optimalInterval(intervals, int, chart)) {
                             d3.select(svg).call(chart);
                         }
@@ -475,11 +475,8 @@ jQuery(function($){
         }, 500);
         var length = Math.max(+screener.getItem("security-chart-length", 250), 100);
         var drawing = screener.load(security, ['asof'], interval, length, loaded).then(function(data){
-            return loadChartData(chart, security, within, block.unit, intervals, interval, data[0].asof, data[data.length-1].asof);
-        }).then(function(){
-            var data = chart.datum();
             chart.x(chart.x().domain([new Date(data[0].asof), new Date()]).range([0,chart.innerWidth()]));
-            return data;
+            return loadChartData(chart, security, within, block.unit, intervals, interval, data[0].asof, data[data.length-1].asof);
         }).then(function(){
             return screener.load(security, ['close'], 'd1', 1, loaded);
         }).then(function(data){
@@ -494,39 +491,51 @@ jQuery(function($){
 
     function loadChartData(chart, security, within, base_unit, intervals, interval, lower, upper) {
         var earliest = {asof: new Date().toISOString()};
-        return screener.load(security, ['asof', 'low', 'open', 'close', 'high', 'volume'], interval, 1, lower, upper).then(function(data){
+        return promiseData(security, within, intervals, interval, lower, upper).then(function(data){
             if (data.length) earliest.asof = data[0].asof;
             chart.datum(data);
+            // zoom out < 1, zoom in > 1
             var ppp = chart.innerWidth()/data.length;
             if (interval.charAt(0) == 'm') {
                 var m = parseInt(interval.substring(1), 10);
-                chart.scaleExtent([Math.min(m/(30 * 60) /ppp*5,1), Math.max(m/1 /ppp*5,1)]);
+                chart.scaleExtent([0.5, Math.max(m/1 /ppp*5,0.5)]);
             } else {
                 var d = parseInt(interval.substring(1), 10);
-                chart.scaleExtent([Math.min(d/5 /ppp*5,1), Math.max(d*6.5*60 /ppp*5,1)]);
+                var out = ppp/d - 1;
+                chart.scaleExtent([Math.min(out>0?1/out/5:1,1), Math.max(d*6.5*60 /ppp*5,1)]);
             }
         }).then(function(){
-            var first = $(within).find('.series').first().data("id");
+            var orphaned = _.keys(chart.series());
             return mapEachSeries(within, function(series){
-                if (series.indicator && intervals.indexOf(series.indicator.interval.value) < intervals.indexOf(interval)) {
-                    if (chart.series(series.className)) chart.series(series.className).datum([]);
-                } else return Promise.resolve(['asof', 'open', 'high', 'low', 'close'].concat(_.pluck(_.compact(
-                    [series.indicator, series.difference, series.percent]
-                ), 'expression'))).then(function(expressions){
-                    if (!series.indicator) return undefined;
-                    return screener.load(security, expressions, series.indicator.interval.value, 1, lower, upper).then(function(data){
-                        return data.slice(Math.max(_.sortedIndex(data, earliest, 'asof')-1,0));
-                    });
-                }).then(function(data){
+                var minInterval = getMinInterval(series, intervals[interval]);
+                if (minInterval.millis >= intervals[interval].millis && !_.isEmpty(chart.datum()) && !_.isEmpty(_.last(chart.datum())[minInterval.value])) {
+                    orphaned.splice(orphaned.indexOf(series.className), 1);
+                }
+            }).then(function(){
+                orphaned.forEach(function(className){
+                    chart.series(className, undefined);
+                });
+            });
+        }).then(function(){
+            return mapEachSeries(within, function(series){
+                var minInterval = getMinInterval(series, intervals[interval]);
+                if (minInterval.millis < intervals[interval].millis || _.isEmpty(chart.datum()) || _.isEmpty(_.last(chart.datum())[minInterval.value])) {
+                    $('.' + series.id).remove();
+                    chart.series(series.className, undefined);
+                    return;
+                } else {
                     var transform = function(expression) {
                         return function(point) {
-                            var value = point[expression];
-                            var diff = series.difference ? point[series.difference.expression] : 0;
-                            var per = series.percent ? point[series.percent.expression] : 100;
+                            var value = expression ? valueOf({
+                                expression : expression,
+                                interval: minInterval
+                            }, point) : series.indicator ? valueOf(series.indicator, point) : NaN;
+                            var diff = valueOf(series.difference, point);
+                            var per = valueOf(series.percent, point) || 100;
                             return (value - diff) *100 / per;
                         };
                     };
-                    var primary = transform(series.indicator ? series.indicator.expression : 'close');
+                    var primary = transform(series.indicator ? undefined : 'close');
                     if (series.style == 'line') {
                         chart.series(series.className, d3.chart.series.line(primary).xPlot(chart.xPlot()));
                     } else if (series.style == 'bar') {
@@ -534,9 +543,9 @@ jQuery(function($){
                     } else if (series.style == 'band') {
                         var band = function(percent) {
                             return function(point) {
-                                var value = series.indicator ? point[series.indicator.expression] : point.close;
-                                var diff = series.difference ? point[series.difference.expression] : 0;
-                                var per = series.percent ? point[series.percent.expression] : 100;
+                                var value = valueOf(series.indicator, point);
+                                var diff = valueOf(series.difference, point);
+                                var per = valueOf(series.percent, point) || 100;
                                 return percent * per /100 + value - diff;
                             };
                         };
@@ -549,7 +558,7 @@ jQuery(function($){
                     }
                     var unit = getSeriesUnit(series);
                     if (unit == 'percent') {
-                        var values = data.map(primary);
+                        var values = chart.datum().map(primary);
                         var domain = [Math.min(_.min(values), 0), Math.max(_.max(values), 0)];
                         if (unit == 'percent' && domain[0] < 0) {
                             domain[0] = Math.min(domain[0], -100);
@@ -564,7 +573,7 @@ jQuery(function($){
                             chart.series(series.className).y(y);
                         }
                     } else if (unit != 'price') {
-                        var values = data.map(primary);
+                        var values = chart.datum().map(primary);
                         var domain = [_.min(values), _.max(values)];
                         if (unit == 'percent' && domain[0] < 0) {
                             domain[0] = Math.min(domain[0], -100);
@@ -583,48 +592,98 @@ jQuery(function($){
                             chart.series(series.className).y(y);
                         }
                     }
-                    if (data) {
-                        chart.series(series.className).datum(data);
-                        $('#series-' + series.id).find('.value').text(screener.formatNumber(primary(_.last(data))));
-                    } else if (!series.indicator) {
-                        $('#series-' + series.id).find('.value').text(primary(_.last(chart.datum())));
+                    if (!_.isEmpty(chart.datum())) {
+                        $('#series-' + series.id).find('.value').text(screener.formatNumber(primary(_.last(chart.datum()))));
                     }
-                });
-            }).then(function(){
-                var list = $(within).closest('.indicator-list');
-                var sorted = _.sortBy(list.find('.series').toArray(), function(series){
-                    return parseFloat($(series).find('.value').text() || '0');
-                }).reverse();
-                $(list).children('a').before(sorted);
+                }
             });
+        }).then(function(){
+            var list = $(within).closest('.indicator-list');
+            var sorted = _.sortBy(list.find('.series').toArray(), function(series){
+                return parseFloat($(series).find('.value').text() || '0');
+            }).reverse();
+            $(list).children('a').before(sorted);
         }).then(function(){
             console.log("Loaded", interval, chart.datum().length, chart.datum()[0] && chart.datum()[0].asof);
         }, calli.error);
+    }
+
+    function valueOf(indicator, reference) {
+        var int = indicator && indicator.interval.value;
+        if (!int || !reference[int]) return 0;
+        return reference[int][indicator.expression];
     }
 
     function optimalInterval(intervals, interval, chart) {
         var begin = chart.x().invert(0);
         var end = chart.x().invert(chart.innerWidth());
         var data = chart.datum();
+        if (_.isEmpty(data)) return interval;
         var i = Math.max(Math.min(_.sortedIndex(data, {asof: begin.toISOString()}, chart.xPlot()), data.length-10),0);
         var j = Math.max(Math.min(_.sortedIndex(data, {asof: end.toISOString()}, chart.xPlot()), data.length-1),0);
         var size = j - i;
         var x = _.compose(chart.x(), chart.xPlot());
         var width = x(data[j], j) - x(data[i], i);
-        var intervalMinutes = intervals.map(function(interval){
-            if (interval.charAt(0) == 'm') {
-                return parseInt(interval.substring(1), 10);
-            } else {
-                var d = parseInt(interval.substring(1), 10);
-                return d * 900;
-            }
+        var sorted = _.pluck(_.sortBy(_.values(intervals), 'millis'), 'value');
+        var intervalMinutes = sorted.map(function(interval){
+            if (interval.charAt(0) == 'm')
+                return intervals[interval].millis / 1000 / 60;
+            else return parseInt(interval.charAt(1)) * 900;
         });
         if (!size) return interval;
-        var index = intervals.indexOf(interval);
-        var minutes = size * intervalMinutes[intervals.indexOf(interval)];
+        var index = sorted.indexOf(interval);
+        var minutes = size * intervalMinutes[index];
         var value = Math.round(minutes / width) * 5;
         var i = _.sortedIndex(intervalMinutes, value);
         if (i > 0 && value - intervalMinutes[i-1] < intervalMinutes[i] - value) i--;
-        return intervals[Math.min(Math.max(i,0),intervalMinutes.length-1)];
+        return sorted[Math.min(Math.max(i,0),intervalMinutes.length-1)];
+    }
+
+    function promiseData(security, within, intervals, interval, lower, upper) {
+        var millis = intervals[interval].millis;
+        var min = new Date(upper).valueOf() - millis * 10000;
+        var start = new Date(lower).valueOf() < min ? new Date(min) : lower;
+        return mapEachSeries(within, function(series){
+            if (getMinInterval(series, intervals[interval]).millis < millis) return [];
+            return _.compact([
+                series.indicator, series.difference, series.percent
+            ]).map(function(indicator) {
+                return _.object([indicator.interval.value], [[indicator.expression]]);
+            });
+        }).then(_.flatten).then(function(items){
+            return items.reduce(function(hash, item){
+                for (var p in item) {
+                    hash[p] = (hash[p] ? hash[p] : ['asof']).concat(item[p]);
+                }
+                return hash;
+            }, _.object([interval], [['asof', 'low', 'open', 'close', 'high']]));
+        }).then(function(expressionsByInterval){
+            var sorted = _.intersection(_.pluck(_.sortBy(_.values(intervals), 'millis'), 'value'), _.keys(expressionsByInterval));
+            return Promise.all(sorted.map(function(interval){
+                return screener.load(security, expressionsByInterval[interval], interval, 1, start, upper);
+            })).then(function(datasets){
+                return datasets.map(function(data, i){
+                    return data.map(function(datum){
+                        return _.extend(_.object([sorted[i]], [datum]), _.pick(datum, 'asof', 'low', 'open', 'close', 'high'));
+                    });
+                });
+            });
+        }).then(function(datasets){
+            return datasets.reduce(function(merged, data){
+                if (_.isEmpty(merged)) return data;
+                return merged.map(function(datum){
+                    var i = _.sortedIndex(data, datum, 'asof');
+                    var j = data[i] && data[i].asof == datum.asof ? i : i-1;
+                    return data[j] ? _.extend({}, data[j], datum) : datum;
+                });
+            }, []);
+        });
+    }
+
+    function getMinInterval(series, defaultInterval) {
+        var intervals = _.pluck(_.compact([
+            series.indicator, series.difference, series.percent
+        ]), 'interval');
+        return _.isEmpty(intervals) ? defaultInterval : _.min(intervals, 'millis');
     }
 });

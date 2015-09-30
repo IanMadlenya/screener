@@ -88,7 +88,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label for="sectors">Sectors</label>
-                            <select id="sectors" class="form-control" multiple="multiple"
+                            <select id="sectors" class="form-control" multiple="multiple" size="1"
                                     onchange="calli.updateProperty(event, 'screener:includeSector')">
                                 <option property="screener:includeSector" selected="selected"
                                     content="?includeSector" value="{?includeSector}">{?includeSector}</option>
@@ -98,7 +98,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label for="industries">Industries</label>
-                            <select id="industries" class="form-control" multiple="multiple"
+                            <select id="industries" class="form-control" multiple="multiple" size="1"
                                     onchange="calli.updateProperty(event, 'screener:includeIndustry')">
                                 <option property="screener:includeIndustry" selected="selected"
                                     content="?includeIndustry" value="{?includeIndustry}">{?includeIndustry}</option>
@@ -108,7 +108,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label for="countries">Countries</label>
-                            <select id="countries" class="form-control" multiple="multiple"
+                            <select id="countries" class="form-control" multiple="multiple" size="1"
                                     onchange="calli.updateProperty(event, 'screener:includeCountry')">
                                 <option property="screener:includeCountry" selected="selected"
                                     content="?includeCountry" value="{?includeCountry}">{?includeCountry}</option>
@@ -136,7 +136,7 @@
                     <div class="sectors-present col-sm-6">
                         <div class="form-group">
                             <label for="exclude-securities">Excluded ticker symbols</label>
-                            <select id="exclude-securities" class="form-control" multiple="multiple"
+                            <select id="exclude-securities" class="form-control" multiple="multiple" size="1"
                                     onchange="calli.updateResource(event,'screener:exclude')">
                                 <option rel="screener:exclude" resource="?exclude" selected="selected">{?exclude}</option>
                             </select>
@@ -146,7 +146,7 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label for="include-securities"><span class="sectors-present">Additional </span>Included ticker symbols</label>
-                            <select id="include-securities" class="form-control" multiple="multiple"
+                            <select id="include-securities" class="form-control" multiple="multiple" size="1"
                                     onchange="calli.updateResource(event,'screener:include')">
                                 <option rel="screener:include" resource="?include" selected="selected">{?include}</option>
                             </select>

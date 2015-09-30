@@ -25,23 +25,9 @@
 <body resource="?this">
     <div class="container">
         <form onsubmit="return false">
-            <div class="row">
-                <div class="col-md-9 col-sm-8">
-                    <div class="form-group">
-                        <label for="security-class">Security Class</label>
-                        <select id="security-class" multiple="multiple" autofocus="autofocus"></select>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <div class="form-group">
-                        <label for="since">Since</label>
-                        <input type="date" class="form-control" id="since" />
-                    </div>
-                </div>
-            </div>
             <div class="form-group">
                 <label for="screen">Screens</label>
-                <select id="screen" multiple="multiple"></select>
+                <select id="screen" multiple="multiple" size="1" class="form-control"></select>
             </div>
         </form>
         <table id="results-table" class="table table-condensed table-bordered table-hover">

@@ -1,7 +1,10 @@
 # upgrade.ru
 
 PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms:<http://purl.org/dc/terms/>
+PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX keyword:<http://www.openrdf.org/rdf/2011/keyword#>
 PREFIX screener:<https://probabilitytrading.net/screener/2014/schema.ttl#>
 
 ## Upgrade from 0.10
@@ -39,4 +42,98 @@ DELETE {
         OPTIONAL { ?hold screener:forIndicator [rdfs:label ?label] }
         BIND (iri(replace(str(?hold), '#','-')) AS ?hcriteria)
     }
-}
+};
+
+DELETE {
+    ?screen screener:hasHoldCriteria ?hold .
+    ?screen screener:hasWatchCriteria ?watch .
+    ?watch screener:forIndicator ?indicator .
+    ?watch screener:differenceFrom ?difference .
+    ?watch screener:percentOf ?percent .
+} INSERT {
+    ?screen screener:hasCriteria ?hold .
+    ?screen screener:hasCriteria ?watch .
+    ?watch screener:forWatchIndicator ?indicator .
+    ?watch screener:differenceFromWatch ?difference .
+    ?watch screener:percentOfWatch ?percent .
+} WHERE {
+    {
+        ?screen screener:hasHoldCriteria ?hold .
+    } UNION {
+        ?screen screener:hasWatchCriteria ?watch .
+        OPTIONAL {
+            ?watch screener:forIndicator ?indicator .
+        } OPTIONAL {
+            ?watch screener:differenceFrom ?difference .
+        } OPTIONAL {
+            ?watch screener:percentOf ?percent .
+        }
+    }
+};
+
+DELETE {
+    ?screen screener:hasCriteria ?criteria .
+    ?criteria a ?type .
+    ?criteria keyword:phone ?phone. 
+    ?criteria dcterms:modified ?modified. 
+    ?criteria prov:wasGeneratedBy ?wasGeneratedBy .
+    ?criteria ?p ?o
+} INSERT {
+    ?screen screener:hasCriteria ?hash .
+    ?hash ?p ?o
+} WHERE {
+    ?screen screener:hasCriteria ?criteria
+    {
+        ?criteria a ?type
+    } UNION {
+        ?criteria keyword:phone ?phone
+    } UNION {
+        ?criteria dcterms:modified ?modified
+    } UNION {
+        ?criteria prov:wasGeneratedBy ?wasGeneratedBy
+    } UNION {
+        ?criteria ?p ?o
+        FILTER (?p != rdf:type && ?p != keyword:phone && ?p != dcterms:modified && ?p != prov:wasGeneratedBy)
+    }
+    BIND (iri(replace(str(?criteria),"^.*[\\-/]",concat(str(?screen),"#"))) AS ?hash)
+};
+
+DELETE WHERE {
+    ?screen screener:examines ?security
+};
+
+DELETE {
+    ?criteria screener:favourableIntercept ?gainIntercept .
+    ?criteria screener:favourableSlope ?gainSlope .
+    ?criteria screener:favorableIntercept ?gainIntercept .
+    ?criteria screener:favorableSlope ?gainSlope .
+    ?criteria screener:adverseIntercept ?painIntercept .
+    ?criteria screener:adverseSlope ?painSlope .
+} INSERT {
+    ?criteria screener:gainIntercept ?gainIntercept .
+    ?criteria screener:gainSlope ?gainSlope .
+    ?criteria screener:painIntercept ?painIntercept .
+    ?criteria screener:painSlope ?painSlope .
+} WHERE {
+    {
+        ?criteria screener:favourableIntercept ?gainIntercept
+    } UNION {
+        ?criteria screener:favourableSlope ?gainSlope
+    } UNION {
+        ?criteria screener:favorableIntercept ?gainIntercept
+    } UNION {
+        ?criteria screener:favorableSlope ?gainSlope
+    } UNION {
+        ?criteria screener:adverseIntercept ?painIntercept
+    } UNION {
+        ?criteria screener:adverseSlope ?painSlope
+    }
+};
+
+INSERT {
+    ?criteria screener:weight "50"^^xsd:decimal
+} WHERE {
+    ?screen screener:hasCriteria ?criteria
+    FILTER NOT EXISTS { ?criteria screener:weight ?weight }
+};
+

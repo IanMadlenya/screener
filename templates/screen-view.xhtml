@@ -29,130 +29,128 @@
         </div>
         <p property="rdfs:comment"></p>
     </div>
-    <div rel="screener:hasWatchCriteria" resource="?watch"></div>
-    <div rel="screener:hasHoldCriteria" resource="?hold"></div>
+    <div rel="screener:forSecurity" resource="?forSecurity"></div>
+    <div property="screener:lookback" content="?lookback"></div>
+    <div rel="screener:hasCriteria" resource="?criteria">
+        <div property="rdfs:label" content="?label"></div>
+        <div rel="screener:forIndicator" resource="?indicator"></div>
+        <div rel="screener:differenceFrom" resource="?difference"></div>
+        <div rel="screener:percentOf" resource="?percent"></div>
+        <div rel="screener:forWatchIndicator" resource="?watchIndicator"></div>
+        <div rel="screener:differenceFromWatch" resource="?differenceWatch"></div>
+        <div rel="screener:percentOfWatch" resource="?percentWatch"></div>
+        <div property="screener:lower" content="?lower"></div>
+        <div property="screener:upper" content="?upper"></div>
+        <div property="screener:gainIntercept" content="?gainIntercept"></div>
+        <div property="screener:gainSlope" content="?gainSlope"></div>
+        <div property="screener:painIntercept" content="?painIntercept"></div>
+        <div property="screener:painSlope" content="?painSlope"></div>
+    </div>
     <div class="container">
-        <form id="backtesting-form" role="form">
-            <fieldset class="row">
-                <div class="col-md-9 col-sm-8">
-                    <div class="form-group">
-                        <label for="security-class">Security Class</label>
-                        <select id="security-class" required="required" multiple="multiple"></select>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <div class="form-group">
-                        <label for="since">Since</label>
-                        <input type="date" class="form-control" id="since" />
-                    </div>
-                </div>
-            </fieldset>
-            <div class="row">
-                <div class="col-sm-6 col-md-2">
-                    <div class="form-group">
-                        <button id="show-results-table" class="btn btn-warning" type="button">
-                            Watch List
-                            <span class="glyphicon glyphicon-expand"></span>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Number of distinct securities">Securities</th>
-                                    <td id="security_count" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Number of watch signals">Occurances</th>
-                                    <td id="occurances" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Average length of time securities appeared on list">Average duration</th>
-                                    <td id="average_duration" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Percent of occurances with performance above zero">Percent of positive</th>
-                                    <td id="percent_positive" class="text-right"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Average performance per watch signal">Avg. performance</th>
-                                    <td id="average_performance" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Standard deviation (SD)">Standard deviation</th>
-                                    <td id="standard_deviation" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
-                                    <td id="negative_excursion" class="text-right text-danger"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Maximum Favorable Excursion (MFE)">Positive excursion</th>
-                                    <td id="positive_excursion" class="text-right text-success"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Generated profit over generated losses">Performance factor</th>
-                                    <td id="performance_factor" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Average performance per security">Performance</th>
-                                    <td id="performance" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
-                                    <td id="annual_growth" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Compounded Growth Rate over a year's worth of exposure in the market">Exposed growth rate</th>
-                                    <td id="exposed_growth" class="text-right"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-2">
+                <button id="show-results-table" class="btn btn-warning" type="button">
+                    Watch List
+                    <span class="glyphicon glyphicon-expand"></span>
+                </button>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Number of distinct securities">Securities</th>
+                                <td id="security_count" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Number of watch signals">Occurances</th>
+                                <td id="occurances" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Average length of time securities appeared on list">Average duration</th>
+                                <td id="average_duration" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Percent of occurances with performance above zero">Percent of positive</th>
+                                <td id="percent_positive" class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </form>
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Average performance per watch signal">Avg. performance</th>
+                                <td id="average_performance" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Standard deviation (SD)">Standard deviation</th>
+                                <td id="standard_deviation" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Maximum Favorable Excursion (MFE)">Positive excursion</th>
+                                <td id="positive_excursion" class="text-right text-success"></td>
+                            </tr>
+                            <tr>
+                                <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
+                                <td id="negative_excursion" class="text-right text-danger"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Generated profit over generated losses">Performance factor</th>
+                                <td id="performance_factor" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Average performance per security">Performance</th>
+                                <td id="performance" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
+                                <td id="annual_growth" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Compounded Growth Rate over a year's worth of exposure in the market">Exposed growth rate</th>
+                                <td id="exposed_growth" class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="collapse table-responsive container">
         <table id="results-table" class="table table-condensed table-bordered table-hover">
-            <colgroup>
-                <col style="width:10%" />
-                <col style="width:40%" />
-            </colgroup>
             <thead>
                 <tr>
-                    <th>Ticker</th>
-                    <th>Name</th>
+                    <th title="Symbol or ticket of security">Symbol</th>
+                    <th title="Name of security">Name</th>
+                    <th title="Last observed price on watch list">Price</th>
+                    <th colspan="3" class="estimate" title="Gain to pain ratio is estimated by dividing the typical gain excursion by the typical pain excursion">Estimated gain to pain</th>
+                    <th colspan="3" title="Maximum Favourable Excursion (MFE) and Maximum Adverse Excursion (MAE) of this security">Excursion and factor</th>
+                    <th title="Performance of the security while on this watch list">Performance</th>
+                    <th title="Length of time this security appeared on this watch list">Exposure</th>
                 </tr>
             </thead>
             <tbody></tbody>

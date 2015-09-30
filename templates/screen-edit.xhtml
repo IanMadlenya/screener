@@ -1,4 +1,4 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -10,7 +10,6 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link id="queries" href="../queries/" />
-    <link id="Criteria" href="../classes/Criteria" />
     <link id="Screen" href="../classes/Screen" />
     <link title="New Screen" about="?this" href="../classes/Screen" target="_blank"
         onmouseover="this.href='{^calli:hasComponent}?create='+encodeURIComponent($('#Screen').prop('href'))" />
@@ -20,21 +19,23 @@
     <link id="container-resource" about="?this" rev="calli:hasComponent" resource="?folder" />
     <link rel="stylesheet" href="../styles/screener.css" />
     <script type="text/javascript" src="../assets/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../assets/d3js/d3.js"></script>
     <script type="text/javascript" src="../scripts/screener.js"></script>
     <script type="text/javascript" src="../scripts/screen.js"></script>
 </head>
-<body>
-    <form id="screen-form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="screener:Screen">
-        <div  class="container">
-            <div class="page-header">
-                <h1>{rdfs:label}</h1>
-            </div>
+<body resource="?this">
+    <div  class="container">
+        <div class="page-header">
+            <h1>{rdfs:label}</h1>
+        </div>
+        <form id="screen-form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="screener:Screen">
             <fieldset class="well">
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label for="label">Label</label>
                             <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                            <p class="help-block help-error">Choose a different label to save this screen under</p>
                         </div>
                         <div class="form-group">
                             <label for="exchange">Additional categories</label>
@@ -53,152 +54,321 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="hasWatchCriteria" title="Criteria that must previously have been met for a security to appear on screen">Watch criteria</label>
-                    <select id="hasWatchCriteria" name="criteria" class="form-control" multiple="multiple"
-                            onchange="calli.updateResource(event, 'screener:hasWatchCriteria')">
-                        <option rel="screener:hasWatchCriteria" resource="?hasWatchCriteria" value="{?hasWatchCriteria}" selected="selected">{rdfs:label}</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-8 col-sm-6">
+                        <div class="form-group">
+                            <label class="hidden-profile" for="forSecurity">Security</label>
+                            <label class="visible-profile-block" for="forSecurity">Security Class</label>
+                            <select id="forSecurity" multiple="multiple" autofocus="autofocus" class="form-control" size="1"
+                                    onchange="calli.updateResource(event, 'screener:forSecurity')">
+                                <option rel="screener:forSecurity" resource="?forSecurity" value="{?forSecurity}" selected="selected">{rdfs:label}</option>
+                            </select>
+                            <p class="help-block hidden-profile">Enter a set of security symbols to filter</p>
+                            <p class="help-block visible-profile-block">Enter a set of security symbols or a label of a security class to define</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <label for="lookback">Lookback</label>
+                                    <div class="input-group">
+                                        <input id="lookback" datatype="xsd:integer" value="{screener:lookback}" type="number" class="form-control"
+                                            onchange="calli.updateProperty(event, 'screener:lookback')" />
+                                        <span class="input-group-addon">days</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7">
+                                    <label for="since">Since</label>
+                                    <input id="since" type="date" class="form-control" />
+                                </div>
+                            </div>
+                            <p class="help-block">How far back to search for matching securities</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="hasHoldCriteria" title="Criteria that must continue to be met for a security to stay on screen">Hold criteria</label>
-                    <select id="hasHoldCriteria" name="criteria" class="form-control" multiple="multiple"
-                            onchange="calli.updateResource(event, 'screener:hasHoldCriteria')">
-                        <option rel="screener:hasHoldCriteria" resource="?hasHoldCriteria" value="{?hasHoldCriteria}" selected="selected">{rdfs:label}</option>
-                    </select>
+                    <label for="criteria" title="Criteria that must be met for a security to appear on screen">Criteria</label>
+                    <select id="criteria" name="criteria" class="form-control" multiple="multiple" size="1"></select>
+                    <p class="help-block">Enter the name of an indicator and use <strong>&gt;=</strong> , <strong>&lt;=</strong> , or <strong>=</strong> to bound the indicator within a range. Click on a selected indicator to further customize the criteria</p>
                 </div>
                 <div class="form-group text-right">
                     <button type="submit" class="btn btn-primary">Save</button>
-                    <button id="saveas" type="button" class="btn btn-info">Save as...</button>
-                    <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                    <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                    <button id="saveas-screen" type="button" class="btn btn-info">Save as</button>
+                    <button id="cancel-screen" type="button" class="btn btn-default">Cancel</button>
+                    <button id="delete-screen" type="button" class="btn btn-danger">Delete</button>
                 </div>
             </fieldset>
-            <div class="row">
-                <div class="col-md-9 col-sm-8">
-                    <div class="form-group">
-                        <label for="security-class">Security Class</label>
-                        <select id="security-class" multiple="multiple"></select>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <div class="form-group">
-                        <label for="since">Since</label>
-                        <input type="date" class="form-control" id="since" />
+            <div id="criteria-container">
+                <div rel="screener:hasCriteria" resource="?hasCriteria" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title" id="label-title">Criteria Details</h4>
+                            </div>
+                            <div class="modal-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Label</label>
+                                                <input type="text" class="form-control label-input" value="{rdfs:label}" required="required"
+                                                    onchange="calli.updateProperty(event,'rdfs:label')" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <div class="checkbox">
+                                                    <label title="If checked criteria value will change as security is held, otherwise the value is the same as when the security was watched">
+                                                        <input class="holdCriteria" type="checkbox" checked="checked" /> Re-evaluate criteria at each bar
+                                                    </label>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label title="If checked criteria value is compared with indicator values as they were when the security was watched">
+                                                        <input class="holdReference" type="checkbox" checked="checked" /> Re-evaluate difference and percent<span class="hidden-sm"> at each bar</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label title="Primary criteria value">Indicator</label>
+                                                <select class="forIndicator form-control" onchange="calli.updateResource(event,'screener:forIndicator')" name="indicator">
+                                                    <option rel="screener:forIndicator" resource="?forIndicator" value="{?forIndicator}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group hidden">
+                                                <label title="Primary criteria value">Indicator</label>
+                                                <select class="forWatchIndicator form-control" onchange="calli.updateResource(event,'screener:forWatchIndicator')" name="indicator">
+                                                    <option rel="screener:forWatchIndicator" resource="?forWatchIndicator" value="{?forWatchIndicator}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                                                <select class="differenceFrom form-control" onchange="calli.updateResource(event,'screener:differenceFrom')" name="indicator">
+                                                    <option rel="screener:differenceFrom" resource="?differenceFrom" value="{?differenceFrom}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group hidden">
+                                                <label title="To be subtracted from the criteria value before checking the lower and upper bounds">Difference from</label>
+                                                <select class="differenceFromWatch form-control" onchange="calli.updateResource(event,'screener:differenceFromWatch')" name="indicator">
+                                                    <option rel="screener:differenceFromWatch" resource="?differenceFromWatch" value="{?differenceFromWatch}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
+                                                <select class="percentOf form-control" onchange="calli.updateResource(event,'screener:percentOf')" name="indicator">
+                                                    <option rel="screener:percentOf" resource="?percentOf" value="{?percentOf}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group hidden">
+                                                <label title="If set the lower and upper bounds are percentages of the difference divided by this value">Percentage of</label>
+                                                <select class="percentOfWatch form-control" onchange="calli.updateResource(event,'screener:percentOfWatch')" name="indicator">
+                                                    <option rel="screener:percentOfWatch" resource="?percentOfWatch" value="{?percentOfWatch}" selected="selected">{rdfs:label}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label title="Minimum value or percentage of acceptable range of securities to include">Lower<span class="hidden-sm"> accepted</span> bound</label>
+                                                <input class="lower form-control input-sm" type="number" value="{screener:lower}" datatype="xsd:decimal"
+                                                    onchange="calli.updateProperty(event,'screener:lower')" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label title="Maximum value or percentage of acceptable range of securities to include">Upper<span class="hidden-sm"> accepted</span> bound</label>
+                                                <input class="upper form-control input-sm" type="number" value="{screener:upper}" datatype="xsd:decimal"
+                                                    onchange="calli.updateProperty(event,'screener:upper')" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row">
+                                                <div class="col-sm-8 col-md-9">
+                                                    <div class="form-group">
+                                                        <label title="Relative accuracy of this criteria to estimate growth/loss">Weight<span class="hidden-sm"> of estimates</span></label>
+                                                        <input class="weight regression input-sm" type="range" value="{screener:weight}" datatype="xsd:decimal"
+                                                            onchange="calli.updateProperty(event,'screener:weight')" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4 col-md-3">
+                                                    <div class="form-group">
+                                                        <label title="Period for which the gain and pain estimation will apply">Period</label>
+                                                        <div class="input-group">
+                                                            <input class="period form-control input-sm" type="number" value="1" />
+                                                            <span class="input-group-addon">D</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label title="Typical favourable excursion at value zero and for each unit of value">Gain<span class="hidden-sm"> intercept and slope</span></label>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <input class="gainIntercept regression form-control input-sm" type="number" value="{screener:gainIntercept}" datatype="xsd:decimal"
+                                                            onchange="calli.updateProperty(event,'screener:gainIntercept')" />
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <input class="gainSlope regression form-control input-sm" type="number" value="{screener:gainSlope}" datatype="xsd:decimal"
+                                                            onchange="calli.updateProperty(event,'screener:gainSlope')" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label title="Typical adverse excursion at value zero and for each unit of value">Pain<span class="hidden-sm"> intercept and slope</span></label>
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <input class="painIntercept regression form-control input-sm" type="number" value="{screener:painIntercept}" datatype="xsd:decimal"
+                                                            onchange="calli.updateProperty(event,'screener:painIntercept')" />
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <input class="painSlope regression form-control input-sm" type="number" value="{screener:painSlope}" datatype="xsd:decimal"
+                                                            onchange="calli.updateProperty(event,'screener:painSlope')" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" data-dismiss="modal" class="pull-right btn btn-default">Close</button>
+                                        <button type="button" class="btn btn-warning chart-btn">Chart performance <span class="glyphicon glyphicon-expand"></span></button>
+                                        <button type="button" class="btn btn-info regression-btn">Fit regression lines</button>
+                                    </div>
+                                    <div class="charts"></div>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-6 col-md-2">
-                    <div class="form-group">
-                        <button id="show-results-table" class="btn btn-warning" type="button">
-                            Watch List
-                            <span class="glyphicon glyphicon-expand"></span>
-                        </button>
-                    </div>
+            <div property="screener:estimatedPeriod" content="?estimatedPeriod" datatype="xsd:dayTimeDuration"></div>
+        </form>
+        <div class="row">
+            <div class="col-sm-6 col-md-2">
+                <div class="form-group">
+                    <button id="show-results-table" class="btn btn-warning" type="button">
+                        Watch List
+                        <span class="glyphicon glyphicon-expand"></span>
+                    </button>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Number of distinct securities">Securities</th>
-                                    <td id="security_count" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Number of watch signals">Occurances</th>
-                                    <td id="occurances" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Average length of time securities appeared on list">Average duration</th>
-                                    <td id="average_duration" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Percent of occurances with performance above zero">Percent of positive</th>
-                                    <td id="percent_positive" class="text-right"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Number of distinct securities">Securities</th>
+                                <td id="security_count" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Number of watch signals">Occurances</th>
+                                <td id="occurances" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Average length of time securities appeared on this watch list">Average duration</th>
+                                <td id="average_duration" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Percent of occurances with performance above zero">Percent of positive</th>
+                                <td id="percent_positive" class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Average performance per watch signal">Avg. performance</th>
-                                    <td id="average_performance" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Standard deviation (SD)">Standard deviation</th>
-                                    <td id="standard_deviation" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
-                                    <td id="negative_excursion" class="text-right text-danger"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Maximum Favorable Excursion (MFE)">Positive excursion</th>
-                                    <td id="positive_excursion" class="text-right text-success"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Average performance per watch signal">Avg. performance</th>
+                                <td id="average_performance" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Standard deviation (SD)">Standard deviation</th>
+                                <td id="standard_deviation" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Maximum Favourable Excursion (MFE)">Positive excursion</th>
+                                <td id="positive_excursion" class="text-right text-success"></td>
+                            </tr>
+                            <tr>
+                                <th title="Maximum Adverse Excursion (MAE)">Negative excursion</th>
+                                <td id="negative_excursion" class="text-right text-danger"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="panel panel-default">
-                        <table class="table table-condensed table-bordered">
-                            <colgroup>
-                                <col style="width: 75%;" />
-                                <col style="width: 25%;" />
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <th title="Generated profit over generated losses">Performance factor</th>
-                                    <td id="performance_factor" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Average performance per security">Performance</th>
-                                    <td id="performance" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
-                                    <td id="annual_growth" class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <th title="Compounded Growth Rate over a year's worth of exposure in the market">Exposed growth rate</th>
-                                    <td id="exposed_growth" class="text-right"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <table class="table table-condensed table-bordered">
+                        <colgroup>
+                            <col style="width: 75%;" />
+                            <col style="width: 25%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th title="Generated profit over generated losses">Performance factor</th>
+                                <td id="performance_factor" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Average performance per security">Performance</th>
+                                <td id="performance" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Compounded Annual Growth Rate (CAGR)">Annual growth rate</th>
+                                <td id="annual_growth" class="text-right"></td>
+                            </tr>
+                            <tr>
+                                <th title="Compounded Growth Rate over a year's worth of exposure in the market">Exposed growth rate</th>
+                                <td id="exposed_growth" class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="collapse table-responsive container">
-            <table id="results-table" class="table table-condensed table-bordered table-hover">
-                <colgroup>
-                    <col style="width:10%" />
-                    <col style="width:40%" />
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Name</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </form>
+    </div>
+    <div class="collapse table-responsive container">
+        <table id="results-table" class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th title="Symbol or ticket of security">Symbol</th>
+                    <th title="Name of security">Name</th>
+                    <th title="Last observed price on watch list">Price</th>
+                    <th colspan="3" class="estimate" title="Gain to pain ratio is estimated by dividing the typical gain excursion by the typical pain excursion">Estimated gain to pain</th>
+                    <th colspan="3" title="Maximum Favourable Excursion (MFE) and Maximum Adverse Excursion (MAE) of this security">Excursion and factor</th>
+                    <th title="Performance of the security while on this watch list">Performance</th>
+                    <th title="Length of time this security appeared on this watch list">Exposure</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </body>
 </html>
 

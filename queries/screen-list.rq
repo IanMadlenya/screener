@@ -11,39 +11,69 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX screener: <https://probabilitytrading.net/screener/2014/schema.ttl#>
 
-SELECT ?iri ?label ?profile ?hasWatchCriteria ?hasHoldCriteria ?forIndicator ?differenceFrom ?percentOf ?differenceFromWatch ?percentOfWatch ?lower ?upper {
-    ?p foaf:name ?profile ;
-        foaf:member <$user> ;
+SELECT ?iri ?label ?comment ?profile ?lookback ?forSecurity
+        ?criteria ?criteria_label ?criteria_comment
+        ?forIndicator ?differenceFrom ?percentOf
+        ?forWatchIndicator ?differenceFromWatch ?percentOfWatch
+        ?lower ?upper ?weight
+        ?gainIntercept ?gainSlope ?painIntercept ?painSlope {
+    ?p foaf:member <$user> ;
         calli:hasComponent ?iri .
-    ?iri a screener:Screen;
-        rdfs:label ?label .
+    ?iri a screener:Screen
     {
-        ?iri screener:hasWatchCriteria ?hasWatchCriteria .
-        ?hasWatchCriteria screener:forIndicator ?forIndicator
-        OPTIONAL {
-            ?hasWatchCriteria screener:differenceFrom ?differenceFrom
-        } OPTIONAL {
-            ?hasWatchCriteria screener:percentOf ?percentOf
-        } OPTIONAL {
-            ?hasWatchCriteria screener:lower ?lower
-        } OPTIONAL {
-            ?hasWatchCriteria screener:upper ?upper
-        }
+        ?iri rdfs:label ?label
     } UNION {
-        ?iri screener:hasHoldCriteria ?hasHoldCriteria .
-        ?hasHoldCriteria screener:forIndicator ?forIndicator
-        OPTIONAL {
-            ?hasHoldCriteria screener:differenceFrom ?differenceFrom
-        } OPTIONAL {
-            ?hasHoldCriteria screener:percentOf ?percentOf
-        } OPTIONAL {
-            ?hasHoldCriteria screener:differenceFromWatch ?differenceFromWatch
-        } OPTIONAL {
-            ?hasHoldCriteria screener:percentOfWatch ?percentOfWatch
-        } OPTIONAL {
-            ?hasHoldCriteria screener:lower ?lower
-        } OPTIONAL {
-            ?hasHoldCriteria screener:upper ?upper
+        ?iri rdfs:comment ?comment
+    } UNION {
+        ?p foaf:name ?profile
+    } UNION {
+        ?iri screener:lookback ?lookback
+    } UNION {
+        SELECT ?iri (group_concat(?security) AS ?forSecurity) {
+            ?p foaf:member <$user> ;
+                calli:hasComponent ?iri .
+            ?iri screener:forSecurity ?security
+        } GROUP BY ?iri
+    } UNION {
+        SELECT ?iri ?criteria ?criteria_label ?criteria_comment
+                ?forIndicator ?differenceFrom ?percentOf
+                ?forWatchIndicator ?differenceFromWatch ?percentOfWatch
+                ?lower ?upper ?weight
+                ?gainIntercept ?gainSlope ?painIntercept ?painSlope {
+            ?p foaf:member <$user> ;
+                calli:hasComponent ?iri .
+            ?iri screener:hasCriteria ?criteria
+            OPTIONAL {
+                ?criteria rdfs:label ?criteria_label
+            } OPTIONAL {
+                ?criteria rdfs:comment ?criteria_comment
+            } OPTIONAL {
+                ?criteria screener:forIndicator ?forIndicator
+            } OPTIONAL {
+                ?criteria screener:forWatchIndicator ?forWatchIndicator
+            } OPTIONAL {
+                ?criteria screener:differenceFrom ?differenceFrom
+            } OPTIONAL {
+                ?criteria screener:differenceFromWatch ?differenceFromWatch
+            } OPTIONAL {
+                ?criteria screener:percentOf ?percentOf
+            } OPTIONAL {
+                ?criteria screener:percentOfWatch ?percentOfWatch
+            } OPTIONAL {
+                ?criteria screener:lower ?lower
+            } OPTIONAL {
+                ?criteria screener:upper ?upper
+            } OPTIONAL {
+                ?criteria screener:gainIntercept ?gainIntercept
+            } OPTIONAL {
+                ?criteria screener:gainSlope ?gainSlope
+            } OPTIONAL {
+                ?criteria screener:painIntercept ?painIntercept
+            } OPTIONAL {
+                ?criteria screener:painSlope ?painSlope
+            } OPTIONAL {
+                ?criteria screener:weight ?weight
+            }
         }
     }
-}
+} ORDER BY ?label

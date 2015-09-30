@@ -1,7 +1,7 @@
 /* screener.css */
 
 input[type="number"] {
-    padding-left: 0;
+    padding-left: 3px;
     padding-right: 0;
     text-align: right;
 }
@@ -13,4 +13,73 @@ input[type="number"] {
 .loading td {
     transition: opacity 5s ease-out;
     opacity: 0.2;
+}
+
+.no-estimate .estimate {
+    display: none;
+}
+
+.help-error {
+    display: none;
+}
+
+.has-error .help-error {
+    display: block;
+}
+
+.visible-profile-block {
+    display: none;
+}
+
+.profile .visible-profile-block {
+    display: block;
+}
+
+.profile .hidden-profile {
+    display: none;
+}
+
+.axis path {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis line {
+    fill: none;
+    stroke: white;
+    shape-rendering: crispEdges;
+    stroke-opacity: 0.5;
+}
+
+path.area.negative {
+    fill: red;
+    fill-opacity: 0.25;
+    stroke: none;
+}
+
+path.area.positive {
+    fill: green;
+    fill-opacity: 0.25;
+    stroke: none;
+}
+
+path.area.performance {
+    fill: blue;
+    fill-opacity: 0.25;
+    stroke: none;
+}
+
+path.line.performance {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1pt;
+}
+
+line.pain {
+    stroke: red;
+}
+
+line.gain {
+    stroke: green;
 }
