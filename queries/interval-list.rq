@@ -9,15 +9,15 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
-SELECT ?iri ?label ?value {
+SELECT ?iri ?label ?value ?millis {
     <../intervals/> calli:hasComponent ?iri .
     ?iri a skos:Concept;
         skos:prefLabel ?label
     BIND(replace(str(?iri),".*/","") AS ?value)
     BIND(
-        IF("annual" = ?value, 1000000,
-        IF("quarter" = ?value, 100000,
-        IF("d5" = ?value, 10000,
-        IF("d1" = ?value, 1000,
-        strdt(substr(?value, 2), xsd:integer))))) AS ?order)
-} ORDER BY DESC(?order) ?label ?iri
+        IF("annual" = ?value, 365 * 24 * 60 * 60 * 1000,
+        IF("quarter" = ?value, 3 * 31 * 24 * 60 * 60 * 1000,
+        IF("d5" = ?value, 7 * 24 * 60 * 60 * 1000,
+        IF("d1" = ?value, 24 * 60 * 60 * 1000,
+        strdt(substr(?value, 2), xsd:integer) * 60 * 1000)))) AS ?millis)
+} ORDER BY DESC(?millis) ?label ?iri
