@@ -301,7 +301,7 @@
         chart.series = function(cls, _) {
             if (!arguments.length) return series;
             if (arguments.length == 1) return series[cls];
-            series[cls] = _.chart(chart);
+            _ ? series[cls] = _.chart(chart) : delete series[cls];
             return chart.y(y);
         };
         chart.rule = function(_) {
@@ -547,10 +547,10 @@
         var xDomain = [x.invert(0), x.invert(width)];
         var yDomain = _.reduce(series, function(yDomain, series){
             series.points(xDomain, function(point){
-                if (isFinite(point) && (point < yDomain[0] || yDomain[0] === 0)) {
+                if (isFinite(point) && point && (point < yDomain[0] || yDomain[0] === 0)) {
                     yDomain[0] = point;
                 }
-                if (isFinite(point) && (point > yDomain[1] || yDomain[1] === 100)) {
+                if (isFinite(point) && point && (point > yDomain[1] || yDomain[1] === 100)) {
                     yDomain[1] = point;
                 }
             });
