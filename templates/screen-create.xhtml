@@ -100,6 +100,10 @@
                 <div class="form-group">
                     <label for="criteria" title="Criteria that must be met for a security to appear on screen">Criteria</label>
                     <select id="criteria" name="criteria" class="form-control" multiple="multiple" size="1"></select>
+                    <div class="pull-right">
+                        <div class="form-group"></div>
+                        <button id="store" type="button" class="btn btn-primary">Store</button>
+                    </div>
                     <p class="help-block">Enter the name of an indicator and use <strong>&gt;=</strong> , <strong>&lt;=</strong> , or <strong>=</strong> to bound the indicator within a range. Click on a selected indicator to further customize the criteria</p>
                 </div>
             </fieldset>
@@ -203,6 +207,7 @@
                                                     <div class="form-group">
                                                         <label title="Relative accuracy of this criteria to estimate growth/loss">Weight<span class="hidden-sm"> of estimates</span></label>
                                                         <input class="weight regression input-sm" type="range" value="{screener:weight}" datatype="xsd:decimal"
+                                                            min="0" max="100" step="1" list="hundred"
                                                             onchange="calli.updateProperty(event,'screener:weight')" />
                                                     </div>
                                                 </div>
@@ -260,18 +265,22 @@
                     </div>
                 </div>
             </div>
+            <datalist id="hundred">
+                <option>0</option>
+                <option>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>40</option>
+                <option>50</option>
+                <option>60</option>
+                <option>70</option>
+                <option>80</option>
+                <option>90</option>
+                <option>100</option>
+            </datalist>
             <div property="screener:estimatedPeriod" content="?estimatedPeriod" datatype="xsd:dayTimeDuration"></div>
             <div class="row">
-                <div class="col-sm-6 col-md-3">
-                    <div class="form-group">
-                        <button id="show-results-table" class="btn btn-warning" type="button">
-                            Watch List
-                            <span class="glyphicon glyphicon-expand"></span>
-                        </button>
-                        <button id="store" type="button" class="btn btn-primary">Store</button>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-4">
                     <div class="panel panel-default">
                         <table class="table table-condensed table-bordered">
                             <colgroup>
@@ -299,7 +308,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-4">
                     <div class="panel panel-default">
                         <table class="table table-condensed table-bordered">
                             <colgroup>
@@ -327,7 +336,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-4">
                     <div class="panel panel-default">
                         <table class="table table-condensed table-bordered">
                             <colgroup>
@@ -357,17 +366,17 @@
                 </div>
             </div>
         </div>
-        <div class="collapse table-responsive container">
+        <div class="table-responsive container">
             <table id="results-table" class="table table-condensed table-bordered table-hover">
                 <thead>
                     <tr>
                         <th title="Symbol or ticket of security">Symbol</th>
                         <th title="Name of security">Name</th>
                         <th title="Last observed price on watch list">Price</th>
-                        <th colspan="3" class="estimate" title="Gain to pain ratio is estimated by dividing the typical gain excursion by the typical pain excursion">Estimated gain to pain</th>
-                        <th colspan="3" title="Maximum Favourable Excursion (MFE) and Maximum Adverse Excursion (MAE) of this security">Excursion and factor</th>
-                        <th title="Performance of the security while on this watch list">Performance</th>
-                        <th title="Length of time this security appeared on this watch list">Exposure</th>
+                        <th colspan="3" class="estimate" title="Gain to pain ratio is estimated by dividing the typical gain excursion by the typical pain excursion">Estimated<span class="hidden-sm hidden-md"> gain to pain</span></th>
+                        <th colspan="3" title="Maximum Favourable Excursion (MFE) and Maximum Adverse Excursion (MAE) of this security">Excursion<span class="hidden-sm"> and factor</span></th>
+                        <th title="Performance of the security while on this watch list">Perf<span class="hidden-sm">ormance</span></th>
+                        <th title="Length of time this security appeared on this watch list">Ex<span class="hidden-sm">posure</span></th>
                     </tr>
                 </thead>
                 <tbody></tbody>

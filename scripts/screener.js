@@ -100,8 +100,8 @@
                 });
             },
 
-            debouncePromise: function(func, wait) {
-                var end = Promise.resolve();
+            debouncePromise: function(func, wait, promise) {
+                var end = Promise.resolve(promise);
                 return function(/* arguments */) {
                     var context = this;
                     var args = arguments;
@@ -149,9 +149,10 @@
                 $(table).children('thead').find('th').filter(function(){
                     return $(this).css("cursor") != "pointer";
                 }).click(function(event){
-                    screener.sortTable(table, $(event.target).prevAll().toArray().reduce(function(cols, col){
+                    var th = $(event.target).closest('th');
+                    screener.sortTable(table, th.prevAll().toArray().reduce(function(cols, col){
                         return +(col.getAttribute("colspan") || 1) + cols;
-                    }, +(event.target.getAttribute("colspan") || 1) - 1));
+                    }, +(th.attr("colspan") || 1) - 1));
                 }).css("cursor", "pointer");
                 var lastSortedColumn = sortedByColumnNumber[sortedTables.indexOf(table)];
                 if (columnNumber === undefined && lastSortedColumn === undefined) {

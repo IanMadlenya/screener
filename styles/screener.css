@@ -10,7 +10,8 @@ input[type="number"] {
     color: inherit;
 }
 
-.loading td {
+.loading td,
+.loading th {
     transition: opacity 5s ease-out;
     opacity: 0.2;
 }
