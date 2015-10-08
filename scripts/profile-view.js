@@ -99,7 +99,7 @@ jQuery(function($){
                     target: target
                 }).text(decodeURIComponent(datum.security.replace(/^.*\//,'')))));
             });
-            $('#results-table tbody').append(rows);
+            $('#results-table tbody').empty().append(rows);
             if (_.find(list, 'gain')) {
                 $('#results-table').removeClass("no-estimate");
             } else {
