@@ -1,0 +1,14 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+
+<> a <../../classes/Indicator> , screener:Indicator ;
+    rdfs:comment "The average number of shares or contracts traded in a security during the previous hour interval in the past 20 days. It is simply the average amount of shares that trade hands from sellers to buyers at this time of day." ;
+    rdfs:label "20-day Hourly Average Volume" ;
+    screener:expression "SINCE(20,TOD(SMA(500,volume)))" ;
+    calli:administrator </auth/groups/admin> , </auth/groups/super> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    screener:hasInterval <../../intervals/m60> ;
+    screener:hasUnit <../../units/volume> .
