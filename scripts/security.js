@@ -567,7 +567,7 @@ jQuery(function($){
                             domain[1] = Math.max(domain[1], 100);
                         }
                         var y = d3.scale.linear().range(chart.y().range()).domain(domain);
-                        if (unit = base_unit) {
+                        if (unit == base_unit) {
                             chart.y(y);
                         } else {
                             chart.series(series.className).y(y);
@@ -586,7 +586,7 @@ jQuery(function($){
                             domain[1] = Math.max(domain[1], 0);
                         }
                         var y = d3.scale.linear().range(chart.y().range()).domain(domain);
-                        if (unit = base_unit) {
+                        if (unit == base_unit) {
                             chart.y(y);
                         } else {
                             chart.series(series.className).y(y);
