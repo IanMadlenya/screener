@@ -451,7 +451,7 @@ jQuery(function($){
             screener.setItem("security-chart-length", data.length);
             if (force || !data.length || int != interval ||
                     begin.valueOf() < chart.xPlot()(data[0]).valueOf() ||
-                    loaded.valueOf() < end.valueOf()) {
+                    loaded.valueOf() + intervals[int].millis < end.valueOf()) {
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
                     if (counter != redrawCounter) return;
@@ -459,8 +459,8 @@ jQuery(function($){
                     return loadChartData(chart, security, within, block.unit, intervals, int, begin, end).then(function(){
                         interval = int;
                         var next = _.isEmpty(chart.datum()) ? end.valueOf() :
-                            new Date(_.last(chart.datum()).asof).valueOf() + intervals[int].millis;
-                        loaded = new Date(Math.max(end.valueOf(), next));
+                            new Date(_.last(chart.datum()).asof).valueOf();
+                        loaded = new Date(Math.max(end.valueOf() - intervals[int].millis, next));
                         if (delay || int == optimalInterval(intervals, int, chart)) {
                             d3.select(svg).call(chart);
                         }
