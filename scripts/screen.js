@@ -434,6 +434,14 @@ jQuery(function($){
                             selectize.refreshItems();
                         });
                     }
+                },
+                onDropdownClose: function() {
+                    var selectize = this;
+                    _.filter(selectize.options, function(option){
+                        return option.replaces;
+                    }).forEach(function(option){
+                        selectize.removeOption(option.value);
+                    });
                 }
             };
         }).then(function(selectize){
@@ -603,8 +611,9 @@ jQuery(function($){
 
     function initializeWatchList() {
         var fn = updateWatchList.bind(this, {});
+        var promise = fn();
         var loading = 0;
-        var debounce = screener.debouncePromise(fn, 2000);
+        var debounce = screener.debouncePromise(fn, 2000, promise);
         $('form').change(function() {
             var counter = ++loading;
             $('.table').addClass("loading");
@@ -620,7 +629,7 @@ jQuery(function($){
                 return Promise.reject(error);
             });
         });
-        debounce();
+        return promise;
     }
 
     function updateWatchList(cache) {
@@ -633,7 +642,9 @@ jQuery(function($){
                     return element.getAttribute("resource");
                 });
                 var now = screener.now();
-                var key = JSON.stringify([securities, filters, since]);
+                var key = JSON.stringify([securities, filters.map(function(criteria){
+                    return _.omit(criteria, 'label');
+                }), since]);
                 if (cache[key]) {
                     cache[key].promise = cache[key].promise.catch(function(){
                         return screener.screen(securities, filters, since, now);
@@ -646,66 +657,62 @@ jQuery(function($){
                 }
                 return cache[key].promise;
             });
-        }).then(function(list){
-            updatePerformance(list);
-            return promiseFilters().then(function(filters){
-                return filters.filter(function(criteria){
-                    return criteria.indicator;
-                });
-            }).then(function(filters){
-                var target = $('#results-table').closest('form').length ? "_blank" : "_self";
-                var rows = list.map(function(datum){
-                    // ticker
-                    return $('<tr></tr>', {
-                        resource: datum.security,
-                        "class": datum.signal == 'stop' ? "text-muted" : ""
-                    }).append($('<td></td>').append($('<a></a>', {
-                        href: datum.security,
-                        target: target
-                    }).text(decodeURIComponent(datum.security.replace(/^.*\//,'')))));
-                });
-                $('#results-table tbody').empty().append(rows);
-                $('.table').removeClass("loading");
-                $('#show-results-table').button('reset');
-                if (_.find(list, 'gain')) {
-                    $('.table').removeClass("no-estimate");
-                } else {
-                    $('.table').addClass("no-estimate");
-                }
-                return Promise.all(list.map(function(datum, i){
-                    var tr = rows[i];
-                    return screener.getSecurity(datum.security).then(function(result){
-                        return tr.append($('<td></td>').text(result && result.name || ''));
-                    }).then(function(){
-                        tr.append($('<td></td>', {
-                            "class": "text-right",
-                            "data-value": datum.price
-                        }).text('$' + datum.price.toFixed(2)));
-                        tr.append(percentCell(datum.gain).addClass("estimate text-success"));
-                        tr.append(percentCell(datum.pain).addClass("estimate text-danger"));
-                        tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
-                        tr.append(percentCell(datum.positive_excursion).addClass("text-success"));
-                        tr.append(percentCell(datum.negative_excursion).addClass("text-danger"));
-                        tr.append(decimalCell(datum.performance.reduce(function(gain, ret){
-                            return ret > 0 ? ret + gain : gain;
-                        }, 0) / Math.abs(datum.performance.reduce(function(pain, ret){
-                            return ret < 0 ? ret + pain : pain;
-                        }, 0))));
-                        var performance = datum.performance.reduce(function(profit, ret){
-                            return profit + profit * ret / 100;
-                        }, 1) * 100 - 100;
-                        tr.append(percentCell(performance).attr("data-value", performance));
-                        var exposed = datum.exposure /100 * datum.duration;
-                        tr.append($('<td></td>', {
-                            "class": "text-right",
-                            "data-value": exposed
-                        }).text(formatDuration(exposed)));
-                    });
-                }));
+        }).then(updatePerformance).then(function(list){
+            var target = $('#results-table').closest('form').length ? "_blank" : "_self";
+            var rows = list.map(function(datum){
+                // ticker
+                return $('<tr></tr>', {
+                    resource: datum.security,
+                    "class": datum.signal == 'stop' ? "text-muted" : ""
+                }).append($('<td></td>').append($('<a></a>', {
+                    href: datum.security,
+                    target: target
+                }).text(decodeURIComponent(datum.security.replace(/^.*\//,'')))));
             });
+            $('#results-table tbody').empty().append(rows);
+            $('.table').removeClass("loading");
+            if (_.find(list, 'gain')) {
+                $('#results-table').removeClass("no-estimate");
+            } else {
+                $('#results-table').addClass("no-estimate");
+            }
+            return Promise.all(list.map(function(datum, i){
+                var tr = rows[i];
+                return screener.getSecurity(datum.security).then(function(result){
+                    return tr.append($('<td></td>').text(result && result.name || ''));
+                }).then(function(){
+                    tr.append($('<td></td>', {
+                        "class": "text-right",
+                        "data-value": datum.price
+                    }).text('$' + datum.price.toFixed(2)));
+                    tr.append(percentCell(datum.gain).addClass("estimate text-success"));
+                    tr.append(percentCell(datum.pain).addClass("estimate text-danger"));
+                    tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
+                    tr.append(percentCell(datum.positive_excursion).addClass("text-success"));
+                    tr.append(percentCell(datum.negative_excursion).addClass("text-danger"));
+                    var wins = datum.performance.reduce(function(gain, ret){
+                        return ret > 0 ? ret + gain : gain;
+                    }, 0);
+                    var losses = datum.performance.reduce(function(pain, ret){
+                        return ret < 0 ? ret + pain : pain;
+                    }, 0);
+                    var pain = wins * datum.negative_excursion /100;
+                    var denominator = losses && pain ? Math.min(losses, pain) : losses || pain;
+                    tr.append(decimalCell(wins / Math.abs(denominator)));
+                    var performance = datum.performance.reduce(function(profit, ret){
+                        return profit + profit * ret / 100;
+                    }, 1) * 100 - 100;
+                    tr.append(percentCell(performance).attr("data-value", performance));
+                    var exposed = datum.exposure /100 * datum.duration;
+                    tr.append($('<td></td>', {
+                        "class": "text-right",
+                        "data-value": exposed
+                    }).text(formatDuration(exposed)));
+                });
+            }));
         }).then(function(){
             screener.sortTable('#results-table');
-        }).catch(calli.error).then(loading('#show-results-table'));
+        }).catch(calli.error);
     }
 
     function percentCell(value) {
@@ -915,12 +922,6 @@ jQuery(function($){
                 $(node).find('.gainIntercept').val(positive[0]).change();
                 $(node).find('.gainSlope').val(positive[1]).change();
             }).catch(calli.error).then(loading(event.target));
-        }).on('hide.bs.modal', function(event){
-            var node = $(event.target).closest('[resource]');
-            var btn = $(node).find('.chart-btn .glyphicon-collapse-down');
-            btn.toggleClass('glyphicon-expand glyphicon-collapse-down');
-            $(node).find('.charts').empty();
-            y = undefined;
         }).on('show.bs.modal', function(event){
             var estimatedPeriod = $('[property="screener:estimatedPeriod"]');
             var period = estimatedPeriod.attr("content") || "P1D";
@@ -929,33 +930,43 @@ jQuery(function($){
             var unit = m[2];
             var input = $(event.target).closest('[resource]').find('input.period');
             input.closest('.form-group').find('.input-group-addon').text(unit);
-            input.val(value).change();
-        }).on('change', '.period', function(event){
-            var value = +(event.target.value || 1);
-            var unit = $(event.target).closest('.form-group').find('.input-group-addon').text();
-            if (unit.indexOf('D') >= 0 && value < 0) {
-                event.target.value = 24;
-                $(event.target).closest('.form-group').find('.input-group-addon').text('H');
-                $(event.target).change();
-            } else if (unit.indexOf('H') >= 0 && value > 24) {
-                event.target.value = 1;
-                $(event.target).closest('.form-group').find('.input-group-addon').text('D');
-                $(event.target).change();
-            } else if (value < 0) {
-                event.target.value = 0;
-                $(event.target).closest('.form-group').find('.input-group-addon').text('H');
-                $(event.target).change();
-            } else {
-                var estimatedPeriod = $('[property="screener:estimatedPeriod"]');
-                if (!estimatedPeriod.length) estimatedPeriod = $('<div></div>', {
-                    property: "screener:estimatedPeriod",
-                    datatype: "xsd:dayTimeDuration"
-                }).appendTo($(event.target).closest('form'));
-                var day = unit.indexOf('D') >= 0;
-                var period = day ? 'P' + value + 'D' : 'PT' + value + 'H';
-                estimatedPeriod.attr("content", period);
-            }
+            input.val(value).on('change', periodChanged).change();
+        }).on('hide.bs.modal', function(event){
+            var node = $(event.target).closest('[resource]');
+            var btn = $(node).find('.chart-btn .glyphicon-collapse-down');
+            btn.toggleClass('glyphicon-expand glyphicon-collapse-down');
+            $(node).find('.charts').empty();
+            $(node).find('input.period').off('change', periodChanged);
+            y = undefined;
         });
+    }
+
+    function periodChanged(event) {
+        var node = $(event.target).closest('[resource]');
+        var value = +(event.target.value || 1);
+        var unit = $(event.target).closest('.form-group').find('.input-group-addon').text();
+        if (unit.indexOf('D') >= 0 && value < 0) {
+            event.target.value = 24;
+            $(event.target).closest('.form-group').find('.input-group-addon').text('H');
+            $(event.target).change();
+        } else if (unit.indexOf('H') >= 0 && value > 24) {
+            event.target.value = 1;
+            $(event.target).closest('.form-group').find('.input-group-addon').text('D');
+            $(event.target).change();
+        } else if (value < 0) {
+            event.target.value = 0;
+            $(event.target).closest('.form-group').find('.input-group-addon').text('H');
+            $(event.target).change();
+        } else {
+            var estimatedPeriod = $('[property="screener:estimatedPeriod"]');
+            if (!estimatedPeriod.length) estimatedPeriod = $('<div></div>', {
+                property: "screener:estimatedPeriod",
+                datatype: "xsd:dayTimeDuration"
+            }).appendTo($(event.target).closest('form'));
+            var day = unit.indexOf('D') >= 0;
+            var period = day ? 'P' + value + 'D' : 'PT' + value + 'H';
+            estimatedPeriod.attr("content", period);
+        }
     }
 
     function loading(button) {
@@ -1082,14 +1093,15 @@ jQuery(function($){
 
     function promiseSignals(cache) {
         if (isScreenIncomplete()) return Promise.resolve();
-        $('.table').addClass("loading");
         return promiseFilters().then(function(filters) {
             return promiseSince().then(function(since){
                 var securities = $('[rel="screener:forSecurity"]').toArray().map(function(element){
                     return element.getAttribute("resource");
                 });
                 var now = screener.now();
-                var key = JSON.stringify([securities, filters, since]);
+                var key = JSON.stringify([securities, filters.map(function(criteria){
+                    return _.omit(criteria, 'label');
+                }), since]);
                 if (cache[key]) {
                     cache[key].promise = cache[key].promise.catch(function(){
                         return screener.signals(securities, filters, since, now);
