@@ -80,62 +80,59 @@ jQuery(function($){
             });
         }).then(function(screens){
             return Promise.all(screens.map(function(screen){
+                if (_.isEmpty(screen.securityClasses) || _.isEmpty(screen.criteria)) return [];
                 return screener.screen(screen.securityClasses, screen.criteria, screen.lookback).then(function(list){
                     return list.filter(function(item){
                         return item.signal != 'stop';
                     });
-                }).then(function(list){
-                    return _.pluck(list, 'security');
                 });
             }));
-        }).then(_.flatten).then(_.uniq).then(function(securities){
-            var rows = securities.map(function(security){
+        }).then(_.flatten).then(function(list){
+            var target = $('#results-table').closest('form').length ? "_blank" : "_self";
+            var rows = list.map(function(datum){
                 // ticker
                 return $('<tr></tr>', {
-                    resource: security
+                    resource: datum.security,
+                    "class": datum.signal == 'stop' ? "text-muted" : ""
                 }).append($('<td></td>').append($('<a></a>', {
-                    href: security
-                }).text(decodeURIComponent(security.replace(/^.*\//,'')))));
+                    href: datum.security,
+                    target: target
+                }).text(decodeURIComponent(datum.security.replace(/^.*\//,'')))));
             });
-            $('#results-table tbody').empty().append(rows);
-            $('#results-table').removeClass("loading");
-            return Promise.all(securities.map(function(security, i){
+            $('#results-table tbody').append(rows);
+            if (_.find(list, 'gain')) {
+                $('#results-table').removeClass("no-estimate");
+            } else {
+                $('#results-table').addClass("no-estimate");
+            }
+            return Promise.all(list.map(function(datum, i){
                 var tr = rows[i];
-                return screener.getSecurity(security).then(function(result){
+                return screener.getSecurity(datum.security).then(function(result){
                     return tr.append($('<td></td>').text(result && result.name || ''));
                 }).then(function(){
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, new Date());
-                }).then(function(data){
-                    if (!data.length) return;
-                    var close = data[data.length-1].close;
-                    var previous = data.length > 1 ? data[data.length-2].close : close;
-                    var change = Math.round(10000 * (close - previous) / previous) / 100;
-                    var volume = data[data.length-1].volume;
-                    return tr.append($('<td></td>', {
-                        "class": "text-right",
-                        "title": new Date(data[data.length-1].asof).toLocaleString(),
-                        "data-value": close
-                    }).text(screener.formatCurrency(close))).append($('<td></td>', {
-                        "class": (change < 0 ? "text-danger " : '') + "text-right",
-                        "data-value": change
-                    }).text(data.length > 1 && (change + '%') || '')).append($('<td></td>', {
-                        "class": "text-right hidden-xs",
-                        "data-value": volume
-                    }).text(screener.formatNumber(volume)));
-                }).then(function(){
-                    var lower = new Date();
-                    lower.setFullYear(lower.getFullYear() - 1);
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, new Date());
-                }).then(function(data){
-                    var high = _.max(_.pluck(data, 'high'));
-                    var low = _.min(_.pluck(data, 'low'));
                     tr.append($('<td></td>', {
-                        "class": "text-right hidden-xs",
-                        "data-value": high
-                    }).text(screener.formatCurrency(high))).append($('<td></td>', {
-                        "class": "text-right hidden-xs",
-                        "data-value": low
-                    }).text(screener.formatCurrency(low)));
+                        "class": "text-right",
+                        "data-value": datum.price
+                    }).text('$' + datum.price.toFixed(2)));
+                    tr.append(percentCell(datum.gain).addClass("estimate text-success"));
+                    tr.append(percentCell(datum.pain).addClass("estimate text-danger"));
+                    tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
+                    tr.append(percentCell(datum.positive_excursion).addClass("text-success"));
+                    tr.append(percentCell(datum.negative_excursion).addClass("text-danger"));
+                    tr.append(decimalCell(datum.performance.reduce(function(gain, ret){
+                        return ret > 0 ? ret + gain : gain;
+                    }, 0) / Math.abs(datum.performance.reduce(function(pain, ret){
+                        return ret < 0 ? ret + pain : pain;
+                    }, 0))));
+                    var performance = datum.performance.reduce(function(profit, ret){
+                        return profit + profit * ret / 100;
+                    }, 1) * 100 - 100;
+                    tr.append(percentCell(performance).attr("data-value", performance));
+                    var exposed = datum.exposure /100 * datum.duration;
+                    tr.append($('<td></td>', {
+                        "class": "text-right",
+                        "data-value": exposed
+                    }).text(formatDuration(exposed)));
                 });
             }));
         }).then(function(){
@@ -143,5 +140,36 @@ jQuery(function($){
         }).catch(calli.error).then(function(){
             $('#results-table').removeClass("loading");
         });
+    }
+
+    function percentCell(value) {
+        if (_.isFinite(value)) return $('<td></td>', {
+            "class": "text-right"
+        }).text(value.toFixed(2) + '%');
+        else return $('<td></td>');
+    }
+
+    function decimalCell(value) {
+        if (_.isFinite(value)) return $('<td></td>', {
+            "class": "text-right",
+            "data-value": value
+        }).text(value.toFixed(2));
+        else return $('<td></td>');
+    }
+
+    function formatDuration(years) {
+        if (years *52 > 1.5) {
+            return(years *52).toFixed(0) + 'w';
+        } else if (years *260 > 1.5) {
+            return(years *260).toFixed(0) + 'd';
+        } else if (years *260*6.5 > 1.5) {
+            return(years *260*6.5).toFixed(0) + 'h';
+        } else if (years *260*6.5*60 > 1.5) {
+            return(years *260*6.5*60).toFixed(0) + 'm';
+        } else if (years *260*6.5*60*60 > 1.5) {
+            return(years *260*6.5*60*60).toFixed(0) + 's';
+        } else {
+            return(years *260*6.5*60*60).toFixed(3) + 's';
+        }
     }
 });
