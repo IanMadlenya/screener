@@ -16,6 +16,17 @@ input[type="number"] {
     opacity: 0.2;
 }
 
+tr.text-center>th {
+    text-align: center;
+}
+
+td.text-ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0;
+    overflow: hidden;
+}
+
 .no-estimate .estimate {
     display: none;
 }

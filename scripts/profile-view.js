@@ -108,12 +108,19 @@ jQuery(function($){
             return Promise.all(list.map(function(datum, i){
                 var tr = rows[i];
                 return screener.getSecurity(datum.security).then(function(result){
-                    return tr.append($('<td></td>').text(result && result.name || ''));
+                    return tr.append($('<td></td>', {
+                        "class": "text-ellipsis"
+                    }).text(result && result.name || ''));
                 }).then(function(){
                     tr.append($('<td></td>', {
                         "class": "text-right",
                         "data-value": datum.price
                     }).text('$' + datum.price.toFixed(2)));
+                    var change = datum.price - datum.watch.price;
+                    tr.append($('<td></td>', {
+                        "class": "text-right " + (change < 0 ? "text-danger" : "text-success"),
+                        "data-value": change
+                    }).text('$' + change.toFixed(2)));
                     tr.append(percentCell(datum.gain).addClass("estimate text-success"));
                     tr.append(percentCell(datum.pain).addClass("estimate text-danger"));
                     tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
