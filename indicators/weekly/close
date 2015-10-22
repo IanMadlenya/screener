@@ -4,7 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "The final price at which a security is traded on a given trading day. The closing price represents the most up-to-date valuation of a security until trading commences again on the next trading day." ;
+    rdfs:comment "The final price at which a security is traded on previous week." ;
     rdfs:label "Weekly Close" ;
     screener:expression "close" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
