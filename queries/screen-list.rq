@@ -15,7 +15,7 @@ SELECT ?iri ?label ?comment ?profile ?lookback ?forSecurity
         ?criteria ?criteria_label ?criteria_comment
         ?forIndicator ?differenceFrom ?percentOf
         ?forWatchIndicator ?differenceFromWatch ?percentOfWatch
-        ?lower ?upper ?weight
+        ?againstCorrelated ?lower ?upper ?weight
         ?gainIntercept ?gainSlope ?painIntercept ?painSlope {
     ?p foaf:member <$user> ;
         calli:hasComponent ?iri .
@@ -38,7 +38,7 @@ SELECT ?iri ?label ?comment ?profile ?lookback ?forSecurity
         SELECT ?iri ?criteria ?criteria_label ?criteria_comment
                 ?forIndicator ?differenceFrom ?percentOf
                 ?forWatchIndicator ?differenceFromWatch ?percentOfWatch
-                ?lower ?upper ?weight
+                ?againstCorrelated ?lower ?upper ?weight
                 ?gainIntercept ?gainSlope ?painIntercept ?painSlope {
             ?p foaf:member <$user> ;
                 calli:hasComponent ?iri .
@@ -59,6 +59,8 @@ SELECT ?iri ?label ?comment ?profile ?lookback ?forSecurity
                 ?criteria screener:percentOf ?percentOf
             } OPTIONAL {
                 ?criteria screener:percentOfWatch ?percentOfWatch
+            } OPTIONAL {
+                ?criteria screener:againstCorrelated ?againstCorrelated
             } OPTIONAL {
                 ?criteria screener:lower ?lower
             } OPTIONAL {

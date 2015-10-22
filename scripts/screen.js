@@ -385,7 +385,7 @@ jQuery(function($){
                     var value = lastItemAdded && this.getValue().indexOf(lastItemAdded) >= 0 ? lastItemAdded : _.last(this.getValue());
                     Promise.resolve(query || '').then(function(query){
                         var m = query.match(/\s*(([<=>])=?\s*)([^<=>]+)$/);
-                        if (!m || !value || !options[value].expression) return;
+                        if (!m || !value || !options[value].unit) return;
                         var option = options[value];
                         var operation = m[1];
                         var op = m[2];
@@ -400,11 +400,12 @@ jQuery(function($){
                             optgroup: $('[for="criteria"]').text(),
                             optorder: 0
                         }]; else if (parameter) return _.compact(search(parameter).items.map(function(item){
-                            if (!options[item.id].expression) return;
+                            if (!options[item.id].unit) return;
                             else return {
                                 replaces: option.value,
                                 value: option.value + ' ' + op + '= ' + item.id,
                                 text: option.text +' ' + operation + options[item.id].text,
+                                expression: options[item.id].expression,
                                 forIndicator: option.forIndicator || option.value,
                                 differenceFrom: item.id,
                                 lower: op == '=' || op == '>' ? 0 : option.lower,
@@ -482,8 +483,15 @@ jQuery(function($){
     }
 
     function initializeCorrelatedState(node) {
-        $(node).find('.correlated').prop("checked", $('[property="screener:correlated"]').attr("content") == "true").change(function(){
-            $(this).attr("content", this.checked);
+        var checked = $(node).find('[property="screener:againstCorrelated"]').attr("content") == "true";
+        $(node).find('.againstCorrelated').prop("checked", checked).change(function(){
+            var againstCorrelated = $(node).find('[property="screener:againstCorrelated"]');
+            if (!againstCorrelated.length) {
+                againstCorrelated = $('<span></span>', {
+                    property: "screener:againstCorrelated"
+                }).insertBefore(this);
+            }
+            againstCorrelated.attr("content", this.checked);
         }).change();
         return node;
     }
@@ -578,6 +586,7 @@ jQuery(function($){
             forWatchIndicator: $(node).find('[rel="screener:forWatchIndicator"]').attr("resource"),
             differenceFromWatch: $(node).find('[rel="screener:differenceFromWatch"]').attr("resource"),
             percentOfWatch: $(node).find('[rel="screener:percentOfWatch"]').attr("resource"),
+            againstCorrelated: $(node).find('[property="screener:againstCorrelated"]').attr("content") == "true",
             lower: $(node).find('[property="screener:lower"]').attr("content"),
             upper: $(node).find('[property="screener:upper"]').attr("content"),
             gainIntercept: $(node).find('[property="screener:gainIntercept"]').attr("content"),
@@ -679,26 +688,35 @@ jQuery(function($){
             return Promise.all(list.map(function(datum, i){
                 var tr = rows[i];
                 return screener.getSecurity(datum.security).then(function(result){
-                    return tr.append($('<td></td>').text(result && result.name || ''));
+                    return tr.append($('<td></td>', {
+                        "class": "text-ellipsis"
+                    }).text(result && result.name || ''));
                 }).then(function(){
                     tr.append($('<td></td>', {
                         "class": "text-right",
                         "data-value": datum.price
                     }).text('$' + datum.price.toFixed(2)));
-                    tr.append(percentCell(datum.gain).addClass("estimate text-success"));
-                    tr.append(percentCell(datum.pain).addClass("estimate text-danger"));
+                    var positive = datum.signal == 'stop' ? "text-muted" : "text-success";
+                    var negative = datum.signal == 'stop' ? "text-muted" : "text-danger";
+                    var change = datum.price - datum.watch.price;
+                    tr.append($('<td></td>', {
+                        "class": "text-right " + (change < 0 ? negative : positive),
+                        "data-value": change
+                    }).text('$' + change.toFixed(2)));
+                    tr.append(percentCell(datum.gain).addClass("estimate " + positive));
+                    tr.append(percentCell(datum.pain).addClass("estimate " + negative));
                     tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
-                    tr.append(percentCell(datum.positive_excursion).addClass("text-success"));
-                    tr.append(percentCell(datum.negative_excursion).addClass("text-danger"));
+                    tr.append(percentCell(datum.positive_excursion).addClass(positive));
+                    tr.append(percentCell(datum.negative_excursion).addClass(negative));
                     var wins = datum.performance.reduce(function(gain, ret){
                         return ret > 0 ? ret + gain : gain;
                     }, 0);
                     var losses = datum.performance.reduce(function(pain, ret){
                         return ret < 0 ? ret + pain : pain;
                     }, 0);
-                    var pain = wins * datum.negative_excursion /100;
-                    var denominator = losses && pain ? Math.min(losses, pain) : losses || pain;
-                    tr.append(decimalCell(wins / Math.abs(denominator)));
+                    var factor = wins && losses ? wins / Math.abs(losses) :
+                        datum.positive_excursion / Math.abs(datum.negative_excursion);
+                    tr.append(decimalCell(factor));
                     var performance = datum.performance.reduce(function(profit, ret){
                         return profit + profit * ret / 100;
                     }, 1) * 100 - 100;
@@ -1160,7 +1178,7 @@ jQuery(function($){
                     var watch = findRightFrom(signals, i, function(watch){
                         return watch.signal == 'watch' && watch.security == hold.security;
                     });
-                    var value = getValue(criteria, watch, hold);
+                    var value = valueOfCriteria(criteria, watch, hold);
                     return {
                         value: value,
                         weight: 1,
@@ -1260,16 +1278,22 @@ jQuery(function($){
         }
     }
 
-    function getValue(criteria, watch, hold) {
-        var primary = valueOf(criteria.indicator, hold) || valueOf(criteria.indicatorWatch, watch);
-        var diff = valueOf(criteria.difference, hold) + valueOf(criteria.differenceWatch, watch);
-        var of = valueOf(criteria.percent, hold) || valueOf(criteria.percentWatch, watch);
-        return of ? (primary - diff) * 100 / Math.abs(of) : (primary - diff);
+    function valueOfCriteria(crt, watch, hold) {
+        var w = crt.againstCorrelated && watch.correlated ? watch.correlated : watch;
+        var h = crt.againstCorrelated && hold.correlated ? hold.correlated : hold;
+        var primary = crt.indicator ?
+            valueOfIndicator(crt.indicator, h) :
+            valueOfIndicator(crt.indicatorWatch, w);
+        var diff = valueOfIndicator(crt.difference, h) || valueOfIndicator(crt.differenceWatch, w) || 0;
+        var of = valueOfIndicator(crt.percent, h) || valueOfIndicator(crt.percentWatch, w);
+        if (!_.isFinite(primary)) return undefined;
+        else if (!of) return primary - diff;
+        else return (primary - diff) * 100 / Math.abs(of);
     }
 
-    function valueOf(indicator, reference) {
+    function valueOfIndicator(indicator, reference) {
         var int = indicator && indicator.interval.value;
-        if (!int || !reference[int]) return 0;
-        return reference[int][indicator.expression];
+        if (int && reference[int]) return reference[int][indicator.expression];
+        else return undefined;
     }
 });
