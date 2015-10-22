@@ -455,12 +455,13 @@ jQuery(function($){
                 var counter = ++redrawCounter;
                 drawing = drawing.then(function(){
                     if (counter != redrawCounter) return;
+                    var now = Date.now();
                     console.log("Loading", int, begin, end);
                     return loadChartData(chart, security, within, block.unit, intervals, int, begin, end).then(function(){
                         interval = int;
                         var next = _.isEmpty(chart.datum()) ? end.valueOf() :
                             new Date(_.last(chart.datum()).asof).valueOf();
-                        loaded = new Date(Math.max(end.valueOf() - intervals[int].millis, next));
+                        loaded = new Date(Math.min(Math.max(end.valueOf() - intervals[int].millis, next), now));
                         if (delay || int == optimalInterval(intervals, int, chart)) {
                             d3.select(svg).call(chart);
                         }
