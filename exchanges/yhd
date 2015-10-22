@@ -1,0 +1,27 @@
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix dbpprop: <http://dbpedia.org/property/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a <../classes/Exchange> , screener:Exchange ;
+    rdfs:comment "The Toronto Stock Exchange is the largest stock exchange in Canada, the third largest in North America and the seventh largest in the world by market capitalization. Based in Toronto, it is owned by and operated as a subsidiary of the TMX Group for the trading of senior equities." ;
+    rdfs:label "Toronto Industry Stock Exchange" ;
+    screener:acronym "TSX" ;
+    screener:afterHoursClosesAt "16:00:00"^^xsd:time ;
+    screener:dtnPrefix "C." ;
+    screener:exch "YHD" ;
+    screener:marketClosesAt "16:00:00"^^xsd:time ;
+    screener:marketID 50 ;
+    screener:marketLang "en-CA" ;
+    screener:marketOpensAt "09:30:00"^^xsd:time ;
+    screener:mic "XTSE" ;
+    screener:morningstarCode "XTSE" ;
+    screener:premarketOpensAt "09:30:00"^^xsd:time ;
+    screener:yahooSuffix ".TO" ;
+    calli:administrator </auth/groups/admin> , </auth/groups/super> ;
+    calli:editor </auth/groups/power> , </auth/groups/staff> ;
+    calli:reader </auth/groups/public> , </auth/groups/system> ;
+    dbpprop:currency <http://dbpedia.org/resource/Canadian_dollar> ;
+    screener:inTimeZone <http://dbpedia.org/resource/America/Toronto> .
