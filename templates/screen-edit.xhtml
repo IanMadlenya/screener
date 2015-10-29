@@ -71,11 +71,11 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <label for="lookback">Lookback</label>
+                                    <label for="lookback" title="Number of previous work days to consider">Lookback</label>
                                     <div class="input-group">
                                         <input id="lookback" datatype="xsd:integer" value="{screener:lookback}" type="number" class="form-control"
                                             onchange="calli.updateProperty(event, 'screener:lookback')" />
-                                        <span class="input-group-addon">days</span>
+                                        <span class="input-group-addon" title="Work days M-F">D</span>
                                     </div>
                                 </div>
                                 <div class="col-sm-7">
@@ -203,7 +203,7 @@
                                             <div class="row">
                                                 <div class="col-sm-8 col-md-9">
                                                     <div class="form-group">
-                                                        <label title="Relative accuracy of this criteria to estimate growth/loss">Weight<span class="hidden-sm"> of estimates</span></label>
+                                                        <label title="Relative accuracy of this criteria to estimate growth/loss">Weight<span class="hidden-sm"> of estimate</span></label>
                                                         <input class="weight regression input-sm" type="range" value="{screener:weight}" datatype="xsd:decimal"
                                                             min="0" max="100" step="1" list="hundred"
                                                             onchange="calli.updateProperty(event,'screener:weight')" />

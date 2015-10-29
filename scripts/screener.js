@@ -418,9 +418,13 @@
                     return _.find(securities, function(item){
                         return item.iri == security;
                     });
-                }).then(function(security){
-                    if (security) return security;
-                    else throw Error("Unknown security: " + ticker);
+                }).then(function(obj){
+                    if (obj) return obj;
+                    else return {
+                        iri: security,
+                        ticker: ticker,
+                        exchange: exchange
+                    };
                 });
             }),
 
@@ -593,16 +597,34 @@
         if (!sc.ofExchange && !sc.exchange) throw Error("No security class exchange: " + JSON.stringify(sc));
         return getExchange(sc.exchange || sc.ofExchange).then(function(exchange){
             var prefix = function(security){
-                if (security.indexOf('://') > 0) return security;
-                return exchange.iri + '/' + encodeURI(security);
+                if (!_.isString(security)) return security;
+                else if (security.indexOf('://') > 0) return security;
+                else return exchange.iri + '/' + encodeURI(security);
             };
-            return _.extend({}, sc, {
+            return _.omit(_.extend({}, sc, {
                 exchange: exchange,
                 sectors: split(sc.sectors || sc.includeSectors, '\t'),
                 industries: split(sc.industries || sc.includeIndustries, '\t'),
                 countries: split(sc.countries || sc.includeCountries, '\t'),
                 includes: split(sc.includes).map(prefix),
                 excludes: split(sc.excludes).map(prefix)
+            }), _.isEmpty);
+        }).then(function(sc){
+            if (_.isEmpty(sc.includes)) return sc;
+            return Promise.all(sc.includes.map(function(security){
+                if (_.isString(security)) return screener.getSecurity(security);
+                else return security;
+            })).then(function(includes){
+                return _.extend(sc, {
+                    includes: includes
+                });
+            });
+        }).then(function(sc){
+            if (!_.isString(sc.correlated)) return sc;
+            return screener.getSecurity(sc.correlated).then(function(correlated){
+                return _.extend(sc, {
+                    correlated: correlated
+                });
             });
         });
     }

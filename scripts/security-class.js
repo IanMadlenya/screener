@@ -76,9 +76,6 @@ jQuery(function($){
             removeSelectizeOption('exclude-securities', function(option){
                 return option.indexOf(event.target.value) !== 0;
             });
-            removeSelectizeOption('include-securities', function(option){
-                return option.indexOf(event.target.value) !== 0;
-            });
             screener.listSectors(event.target.value).then(function(result){
                 if (result.length) {
                     $('.sectors-present').show();
@@ -160,96 +157,70 @@ jQuery(function($){
             populate_list();
         }).change();
 
-        var createTicker = function(exchangeId, id, single) {
-            return {
-                delimiter: single ? undefined : ' ',
-                maxItems: single ? 1 : 10000,
-                persist: false,
-                searchField: ["text", "title"],
-                options: _.isEmpty($(id).val()) ? [] : _.flatten([$(id).val()]).map(function(security){
-                    return {
-                        text: security.replace(/.*\//,''),
-                        value: security,
-                        title: '',
-                        type: ''
-                    };
-                }),
-                items: _.isEmpty($(id).val()) ? [] : $(id).val(),
-                load: function(query, callback) {
-                    var exchange = $(exchangeId).val();
-                    if (!query) callback();
-                    else Promise.all(query.split(/\s+/).map(function(symbol){
-                        return screener.lookup(symbol, exchange).then(function(securities){
-                            return securities.map(function(security){
-                                return {
-                                    text: security.ticker,
-                                    value: security.iri,
-                                    title: security.name,
-                                    type: security.type
-                                };
-                            });
-                        });
-                    })).then(_.flatten).then(_.comact).then(callback, function(error){
-                        callback();
-                        calli.error(error);
-                    });
-                },
-                create: single ? false : function(input, callback) {
-                    var exchange = $(exchangeId).val();
-                    if (!input) callback();
-                    else Promise.all(input.split(/\s+/).map(function(input){
-                        return screener.lookup(input, exchange).then(function(securities){
-                            return securities.reduce(function(data, security){
-                                if (security.ticker == input) return {
-                                    text: security.ticker,
-                                    value: security.iri,
-                                    title: security.name,
-                                    type: security.type
-                                };
-                                else return data;
-                            }, undefined);
-                        });
-                    })).then(_.compact).then(function(results){
-                        if (!results) callback();
-                        else if (results.length == 1) callback(results[0]);
-                        else {
-                            callback(results[0]);
-                            _.defer(function(){
-                                results.forEach(function(result){
-                                    $(id)[0].selectize.addItem(result.value);
+        var createTicker = function(id, exchangeId, multiple) {
+            return Promise.resolve(_.isEmpty($(id).val()) ? [] : _.flatten([$(id).val()])).then(function(securities){
+                return Promise.all(securities.map(screener.getSecurity));
+            }).then(function(securities){
+                return {
+                    maxItems: multiple ? 10000 : 1,
+                    persist: false,
+                    searchField: ["text", "title"],
+                    options: securities.map(function(security){
+                        return {
+                            text: security.ticker,
+                            value: security.iri,
+                            title: security.name,
+                            type: security.type,
+                            mic: security.exchange.mic
+                        };
+                    }),
+                    items: _.pluck(securities, 'iri'),
+                    load: function(query, callback) {
+                        var exchange = exchangeId && $(exchangeId).val();
+                        if (!query) callback();
+                        else Promise.all(query.split(/\s+/).map(function(symbol){
+                            return screener.lookup(symbol, exchange).then(function(securities){
+                                return securities.map(function(security){
+                                    return {
+                                        text: security.ticker,
+                                        value: security.iri,
+                                        title: security.name,
+                                        type: security.type,
+                                        mic: security.exchange.mic
+                                    };
                                 });
                             });
-                        }
-                    }, function(error){
-                        callback();
-                        calli.error(error);
-                    });
-                },
-                render: {
-                    option: function(data, escape) {
-                        return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +
-                            escape(data.title || '') + '"><b>' + escape(data.text) + "</b> | " +
-                            escape(data.title || '') + ' <small class="text-muted">(' + escape(data.type) + ')</small></div>';
+                        })).then(_.flatten).then(_.comact).then(callback, function(error){
+                            callback();
+                            calli.error(error);
+                        });
                     },
-                    item: function(data, escape) {
-                        return '<div class="" title="' + escape(data.title || '') + '">' + escape(data.text) + '</div>';
+                    render: {
+                        option: function(data, escape) {
+                            return '<div style="white-space:nowrap;text-overflow:ellipsis;" title="' +  escape(data.title || '') + '">' +
+                                (data.title ?
+                                    (
+                                        '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
+                                        ' <small class="text-muted">(' + escape(data.mic + ' ' + data.type) + ')</small>'
+                                    ) :
+                                   escape(data.text)
+                                ) +
+                            '</div>';
+                        },
+                        item: function(data, escape) {
+                            var target = $('#security-class-form').closest('form').length ? "_blank" : "_self";
+                            return '<div class="" title="' + escape(data.title || '') +
+                                '"><a href="' + escape(data.value) + '" target="' + target + '">' + escape(data.text) + '</a></div>';
+                        }
                     }
-                }
-            };
+                };
+            }).then(function(options){
+                $(id).selectize(options).change();
+            });
         };
-        $('#exclude-securities').change(populate_list).selectize(createTicker('#exchange', '#exclude-securities')).change();
-        $('#include-securities').change(populate_list).selectize(createTicker('#exchange', '#include-securities')).change();
-        $("#correlated").children().toArray().forEach(function(option){
-            $(option).text($(option).text().replace(/.*\//,''));
-        });
-        $('#correlated').selectize(createTicker('#correlated-exchange' ,'#correlated', true));
-        $('#correlated-exchange').val($("#correlated").val() ? $("#correlated").val().replace(/\/[^\/]+$/, '') : '').change(function(event){
-            if ($(event.target).val()) {
-                $('#correlated').removeAttr("disabled").change()[0].selectize.enable();
-            } else {
-                $('#correlated').val('').attr("disabled", "disabled").change()[0].selectize.disable();
-            }
-        }).selectize().change();
+        createTicker($('#exclude-securities').change(populate_list), '#exchange', true);
+        createTicker($('#include-securities').change(populate_list), null, true);
+        createTicker('#correlated');
         $('#show-security-table').click(function(event){
             $('#security-table').parent().collapse('toggle');
             populate_list();
@@ -280,6 +251,25 @@ jQuery(function($){
         } else {
             calli.submitUpdate(comparision, event);
         }
+    });
+    var initialLabel = $('#label').val();
+    $('#saveas-security-class').click(function(event){
+        event.preventDefault();
+        if (initialLabel == $('#label').val()) {
+            $('#label').closest('.form-group').addClass("has-error");
+            return;
+        }
+        var form = $(event.target).closest('form')[0];
+        var slug = calli.slugify($('#label').val());
+        var type = $('#SecurityClass').attr('href');
+        var container = $('#container-resource').attr('resource');
+        var resource = container.replace(/\/?$/, '/') + slug;
+        form.setAttribute("resource", resource);
+        return calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
+            window.location.replace(redirect);
+        }).catch(calli.error).then(function(){
+            $('#label').closest('.form-group').removeClass("has-error");
+        });
     });
 
     function populate_list(labels){

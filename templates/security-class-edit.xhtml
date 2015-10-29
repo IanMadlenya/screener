@@ -50,20 +50,12 @@
                             </script>
                         </div>
                         <div class="form-group">
-                            <label for="correlated-exchange" class="sr-only">Correlated Fund Exchange</label>
                             <label for="correlated-ticker">Correlated Fund</label>
-                            <div class="row">
-                                <div class="col-sm-8">
-                                    <xi:include href="../queries/exchange-list.rq?select&amp;name=correlated-exchange&amp;id=correlated-exchange"></xi:include>
-                                </div>
-                                <div class="col-sm-4">
-                                    <select id="correlated" class="form-control"
-                                            onchange="calli.updateResource(event, 'screener:correlated')">
-                                        <option rel="screener:correlated" resource="?correlated" selected="selected">{?correlated}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <p class="help-block">A security that highly correlated to this security class</p>
+                            <select id="correlated" class="form-control"
+                                    onchange="calli.updateResource(event, 'screener:correlated')">
+                                <option rel="screener:correlated" resource="?correlated" selected="selected">{?correlated}</option>
+                            </select>
+                            <p class="help-block">A security that is highly correlated to this security class</p>
                         </div>
                     </div>
                 </div>
@@ -162,8 +154,7 @@
                     <div class="col-sm-6 text-right">
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Save</button>
-                            <button id="saveas" type="button" class="btn btn-info"
-                                onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), $('#resource-type').attr('href'), $('#container-resource').attr('resource'))">Save as...</button>
+                            <button id="saveas-security-class" type="button" class="btn btn-info">Save as</button>
                             <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                             <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
                         </div>
