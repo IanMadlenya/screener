@@ -68,7 +68,7 @@ jQuery(function($){
             }).change(function(event){
                 screener.setItem("screen", ($(event.target).val() || []).join(' '));
             }).change(updateWatchList).change();
-        });
+        }).catch(calli.error);
     })(screener.debouncePromise(updateWatchList, 500));
 
     function updateWatchList() {
@@ -109,8 +109,9 @@ jQuery(function($){
                 var tr = rows[i];
                 return screener.getSecurity(datum.security).then(function(result){
                     return tr.append($('<td></td>', {
-                        "class": "text-ellipsis"
-                    }).text(result && result.name || ''));
+                        "class": "text-ellipsis",
+                        title: result ? result.name : ''
+                    }).text(result ? result.name : ''));
                 }).then(function(){
                     tr.append($('<td></td>', {
                         "class": "text-right",

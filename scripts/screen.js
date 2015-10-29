@@ -39,6 +39,7 @@ jQuery(function($){
             .then(initializeSecurityClassSelect)
             .then(initializeSinceInput)
             .then(initializeCriteriaSelect)
+            .then(initializeCriteriaOptions)
             .then(initializeResultsTable)
             .then(initializeWatchList)
             .then(initializeChartButton)
@@ -456,8 +457,7 @@ jQuery(function($){
             var option = selectize.options[value];
             var node = $('[rel="screener:hasCriteria"][resource="' + value + '"]');
             return node.length ? node[0] : inlineCriteria(option);
-        }).then(initializeCorrelatedState)
-          .then(initializeIndicatorElements)
+        }).then(initializeIndicatorElements)
           .then(initializeWatchIndicatorState)
           .then(function(node){
             return screener.inlineFilters([readCriteria(node)]).then(_.first).then(criteriaAsOption).then(function(option){
@@ -480,20 +480,6 @@ jQuery(function($){
                 });
             });
         }).catch(calli.error);
-    }
-
-    function initializeCorrelatedState(node) {
-        var checked = $(node).find('[property="screener:againstCorrelated"]').attr("content") == "true";
-        $(node).find('.againstCorrelated').prop("checked", checked).change(function(){
-            var againstCorrelated = $(node).find('[property="screener:againstCorrelated"]');
-            if (!againstCorrelated.length) {
-                againstCorrelated = $('<span></span>', {
-                    property: "screener:againstCorrelated"
-                }).insertBefore(this);
-            }
-            againstCorrelated.attr("content", this.checked);
-        }).change();
-        return node;
     }
 
     function initializeIndicatorElements(node) {
@@ -543,18 +529,39 @@ jQuery(function($){
 
     function initializeWatchIndicatorState(node) {
         var holdCriteria = !$(node).find('[rel="screener:forWatchIndicator"]').attr("resource");
-        $(node).find('.holdCriteria').prop("checked", holdCriteria).change(function(){
+        $(node).find('.holdCriteria').prop("checked", holdCriteria).change();
+        var holdReference = $(node).find('[rel="screener:differenceFrom"]').attr("resource") ||
+            $(node).find('[rel="screener:percentOf"]').attr("resource") || holdCriteria &&
+            !$(node).find('[rel="screener:differenceFromWatch"]').attr("resource") &&
+            !$(node).find('[rel="screener:percentOfWatch"]').attr("resource");
+        $(node).find('.holdReference').prop("checked", holdReference).change();
+        return node;
+    }
+
+    function initializeCriteriaOptions() {
+        $('[property="screener:againstCorrelated"]').toArray().forEach(function(prop){
+            var node = $(prop).closest('[resource]');
+            var checked = $(prop).attr("content") == "true";
+            $(node).find('.againstCorrelated').prop("checked", checked).change();
+        });
+        $('#criteria-container').on('change', '.againstCorrelated', function(event){
+            var node = $(event.target).closest('[resource]');
+            var againstCorrelated = $(node).find('[property="screener:againstCorrelated"]');
+            if (!againstCorrelated.length) {
+                againstCorrelated = $('<span></span>', {
+                    property: "screener:againstCorrelated"
+                }).insertBefore(this);
+            }
+            againstCorrelated.attr("content", this.checked);
+        }).on('change', '.holdCriteria', function(event){
+            var node = $(event.target).closest('[resource]');
             if (this.checked) {
                 toggleSelect(node, '.forWatchIndicator', '.forIndicator');
             } else {
                 toggleSelect(node, '.forIndicator', '.forWatchIndicator');
             }
-        }).change();
-        var holdReference = $(node).find('[rel="screener:differenceFrom"]').attr("resource") ||
-            $(node).find('[rel="screener:percentOf"]').attr("resource") || holdCriteria &&
-            !$(node).find('[rel="screener:differenceFromWatch"]').attr("resource") &&
-            !$(node).find('[rel="screener:percentOfWatch"]').attr("resource");
-        $(node).find('.holdReference').prop("checked", holdReference).change(function(){
+        }).on('change', '.holdReference', function(event){
+            var node = $(event.target).closest('[resource]');
             if (this.checked) {
                 toggleSelect(node, '.differenceFromWatch', '.differenceFrom');
                 toggleSelect(node, '.percentOfWatch', '.percentOf');
@@ -562,8 +569,7 @@ jQuery(function($){
                 toggleSelect(node, '.differenceFrom', '.differenceFromWatch');
                 toggleSelect(node, '.percentOf', '.percentOfWatch');
             }
-        }).change();
-        return node;
+        });
     }
 
     function toggleSelect(node, disable, enable) {
@@ -689,8 +695,9 @@ jQuery(function($){
                 var tr = rows[i];
                 return screener.getSecurity(datum.security).then(function(result){
                     return tr.append($('<td></td>', {
-                        "class": "text-ellipsis"
-                    }).text(result && result.name || ''));
+                        "class": "text-ellipsis",
+                        title: result ? result.name : ''
+                    }).text(result ? result.name : ''));
                 }).then(function(){
                     tr.append($('<td></td>', {
                         "class": "text-right",
@@ -882,53 +889,52 @@ jQuery(function($){
                 $(node).find('.charts').empty();
                 y = undefined;
             }
-        }).on('click change', _.debounce(function(event){
+        }).on('click change', screener.debouncePromise(function(event){
             var node = $(event.target).closest('[resource]');
             var btn = $(node).find('.chart-btn');
-            if (btn.find('.glyphicon').is('.glyphicon-collapse-down')) {
-                promiseSignals(cache).then(analyzeSignals.bind(this, node)).then(sortResults).then(combineResults).then(function(data){
-                    if (_.isEmpty(data)) return;
-                    var container = $(node).find('.charts')[0];
-                    var criteria = readCriteria(node);
-                    var lower = _.isFinite(criteria.lower) ? criteria.lower : _.first(data).value;
-                    var upper = _.isFinite(criteria.upper) ? criteria.upper : _.last(data).value;
-                    var width = $(container).width();
-                    var clientHeight = document.documentElement.clientHeight - 50; // iframe border
-                    var height = Math.max(200,Math.min(Math.max(clientHeight/3, clientHeight - $(container).offset().top),800));
-                    var innerWidth = width -70;
-                    var innerHeight = height -50;
-                    var x = d3.scale.linear().range([0, innerWidth]).domain([lower, upper]);
-                    if (!y || _.first(y.range()) != innerHeight) {
-                        y = d3.scale.linear().range([innerHeight, 0]).domain([_.first(data).excursion[0], _.first(data).excursion[3]]);
-                    }
-                    y.domain([
-                        Math.min(_.min(data, _.compose(_.first, _.property('excursion'))).excursion[0], _.first(y.domain())),
-                        Math.max(_.max(data, _.compose(_.last, _.property('excursion'))).excursion[3], _.last(y.domain()))
-                    ]);
-                    var svg = updateAll(d3.select(container), "svg", "chart").attr("width", width).attr("height", height);
-                    var g = updateAll(svg, "g", "grid").attr("transform", "translate(50,20)");
-                    chartData(g, data, x, y);
-                    var painIntercept = $(node).find('.painIntercept').val();
-                    var painSlope = $(node).find('.painSlope').val();
-                    var gainIntercept = $(node).find('.gainIntercept').val();
-                    var gainSlope = $(node).find('.gainSlope').val();
-                    var x1 = _.first(x.domain());
-                    var x2 = _.last(x.domain());
-                    if (_.isFinite(painIntercept) && _.isFinite(painSlope)) {
-                        updateAll(g, "line", "pain line")
-                            .attr("x1", x(x1)).attr("y1", y(x1 * painSlope + +painIntercept))
-                            .attr("x2", x(x2)).attr("y2", y(x2 * painSlope + +painIntercept));
-                    }
-                    if (_.isFinite(gainIntercept) && _.isFinite(gainSlope)) {
-                        updateAll(g, "line", "gain line")
-                            .attr("x1", x(x1)).attr("y1", y(x1 * gainSlope + +gainIntercept))
-                            .attr("x2", x(x2)).attr("y2", y(x2 * gainSlope + +gainIntercept));
-                    }
-                }).catch(calli.error).then(loading(btn));
-            }
-        }, 100)).on('click', '.regression-btn', function(event){
+            if (btn.find('.glyphicon').is('.glyphicon-expand')) return;
+            return promiseSignals(cache).then(analyzeSignals.bind(this, node)).then(sortResults).then(combineResults).then(function(data){
+                if (_.isEmpty(data)) return;
+                var container = $(node).find('.charts')[0];
+                var criteria = readCriteria(node);
+                var lower = _.isFinite(criteria.lower) ? criteria.lower : _.first(data).value;
+                var upper = _.isFinite(criteria.upper) ? criteria.upper : _.last(data).value;
+                var width = $(container).width();
+                var clientHeight = document.documentElement.clientHeight - 50; // iframe border
+                var height = Math.max(200,Math.min(Math.max(clientHeight/3, clientHeight - $(container).offset().top),800));
+                var innerWidth = width -70;
+                var innerHeight = height -50;
+                var x = d3.scale.linear().range([0, innerWidth]).domain([lower, upper]);
+                if (!y || _.first(y.range()) != innerHeight) {
+                    y = d3.scale.linear().range([innerHeight, 0]).domain([_.first(data).excursion[0], _.first(data).excursion[3]]);
+                }
+                y.domain([
+                    Math.min(_.min(data, _.compose(_.first, _.property('excursion'))).excursion[0], _.first(y.domain())),
+                    Math.max(_.max(data, _.compose(_.last, _.property('excursion'))).excursion[3], _.last(y.domain()))
+                ]);
+                var svg = updateAll(d3.select(container), "svg", "chart").attr("width", width).attr("height", height);
+                var g = updateAll(svg, "g", "grid").attr("transform", "translate(50,20)");
+                chartData(g, data, x, y);
+                var painIntercept = $(node).find('.painIntercept').val();
+                var painSlope = $(node).find('.painSlope').val();
+                var gainIntercept = $(node).find('.gainIntercept').val();
+                var gainSlope = $(node).find('.gainSlope').val();
+                var x1 = _.first(x.domain());
+                var x2 = _.last(x.domain());
+                if (_.isFinite(painIntercept) && _.isFinite(painSlope)) {
+                    updateAll(g, "line", "pain line")
+                        .attr("x1", x(x1)).attr("y1", y(x1 * painSlope + +painIntercept))
+                        .attr("x2", x(x2)).attr("y2", y(x2 * painSlope + +painIntercept));
+                }
+                if (_.isFinite(gainIntercept) && _.isFinite(gainSlope)) {
+                    updateAll(g, "line", "gain line")
+                        .attr("x1", x(x1)).attr("y1", y(x1 * gainSlope + +gainIntercept))
+                        .attr("x2", x(x2)).attr("y2", y(x2 * gainSlope + +gainIntercept));
+                }
+            }).catch(calli.error).then(loading(btn));
+        }, 100)).on('click', '.regression-btn', screener.debouncePromise(function(event){
             var node = $(event.target).closest('[resource]');
-            promiseSignals(cache).then(analyzeSignals.bind(this, node)).then(function(signals){
+            return promiseSignals(cache).then(analyzeSignals.bind(this, node)).then(function(signals){
                 var data = sortResults(signals);
                 if (_.isEmpty(data)) return;
                 var negative = regression(1, data);
@@ -940,7 +946,7 @@ jQuery(function($){
                 $(node).find('.gainIntercept').val(positive[0]).change();
                 $(node).find('.gainSlope').val(positive[1]).change();
             }).catch(calli.error).then(loading(event.target));
-        }).on('show.bs.modal', function(event){
+        }, 100)).on('show.bs.modal', function(event){
             var estimatedPeriod = $('[property="screener:estimatedPeriod"]');
             var period = estimatedPeriod.attr("content") || "P1D";
             var m = period.match(/PT?(\d+)([DH])/);
@@ -1144,18 +1150,15 @@ jQuery(function($){
         return screener.inlineFilters([readCriteria(node)]).then(_.first).then(function(criteria){
             var securities = signals.reduce(function(securities, datum){
                 var security = datum.security;
-                if (!securities[security]) securities[security] = screener.getSecurity(security);
+                var idx = _.sortedIndex(securities, security);
+                if (securities[idx] != security) {
+                    securities.splice(idx, 0, security);
+                }
                 return securities;
-            }, {});
-            return Promise.all(_.values(securities)).then(function(values){
-                return Promise.all(_.keys(securities).map(promisePerformance)).then(function(performance){
-                    return _.object(_.keys(securities), values.map(function(obj, i){
-                        return _.extend(obj, {
-                            points: performance[i]
-                        });
-                    }));
-                });
-            }).then(function(securities){
+            }, []);
+            return Promise.all(securities.map(promiseHistoric)).then(function(historic){
+                return _.object(securities, historic);
+            }).then(function(historic){
                 var periodLength = getPeriodLength();
                 return signals.map(function(hold, i, signals) {
                     var interval = _.min([
@@ -1163,7 +1166,7 @@ jQuery(function($){
                         criteria.indicatorWatch, criteria.differenceWatch, criteria.percentWatch
                     ], _.compose(_.property('millis'), _.property('interval')));
                     if (hold.signal != 'hold' && hold.signal != 'watch') return;
-                    var points = securities[hold.security].points;
+                    var points = historic[hold.security];
                     var start = Math.min(_.sortedIndex(points, hold, 'asof'), points.length-1);
                     var end = Math.min(start + periodLength +1, points.length);
                     var low = _.range(start, end).reduce(function(low, i){
@@ -1193,7 +1196,7 @@ jQuery(function($){
         });
     }
 
-    function promisePerformance(security) {
+    function promiseHistoric(security) {
         return promiseSince().then(function(since){
             var period = $('[property="screener:estimatedPeriod"]').attr("content") || "P1D";
             var interval = period.indexOf('D') >= 0 ? 'd1' : 'm60';
