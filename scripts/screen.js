@@ -819,16 +819,8 @@ jQuery(function($){
                 return num < 0;
             });
         }));
-        var drawup = list.reduce(function(drawup, item){
-            if (item.positive_excursion > drawup) {
-                return item.positive_excursion;
-            } else return drawup;
-        }, 0);
-        var drawdown = list.reduce(function(drawdown, item){
-            if (item.negative_excursion < drawdown) {
-                return item.negative_excursion;
-            } else return drawdown;
-        }, 0);
+        var runup = sum(_.pluck(list, 'positive_excursion')) / list.length;
+        var drawdown = sum(_.pluck(list, 'negative_excursion')) / list.length;
         var exposure = sum(_.pluck(list, 'exposure'));
         var duration = sum(_.pluck(list, 'duration')) / list.length;
         var growth = cagr(performance, duration);
@@ -840,7 +832,7 @@ jQuery(function($){
         $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
         $('#average_performance').text(avg.toFixed(2) + '%');
         $('#percent_positive').text((winners.length / occurances * 100 || 0).toFixed(0) + '%');
-        $('#positive_excursion').text(drawup.toFixed(2) + '%');
+        $('#positive_excursion').text(runup.toFixed(2) + '%');
         $('#negative_excursion').text(drawdown.toFixed(2) + '%');
         $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
         $('#performance').text(performance.toFixed(2) + '%');
