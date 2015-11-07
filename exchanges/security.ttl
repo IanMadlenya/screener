@@ -11,7 +11,7 @@
     foaf:primaryTopic :Security.
 
 :Security a owl:Class;
-    msg:matching <tsx/*>, <tsx-v/*>, <yhd/*>, <nyse/*>, <amex/*>, <ncm/*>, <ngm/*>, <ngs/*>, <arcx/*>;
+    msg:matching <tsx/*>, <tsx-v/*>, <yhd/*>, <nyse/*>, <amex/*>, <ncm/*>, <ngm/*>, <ngs/*>, <arcx/*>, <nasdaq/*>;
     rdfs:subClassOf </callimachus/1.4/types/Viewable>;
     rdfs:label "Security";
     calli:reader </auth/groups/everyone>;
