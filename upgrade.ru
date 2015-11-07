@@ -137,3 +137,13 @@ INSERT {
     FILTER NOT EXISTS { ?criteria screener:weight ?weight }
 };
 
+DELETE {
+    ?criteria screener:againstCorrelated ?bool
+} INSERT {
+    ?criteria screener:againstCorrelated ?boolean
+} WHERE {
+    ?criteria screener:againstCorrelated ?bool
+    FILTER (datatype(?bool) != xsd:boolean)
+    BIND (strdt(str(?bool), xsd:boolean) AS ?boolean)
+};
+

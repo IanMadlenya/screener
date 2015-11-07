@@ -549,7 +549,8 @@ jQuery(function($){
             var againstCorrelated = $(node).find('[property="screener:againstCorrelated"]');
             if (!againstCorrelated.length) {
                 againstCorrelated = $('<span></span>', {
-                    property: "screener:againstCorrelated"
+                    property: "screener:againstCorrelated",
+                    datatype: "xsd:boolean"
                 }).insertBefore(this);
             }
             againstCorrelated.attr("content", this.checked);
@@ -657,78 +658,87 @@ jQuery(function($){
                     return element.getAttribute("resource");
                 });
                 var now = screener.now();
-                var key = JSON.stringify([securities, filters.map(function(criteria){
+                return Promise.resolve(JSON.stringify([securities, filters.map(function(criteria){
                     return _.omit(criteria, 'label');
-                }), since]);
-                if (cache[key]) {
-                    cache[key].promise = cache[key].promise.catch(function(){
-                        return screener.screen(securities, filters, since, now);
-                    });
-                } else {
-                    cache[key] = {
-                        asof: new Date(),
-                        promise: screener.screen(securities, filters, since, now)
-                    };
-                }
-                return cache[key].promise;
+                }), since])).then(function(key){
+                    if (cache[key]) {
+                        cache[key].promise = cache[key].promise.catch(function(){
+                            return screener.screen(securities, filters, since, now);
+                        });
+                    } else {
+                        cache[key] = {
+                            asof: new Date(),
+                            promise: screener.screen(securities, filters, since, now)
+                        };
+                    }
+                    return cache[key].promise;
+                }).then(updatePerformance.bind(this, since, now));
             });
-        }).then(updatePerformance).then(function(list){
-            var target = $('#results-table').closest('form').length ? "_blank" : "_self";
-            var rows = list.map(function(datum){
-                // ticker
-                return $('<tr></tr>', {
-                    resource: datum.security,
-                    "class": datum.signal == 'stop' ? "text-muted" : ""
-                }).append($('<td></td>').append($('<a></a>', {
-                    href: datum.security,
-                    target: target
-                }).text(decodeURIComponent(datum.security.replace(/^.*\//,'')))));
-            });
-            $('#results-table tbody').empty().append(rows);
-            $('.table').removeClass("loading");
-            if (_.find(list, 'gain')) {
+        }).then(function(list){
+            if (_.some(_.pluck(list, 'watch'), 'gain')) {
                 $('#results-table').removeClass("no-estimate");
             } else {
                 $('#results-table').addClass("no-estimate");
             }
-            return Promise.all(list.map(function(datum, i){
+            return _.groupBy(list, 'security');
+        }).then(function(occurrences){
+            var target = $('#screen-form').length ? "_blank" : "_self";
+            var securities = _.keys(occurrences).sort();
+            var rows = securities.map(function(security){
+                // ticker
+                return $('<tr></tr>', {
+                    resource: security,
+                    "class": _.last(occurrences[security]).stop ? "text-muted" : ""
+                }).append($('<td></td>').append($('<a></a>', {
+                    href: security,
+                    target: target
+                }).text(decodeURIComponent(security.replace(/^.*\//,'')))));
+            });
+            $('#results-table tbody').empty().append(rows);
+            $('.table').removeClass("loading");
+            return Promise.all(securities.map(function(security, i){
                 var tr = rows[i];
-                return screener.getSecurity(datum.security).then(function(result){
+                var list = occurrences[security];
+                return screener.getSecurity(security).then(function(result){
                     return tr.append($('<td></td>', {
                         "class": "text-ellipsis",
                         title: result ? result.name : ''
                     }).text(result ? result.name : ''));
                 }).then(function(){
+                    var datum = _.last(list);
+                    var hold = (datum.stop || datum.hold || datum.watch);
                     tr.append($('<td></td>', {
                         "class": "text-right",
-                        "data-value": datum.price
-                    }).text('$' + datum.price.toFixed(2)));
-                    var positive = datum.signal == 'stop' ? "text-muted" : "text-success";
-                    var negative = datum.signal == 'stop' ? "text-muted" : "text-danger";
-                    var change = datum.price - datum.watch.price;
+                        "data-value": hold.price
+                    }).text('$' + hold.price.toFixed(2)));
+                    var positive = datum.stop ? "text-muted" : "text-success";
+                    var negative = datum.stop ? "text-muted" : "text-danger";
+                    var change = hold.price - datum.watch.price;
                     tr.append($('<td></td>', {
                         "class": "text-right " + (change < 0 ? negative : positive),
                         "data-value": change
                     }).text('$' + change.toFixed(2)));
-                    tr.append(percentCell(datum.gain).addClass("estimate " + positive));
-                    tr.append(percentCell(datum.pain).addClass("estimate " + negative));
-                    tr.append(decimalCell(datum.gain / Math.abs(datum.pain)).addClass("estimate"));
-                    tr.append(percentCell(datum.positive_excursion).addClass(positive));
-                    tr.append(percentCell(datum.negative_excursion).addClass(negative));
-                    var wins = datum.performance.reduce(function(gain, ret){
-                        return ret > 0 ? ret + gain : gain;
+                    tr.append(percentCell(hold.gain).addClass("estimate " + positive));
+                    tr.append(percentCell(hold.pain).addClass("estimate " + negative));
+                    tr.append(decimalCell(hold.gain / Math.abs(hold.pain)).addClass("estimate"));
+                    var positive_excursion = avg_annual_positive_excursion(list);
+                    var negative_excursion = avg_annual_negative_excursion(list);
+                    tr.append(percentCell(positive_excursion).addClass(positive));
+                    tr.append(percentCell(negative_excursion).addClass(negative));
+                    var wins = list.reduce(function(gain, datum){
+                        return datum.performance > 0 ? datum.performance + gain : gain;
                     }, 0);
-                    var losses = datum.performance.reduce(function(pain, ret){
-                        return ret < 0 ? ret + pain : pain;
+                    var losses = list.reduce(function(pain, datum){
+                        return datum.performance < 0 ? datum.performance + pain : pain;
                     }, 0);
                     var factor = wins && losses ? wins / Math.abs(losses) :
-                        datum.positive_excursion / Math.abs(datum.negative_excursion);
+                        positive_excursion / Math.abs(negative_excursion);
                     tr.append(decimalCell(factor));
-                    var performance = datum.performance.reduce(function(profit, ret){
-                        return profit + profit * ret / 100;
+                    var performance = list.reduce(function(profit, datum){
+                        return profit + profit * datum.performance / 100;
                     }, 1) * 100 - 100;
                     tr.append(percentCell(performance).attr("data-value", performance));
-                    var exposed = datum.exposure /100 * datum.duration;
+                    var exposed = sum(_.pluck(list, 'exposure')) /100;
                     tr.append($('<td></td>', {
                         "class": "text-right",
                         "data-value": exposed
@@ -793,40 +803,34 @@ jQuery(function($){
         });
     }
 
-    function updatePerformance(list) {
-        var occurances = sum(list.map(function(item){
-            return item.performance.length;
-        }));
-        var performance = sum(list.map(function(item){
-            return item.performance.reduce(function(profit, ret){
-                return profit + profit * ret / 100;
+    function updatePerformance(begin, end, list) {
+        var occurances = list.length;
+        var bysec = _.groupBy(list, 'security');
+        var performance = sum(_.map(bysec, function(list, security){
+            return list.reduce(function(profit, datum){
+                return profit + profit * datum.performance / 100;
             }, 1) * 100 - 100;
-        })) / list.length || 0;
-        var avg = performance * list.length / occurances || 0;
-        var sd = Math.sqrt(sum(_.flatten(list.map(function(item){
-            return item.performance.map(function(num){
-                var diff = num - avg;
-                return diff * diff;
-            });
+        })) / _.size(bysec) || 0;
+        var avg = sum(_.pluck(list, 'performance')) / occurances || 0;
+        var sd = Math.sqrt(sum(_.flatten(list.map(function(datum){
+            var diff = datum.performance - avg;
+            return diff * diff;
         }))) / Math.max(occurances-1,1));
-        var winners = _.flatten(list.map(function(item){
-            return item.performance.filter(function(num){
-                return num > 0;
-            });
-        }));
-        var loosers = _.flatten(list.map(function(item){
-            return item.performance.filter(function(num){
-                return num < 0;
-            });
-        }));
-        var runup = sum(_.pluck(list, 'positive_excursion')) / list.length;
-        var drawdown = sum(_.pluck(list, 'negative_excursion')) / list.length;
+        var winners = _.pluck(list, 'performance').filter(function(num){
+            return num > 0;
+        });
+        var loosers = _.pluck(list, 'performance').filter(function(num){
+            return num < 0;
+        });
+        var runup = sum(_.map(bysec, avg_annual_positive_excursion)) / _.size(bysec);
+        var drawdown = sum(_.map(bysec, avg_annual_negative_excursion)) / _.size(bysec);
         var exposure = sum(_.pluck(list, 'exposure'));
-        var duration = sum(_.pluck(list, 'duration')) / list.length;
+        var yearLength = 365 * 24 * 60 *60 * 1000;
+        var duration = (new Date(end).valueOf() - new Date(begin).valueOf()) / yearLength;
         var growth = cagr(performance, duration);
-        var exposed_growth = cagr(performance, exposure /100 * duration / list.length);
-        var avg_duration = exposure /100 * duration / occurances || 0;
-        $('#security_count').text(list.length);
+        var exposed_growth = cagr(performance, sum(_.pluck(list, 'exposure')) /100 / _.size(bysec));
+        var avg_duration = sum(_.pluck(list, 'exposure')) /100 / occurances || 0;
+        $('#security_count').text(_.size(bysec));
         $('#occurances').text(occurances);
         $('#average_duration').text(formatDuration(avg_duration));
         $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
@@ -841,6 +845,24 @@ jQuery(function($){
         return list;
     }
 
+    function avg_annual_positive_excursion(list) {
+        var positive_excursions = list.reduce(function(runup, datum){
+            var year = datum.watch.asof.substring(0, 4);
+            runup[year] = Math.max(datum.positive_excursion, runup[year] || 0);
+            return runup;
+        }, {});
+        return sum(positive_excursions)/_.size(positive_excursions);
+    }
+
+    function avg_annual_negative_excursion(list) {
+        var negative_excursions = list.reduce(function(drawdown, datum){
+            var year = datum.watch.asof.substring(0, 4);
+            drawdown[year] = Math.min(datum.negative_excursion, drawdown[year] || 0);
+            return drawdown;
+        }, {});
+        return sum(negative_excursions)/_.size(negative_excursions);
+    }
+
     function cagr(rate, years) {
         if (!years) return 0;
         if (rate < 0) return -1 * cagr(Math.abs(rate), years);
@@ -848,7 +870,7 @@ jQuery(function($){
     }
 
     function sum(numbers) {
-        return numbers.reduce(function(sum, num){
+        return _.reduce(numbers, function(sum, num){
             return sum + num;
         }, 0);
     }
@@ -885,7 +907,7 @@ jQuery(function($){
             var node = $(event.target).closest('[resource]');
             var btn = $(node).find('.chart-btn');
             if (btn.find('.glyphicon').is('.glyphicon-expand')) return;
-            return promiseSignals(cache).then(analyzeSignals.bind(this, node)).then(sortResults).then(combineResults).then(function(data){
+            return promiseSignals(cache, true).then(analyzeSignals.bind(this, node)).then(sortResults).then(combineResults).then(function(data){
                 if (_.isEmpty(data)) return;
                 var container = $(node).find('.charts')[0];
                 var criteria = readCriteria(node);
@@ -1107,7 +1129,7 @@ jQuery(function($){
         return [intercept, slope];
     }
 
-    function promiseSignals(cache) {
+    function promiseSignals(cache, fuzzy) {
         if (isScreenIncomplete()) return Promise.resolve();
         return promiseFilters().then(function(filters) {
             return promiseSince().then(function(since){
@@ -1118,17 +1140,22 @@ jQuery(function($){
                 var key = JSON.stringify([securities, filters.map(function(criteria){
                     return _.omit(criteria, 'label');
                 }), since]);
-                if (cache[key]) {
-                    cache[key].promise = cache[key].promise.catch(function(){
+                var most = JSON.stringify([securities, filters.map(function(criteria){
+                    return _.omit(criteria, 'label', 'weight', 'gainIntercept', 'gainSlope', 'painIntercept', 'painSlope');
+                }), since]);
+                if (cache.key == key || fuzzy && cache.most == most) {
+                    cache.promise = cache.promise.catch(function(){
                         return screener.signals(securities, filters, since, now);
                     });
                 } else {
-                    cache[key] = {
+                    _.extend(cache, {
                         asof: new Date(),
+                        key: key,
+                        most: most,
                         promise: screener.signals(securities, filters, since, now)
-                    };
+                    });
                 }
-                return cache[key].promise;
+                return cache.promise;
             });
         });
     }
@@ -1139,6 +1166,7 @@ jQuery(function($){
     }
 
     function analyzeSignals(node, signals) {
+        if (_.isEmpty(signals)) return Promise.resolve([]);
         return screener.inlineFilters([readCriteria(node)]).then(_.first).then(function(criteria){
             var securities = signals.reduce(function(securities, datum){
                 var security = datum.security;

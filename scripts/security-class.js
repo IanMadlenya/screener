@@ -311,7 +311,7 @@ jQuery(function($){
             var target = $('#security-table').closest('form').length ? "_blank" : "_self";
             var rows = securities.map(function(security){
                 // ticker
-                var ticker = security.substring(exchange.length + 1);
+                var ticker = security.replace(/^.*\//,'');
                 var th = $('<th></th>').append($('<a></a>', {
                     href: security,
                     target: target
@@ -358,7 +358,7 @@ jQuery(function($){
                 var tr = rows[i];
                 var d1 = hidden[2] || screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, upper);
                 // name
-                var ticker = security.substring(exchange.length + 1);
+                var ticker = security.replace(/^.*\//,'');
                 return screener.getSecurity(security).then(function(result){
                     var th = $('<td></td>').text(result && result.name || '');
                     return tr.append(th);
