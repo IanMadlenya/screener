@@ -1165,10 +1165,10 @@ jQuery(function($){
         return screener.promiseWorkday(-lookback);
     }
 
-    function analyzeSignals(node, signals) {
-        if (_.isEmpty(signals)) return Promise.resolve([]);
+    function analyzeSignals(node, occurrences) {
+        if (_.isEmpty(occurrences)) return Promise.resolve([]);
         return screener.inlineFilters([readCriteria(node)]).then(_.first).then(function(criteria){
-            var securities = signals.reduce(function(securities, datum){
+            var securities = occurrences.reduce(function(securities, datum){
                 var security = datum.security;
                 var idx = _.sortedIndex(securities, security);
                 if (securities[idx] != security) {
@@ -1180,39 +1180,34 @@ jQuery(function($){
                 return _.object(securities, historic);
             }).then(function(historic){
                 var periodLength = getPeriodLength();
-                return signals.map(function(hold, i, signals) {
-                    var interval = _.min([
-                        criteria.indicator, criteria.difference, criteria.percent,
-                        criteria.indicatorWatch, criteria.differenceWatch, criteria.percentWatch
-                    ], _.compose(_.property('millis'), _.property('interval')));
-                    if (hold.signal != 'hold' && hold.signal != 'watch') return;
-                    var points = historic[hold.security];
-                    var start = Math.min(_.sortedIndex(points, hold, 'asof'), points.length-1);
-                    var end = Math.min(start + periodLength +1, points.length);
-                    var low = _.range(start, end).reduce(function(low, i){
-                        return Math.min(points[i].low, low);
-                    }, hold.price);
-                    var high = _.range(start, end).reduce(function(high, i){
-                        return Math.max(points[i].high, high);
-                    }, hold.price);
-                    var pain = (low - hold.price) * 100 / hold.price;
-                    var gain = (high - hold.price) * 100 / hold.price;
-                    var performance = (points[end-1].close - hold.price) * 100 / hold.price;
-                    var watch = findRightFrom(signals, i, function(watch){
-                        return watch.signal == 'watch' && watch.security == hold.security;
+                return occurrences.map(function(occurrence) {
+                    var signals = [occurrence.watch].concat(occurrence.hold || []);
+                    return signals.map(function(hold) {
+                        var points = historic[occurrence.security];
+                        var start = Math.min(_.sortedIndex(points, hold, 'asof'), points.length-1);
+                        var end = Math.min(start + periodLength +1, points.length);
+                        var low = _.range(start, end).reduce(function(low, i){
+                            return Math.min(points[i].low, low);
+                        }, hold.price);
+                        var high = _.range(start, end).reduce(function(high, i){
+                            return Math.max(points[i].high, high);
+                        }, hold.price);
+                        var pain = (low - hold.price) * 100 / hold.price;
+                        var gain = (high - hold.price) * 100 / hold.price;
+                        var performance = (points[end-1].close - hold.price) * 100 / hold.price;
+                        var value = valueOfCriteria(criteria, occurrence.watch, hold);
+                        return {
+                            value: value,
+                            weight: 1,
+                            asof: hold.asof,
+                            gain: hold.gain,
+                            pain: hold.pain,
+                            performance: performance,
+                            excursion: [pain, pain, gain, gain]
+                        };
                     });
-                    var value = valueOfCriteria(criteria, watch, hold);
-                    return {
-                        value: value,
-                        weight: 1,
-                        asof: hold.asof,
-                        gain: hold.gain,
-                        pain: hold.pain,
-                        performance: performance,
-                        excursion: [pain, pain, gain, gain]
-                    };
                 });
-            });
+            }).then(_.flatten);
         });
     }
 
@@ -1285,20 +1280,6 @@ jQuery(function($){
             date.setDate(date.getDate() + 1);
         }
         return date.toISOString();
-    }
-
-    function findRightFrom(array, from, iteratee) {
-        for (var i=from; i >= 0; i--){
-            if (iteratee(array[i], i, array))
-                return array[i];
-        }
-    }
-
-    function findFrom(array, from, iteratee) {
-        for (var i=from; i < array.length; i++){
-            if (iteratee(array[i], i, array))
-                return array[i];
-        }
     }
 
     function valueOfCriteria(crt, watch, hold) {
