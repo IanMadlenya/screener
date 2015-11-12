@@ -411,20 +411,21 @@
                 });
             },
 
-            getSecurity: _.memoize(function(security){
-                var ticker = decodeURIComponent(security.replace(/^.*\//,''));
-                var exchange = security.replace(/\/[^\/]*$/,'');
-                return screener.lookup(ticker, exchange).then(function(securities){
-                    return _.find(securities, function(item){
-                        return item.iri == security;
+            getSecurity: _.memoize(function(iri){
+                return getExchange(iri.replace(/\/[^\/]*$/,'')).then(function(exchange){
+                    var ticker = decodeURIComponent(iri.substring(exchange.iri.length+1));
+                    return postDispatchMessage({
+                        cmd: 'security',
+                        security: {
+                            iri: iri,
+                            ticker: ticker,
+                            exchange: exchange
+                        }
+                    }).then(function(obj){
+                        if (obj) return _.extend(obj, {
+                            exchange: exchange
+                        }); else return obj;
                     });
-                }).then(function(obj){
-                    if (obj) return obj;
-                    else return {
-                        iri: security,
-                        ticker: ticker,
-                        exchange: exchange
-                    };
                 });
             }),
 
@@ -791,7 +792,7 @@
                     } else {
                         throw Error("Empty message: " + data);
                     }
-                    socket.send(JSON.stringify(data) + '\n\n');
+                    socket.send(JSON.stringify(deepOmit(data, 'label', 'comment')) + '\n\n');
                 }).then(function(resolved){
                     dispatch.outstanding[id].response = resolved;
                     delete dispatch.outstanding[id];
@@ -804,6 +805,26 @@
             });
         };
         return dispatch;
+    }
+
+    function deepOmit(obj, iteratee, context) {
+        var args = _.toArray(arguments);
+        var rest = _.rest(args);
+        if (_.isEmpty(obj) || _.isFunction(obj) || _.isRegExp(obj) || obj.toJSON) {
+            return obj;
+        } else if (_.isArray(obj)) {
+            return obj.map(function(item){
+                return deepOmit.apply(this, [item].concat(rest));
+            });
+        } else if (_.isObject(obj)) {
+            var copy = _.omit.apply(_, args);
+            for (var prop in copy) {
+                copy[prop] = deepOmit.apply(this, [copy[prop]].concat(rest));
+            }
+            return copy;
+        } else {
+            return obj;
+        }
     }
 
     function suffixScale(getScaleSuffix, number) {

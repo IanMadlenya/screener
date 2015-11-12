@@ -217,7 +217,6 @@ jQuery(function($){
                         text: security.ticker,
                         value: security.iri,
                         title: security.name,
-                        type: security.type,
                         mic: security.exchange.mic
                     };
                 }), classes.map(function(cls){
@@ -240,7 +239,6 @@ jQuery(function($){
                                 text: security.ticker,
                                 value: security.iri,
                                 title: security.name,
-                                type: security.type,
                                 mic: security.exchange.mic
                             };
                         });
@@ -255,7 +253,7 @@ jQuery(function($){
                             (data.title ?
                                 (
                                     '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
-                                    ' <small class="text-muted">(' + escape(data.mic + ' ' + data.type) + ')</small>'
+                                    ' <small class="text-muted">(' + escape(data.mic) + ')</small>'
                                 ) :
                                escape(data.text)
                             ) +
@@ -686,9 +684,12 @@ jQuery(function($){
             var securities = _.keys(occurrences).sort();
             var rows = securities.map(function(security){
                 // ticker
+                var last = _.last(occurrences[security]);
+                var stopped = last.stop ? "text-muted" : "";
+                var incomplete = last.watch.incomplete || last.stop && last.stop.incomplete ? "incomplete" : "";
                 return $('<tr></tr>', {
                     resource: security,
-                    "class": _.last(occurrences[security]).stop ? "text-muted" : ""
+                    "class": stopped + " " + incomplete
                 }).append($('<td></td>').append($('<a></a>', {
                     href: security,
                     target: target
@@ -709,6 +710,7 @@ jQuery(function($){
                     var hold = (datum.stop || datum.hold || datum.watch);
                     tr.append($('<td></td>', {
                         "class": "text-right",
+                        title: new Date(hold.asof).toLocaleString(),
                         "data-value": hold.price
                     }).text('$' + hold.price.toFixed(2)));
                     var positive = datum.stop ? "text-muted" : "text-success";
@@ -836,8 +838,8 @@ jQuery(function($){
         $('#standard_deviation').text('±' + sd.toFixed(2) + '%');
         $('#average_performance').text(avg.toFixed(2) + '%');
         $('#percent_positive').text((winners.length / occurances * 100 || 0).toFixed(0) + '%');
-        $('#positive_excursion').text(runup.toFixed(2) + '%');
-        $('#negative_excursion').text(drawdown.toFixed(2) + '%');
+        $('#positive_excursion').text(_.isFinite(runup) ? runup.toFixed(2) + '%' : '');
+        $('#negative_excursion').text(_.isFinite(drawdown) ? drawdown.toFixed(2) + '%' : '');
         $('#performance_factor').text(loosers.length ? (sum(winners) / -sum(loosers)).toFixed(1) : '');
         $('#performance').text(performance.toFixed(2) + '%');
         $('#annual_growth').text(Math.abs(growth) < 10 ? (growth * 100).toFixed(2) + '%' : '');

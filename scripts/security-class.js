@@ -170,7 +170,6 @@ jQuery(function($){
                             text: security.ticker,
                             value: security.iri,
                             title: security.name,
-                            type: security.type,
                             mic: security.exchange.mic
                         };
                     }),
@@ -185,7 +184,6 @@ jQuery(function($){
                                         text: security.ticker,
                                         value: security.iri,
                                         title: security.name,
-                                        type: security.type,
                                         mic: security.exchange.mic
                                     };
                                 });
@@ -201,7 +199,7 @@ jQuery(function($){
                                 (data.title ?
                                     (
                                         '<b>' + escape(data.text) + "</b> | " + escape(data.title) +
-                                        ' <small class="text-muted">(' + escape(data.mic + ' ' + data.type) + ')</small>'
+                                        ' <small class="text-muted">(' + escape(data.mic) + ')</small>'
                                     ) :
                                    escape(data.text)
                                 ) +

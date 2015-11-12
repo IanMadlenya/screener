@@ -16,6 +16,11 @@ input[type="number"] {
     opacity: 0.2;
 }
 
+tr.incomplete {
+    font-style: italic;
+    font-weight: bold;
+}
+
 tr.text-center>th {
     text-align: center;
 }

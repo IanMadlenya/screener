@@ -99,9 +99,12 @@ jQuery(function($){
             var securities = _.keys(occurrences).sort();
             var rows = securities.map(function(security){
                 // ticker
+                var last = _.last(occurrences[security]);
+                var stopped = last.stop ? "text-muted" : "";
+                var incomplete = last.watch.incomplete || last.stop && last.stop.incomplete ? "incomplete" : "";
                 return $('<tr></tr>', {
                     resource: security,
-                    "class": _.last(occurrences[security]).stop ? "text-muted" : ""
+                    "class": stopped + " " + incomplete
                 }).append($('<td></td>').append($('<a></a>', {
                     href: security,
                     target: target
