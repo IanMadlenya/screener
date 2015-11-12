@@ -147,3 +147,17 @@ DELETE {
     BIND (strdt(str(?bool), xsd:boolean) AS ?boolean)
 };
 
+INSERT {
+    ?profile a screener:Profile
+} WHERE {
+    </p/> calli:hasComponent ?profile
+    FILTER NOT EXISTS { ?profile a screener:Profile }
+};
+
+DELETE {
+    ?profile calli:hasComponent ?component
+} WHERE {
+    ?profile a screener:Profile; calli:hasComponent ?component
+    FILTER NOT EXISTS { ?component ?p ?o }
+};
+
