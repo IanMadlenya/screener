@@ -732,7 +732,7 @@
                     socket.addEventListener("close", function(event) {
                         dispatch.openPromise = null;
                         _.values(dispatch.outstanding).forEach(function(pending){
-                            pending.reject(event);
+                            if (pending.socket == socket) pending.reject(event);
                         });
                     });
                     socket.addEventListener("open", callback);
@@ -757,21 +757,16 @@
                                     }
                                 } else {
                                     console.error(data);
+                                    console.log(data.id, "not one of", _.keys(dispatch.outstanding))
                                     throw Error("Unknown WebSocket message");
                                 }
                             }).catch(function(error){
-                                console.log("Unknown WebSocket message", error);
-                                _.each(dispatch.outstanding, function(pending, id) {
-                                    pending.reject(error);
-                                });
+                                console.error(error);
                             });
                         }
                     });
                 }).then(function(){
                     console.log("Connected to", url);
-                    _.each(dispatch.outstanding, function(pending, id) {
-                        socket.send(JSON.stringify(pending.data) + '\n\n');
-                    });
                     return socket;
                 });
             });
@@ -783,7 +778,8 @@
                     dispatch.outstanding[id] = {
                         request: data,
                         resolve: resolve,
-                        reject: reject
+                        reject: reject,
+                        socket: socket
                     };
                     if (data && _.isObject(data)) {
                         data.id = id;
