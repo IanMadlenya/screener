@@ -360,9 +360,9 @@
                 });
             },
 
-            now: function() {
-                return new Date(screener.getItem("now", new Date()));
-            },
+            now: (function(loadedAt) {
+                return new Date(screener.getItem("now", loadedAt));
+            }).bind(this, new Date()),
 
             promiseWorkday: function(start_date, days) {
                 if (_.isFinite(start_date)) return screener.promiseWorkday(screener.now(), start_date);

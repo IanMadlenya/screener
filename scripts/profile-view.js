@@ -84,6 +84,10 @@ jQuery(function($){
                 return screener.screen(screen.securityClasses, screen.criteria, screen.lookback);
             }));
         }).then(_.flatten).then(function(list){
+            return _.sortBy(list, function(item){
+                return item.hold.asof;
+            });
+        }).then(function(list){
             if (_.some(_.pluck(list, 'watch'), 'gain')) {
                 $('#results-table').removeClass("no-estimate");
             } else {
@@ -125,6 +129,7 @@ jQuery(function($){
                     var hold = (datum.stop || datum.hold || datum.watch);
                     tr.append($('<td></td>', {
                         "class": "text-right",
+                        title: new Date(hold.lastTrade || hold.asof).toLocaleString(),
                         "data-value": hold.price
                     }).text('$' + hold.price.toFixed(2)));
                     var positive = datum.stop ? "text-muted" : "text-success";
@@ -206,7 +211,9 @@ jQuery(function($){
     }
 
     function formatDuration(years) {
-        if (years *52 > 1.5) {
+        if (!years) {
+            return '';
+        } else if (years *52 > 1.5) {
             return(years *52).toFixed(0) + 'w';
         } else if (years *260 > 1.5) {
             return(years *260).toFixed(0) + 'd';
