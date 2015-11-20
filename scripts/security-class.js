@@ -337,10 +337,11 @@ jQuery(function($){
             });
             $('#security-table tbody').empty().append(rows);
             $('#security-table').removeClass("loading");
+            var monthHeaders = $('#security-table thead th.month').toArray();
             var upper = new Date();
             var lower = new Date();
             lower.setFullYear(lower.getFullYear() - 1);
-            var months = _.range(12, -1, -1).map(function(m){
+            var months = _.range(12, 12-monthHeaders.length, -1).map(function(m){
                 return new Date(upper.getFullYear(), upper.getMonth() - m, 1);
             });
             var classes = $('#security-table thead th').toArray().map(function(th){
@@ -349,12 +350,12 @@ jQuery(function($){
             var hidden = $('#security-table thead th').toArray().map(function(th){
                 return $(th).is(":hidden");
             });
-            $('#security-table thead th.month').toArray().forEach(function(th, i){
+            monthHeaders.forEach(function(th, i){
                 return $(th).text(labels[months[i].getMonth()] + " " + months[i].getFullYear());
             });
             return Promise.all(securities.map(function(security, i){
                 var tr = rows[i];
-                var d1 = hidden[2] || screener.load(security, ['asof', 'open','high','low','close'], 'd1', 2, upper);
+                var day = hidden[2] || screener.load(security, ['asof', 'open','high','low','close'], 'day', 2, upper);
                 // name
                 var ticker = security.replace(/^.*\//,'');
                 return screener.getSecurity(security).then(function(result){
@@ -362,7 +363,7 @@ jQuery(function($){
                     return tr.append(th);
                 }).then(function(){
                     // close change volume
-                    if (d1) return d1;
+                    if (day) return day;
                     else return [];
                 }).then(function(data){
                     if (!data.length) return tr;
@@ -383,7 +384,7 @@ jQuery(function($){
                 }).then(function(){
                     // high low
                     if (hidden[5]) return [];
-                    return screener.load(security, ['asof', 'open','high','low','close'], 'd5', 5, lower, upper);
+                    return screener.load(security, ['asof', 'open','high','low','close'], 'month', 1, lower, upper);
                 }).then(function(data){
                     if (!data.length) return data;
                     var high = _.max(_.pluck(data, 'high'));
@@ -402,6 +403,7 @@ jQuery(function($){
                     var returns = months.map(function(month){
                         var range = _.filter(data, function(datum){
                             var asof = new Date(datum.asof);
+                            asof.setDate(asof.getDate() - 1);
                             return month.getMonth() == asof.getMonth() && month.getFullYear() == asof.getFullYear();
                         });
                         if (!range.length) return 0;
@@ -425,8 +427,7 @@ jQuery(function($){
                 }).then(function(data){
                     if (!data.length) return data;
                     var close = data[data.length-1].close;
-                    var y = _.sortedIndex(data, {asof: lower.toISOString()}, 'asof');
-                    var total = y < data.length ? 100 * (close - data[y].open) / data[y].open : 0;
+                    var total = 100 * (close - data[0].open) / data[0].open;
                     return tr.append($('<td></td>', {
                         "class": (total < 0 ? "text-danger " : '') + classes[tr.children().length],
                         "data-value": total

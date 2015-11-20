@@ -1218,8 +1218,8 @@ jQuery(function($){
     function promiseHistoric(security) {
         return promiseSince().then(function(since){
             var period = $('[property="screener:estimatedPeriod"]').attr("content") || "P1D";
-            var interval = period.indexOf('D') >= 0 ? 'd1' : 'm60';
-            var fields = ['asof', 'low', 'high'].concat(interval == 'd1' ? [] : 'HOUR(asof)');
+            var interval = period.indexOf('D') >= 0 ? 'day' : 'm60';
+            var fields = ['asof', 'low', 'high'].concat(interval == 'day' ? [] : 'HOUR(asof)');
             return screener.load(security, fields, interval, 1, since, screener.now());
         });
     }

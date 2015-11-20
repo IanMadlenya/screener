@@ -429,7 +429,7 @@ jQuery(function($){
         var asof = function(datum) {
             return new Date(datum.asof);
         };
-        var interval = screener.getItem("security-chart-interval", 'd1');
+        var interval = screener.getItem("security-chart-interval", 'day');
         var width = document.documentElement.clientWidth;
         var height = Math.max(200,Math.min(document.documentElement.clientHeight,800));
         var chart = block.chart;
@@ -479,7 +479,7 @@ jQuery(function($){
             chart.x(chart.x().domain([new Date(data[0].asof), new Date()]).range([0,chart.innerWidth()]));
             return loadChartData(chart, security, within, block.unit, intervals, interval, data[0].asof, data[data.length-1].asof);
         }).then(function(){
-            return screener.load(security, ['close'], 'd1', 1, loaded);
+            return screener.load(security, ['close'], 'day', 1, loaded);
         }).then(function(data){
             chart.rule(data[0].close);
         }).then(function(){

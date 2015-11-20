@@ -10,5 +10,5 @@
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
     calli:editor </auth/groups/power> , </auth/groups/staff> ;
     calli:reader </auth/groups/public> , </auth/groups/system> ;
-    screener:hasInterval <../../intervals/d1> ;
+    screener:hasInterval <../../intervals/day> ;
     screener:hasUnit <../../units/price> .

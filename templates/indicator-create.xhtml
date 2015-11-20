@@ -1,4 +1,5 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -30,13 +31,13 @@
                 <div id="isDerivedFrom" dropzone="link string:text/uri-list" class="form-group"
                         ondrop="return calli.insertResource(event)">
                     <label>Derived from <a href="?view" title="Browse Indicators"
-                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open"></a></label>
                     <div rel="screener:isDerivedFrom">
                         <div resource="?isDerivedFrom" typeof="screener:Indicator" class="label label-info">
-                            <span property="rdfs:label" />
-                            <span rel="screener:hasUnit" resource="?derivedFromUnit" />
-                            <span property="screener:expression" content="?derivedFromExpression" />
-                            <a href="{?isDerivedFrom}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            <span property="rdfs:label"></span>
+                            <span rel="screener:hasUnit" resource="?derivedFromUnit"></span>
+                            <span property="screener:expression" content="?derivedFromExpression"></span>
+                            <a href="{?isDerivedFrom}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove"></a>
                         </div>
                     </div>
                 </div>
@@ -48,17 +49,18 @@
                 </div>
                 <div class="form-group">
                     <label for="interval">Interval</label>
-                    <select id="interval" rel="screener:hasInterval" class="form-control">
-                        <option selected="selected" data-about="../intervals/d1"></option>
-                        <option selected="selected" about="?interval" rev="calli:hasComponent" resource="../intervals/" property="skos:prefLabel" />
-                    </select>
+                    <xi:include href="../queries/interval-list.rq?select&amp;rel=screener:hasInterval&amp;id=interval"></xi:include>
+                    <div rel="screener:hasInterval" resource="?interval"></div>
+                    <script type="text/javascript">
+                        $('div[rel="screener:hasInterval"]').filter(calli.selectEachResourceIn('#interval')).remove();
+                    </script>
                 </div>
                 <div class="form-group">
                     <label for="unit">Unit</label>
                     <div id="unit">
                         <label rel="screener:hasUnit" resource="?unit" class="radio-inline">
                             <input type="radio" name="unit" checked="checked" />
-                            <span rev="calli:hasComponent" resource="../units/" property="skos:prefLabel" />
+                            <span rev="calli:hasComponent" resource="../units/" property="skos:prefLabel"></span>
                         </label>
                     </div>
                 </div>

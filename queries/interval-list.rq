@@ -17,7 +17,8 @@ SELECT ?iri ?label ?value ?millis {
     BIND(
         IF("annual" = ?value, 365 * 24 * 60 * 60 * 1000,
         IF("quarter" = ?value, 3 * 31 * 24 * 60 * 60 * 1000,
-        IF("d5" = ?value, 7 * 24 * 60 * 60 * 1000,
-        IF("d1" = ?value, 24 * 60 * 60 * 1000,
-        strdt(substr(?value, 2), xsd:integer) * 60 * 1000)))) AS ?millis)
+        IF("month" = ?value, 31 * 24 * 60 * 60 * 1000,
+        IF("week" = ?value, 7 * 24 * 60 * 60 * 1000,
+        IF("day" = ?value, 24 * 60 * 60 * 1000,
+        strdt(substr(?value, 2), xsd:integer) * 60 * 1000))))) AS ?millis)
 } ORDER BY DESC(?millis) ?label ?iri
