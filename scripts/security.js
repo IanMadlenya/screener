@@ -497,13 +497,15 @@ jQuery(function($){
             chart.datum(data);
             // zoom out < 1, zoom in > 1
             var ppp = chart.innerWidth()/data.length;
-            if (interval.charAt(0) == 'm') {
-                var m = parseInt(interval.substring(1), 10);
+            if (interval.match(/m\d+/)) {
+                var m = intervals[interval].millis / 1000 / 60;
                 chart.scaleExtent([0.5, Math.max(m/1 /ppp*5,0.5)]);
+            } else if (interval == 'month') {
+                var out = ppp/5 - 1;
+                chart.scaleExtent([Math.min(out>0?1/out/5:1,1), Math.max(5*6.5*60 /ppp*5,1)]);
             } else {
-                var d = parseInt(interval.substring(1), 10);
-                var out = ppp/d - 1;
-                chart.scaleExtent([Math.min(out>0?1/out/5:1,1), Math.max(d*6.5*60 /ppp*5,1)]);
+                var out = ppp - 1;
+                chart.scaleExtent([Math.min(out>0?1/out/5:1,1), Math.max(6.5*60 /ppp*5,1)]);
             }
         }).then(function(){
             var orphaned = _.keys(chart.series());
@@ -627,9 +629,9 @@ jQuery(function($){
         var width = x(data[j], j) - x(data[i], i);
         var sorted = _.pluck(_.sortBy(_.values(intervals), 'millis'), 'value');
         var intervalMinutes = sorted.map(function(interval){
-            if (interval.charAt(0) == 'm')
+            if (interval.match(/m\d+/))
                 return intervals[interval].millis / 1000 / 60;
-            else return parseInt(interval.charAt(1)) * 900;
+            else return intervals[interval].millis / 96000;
         });
         if (!size) return interval;
         var index = sorted.indexOf(interval);

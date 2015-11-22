@@ -326,9 +326,11 @@
                 offset = chart.innerWidth() - end * scale;
                 zoom.translate([offset, zoom.translate()[1]]);
             }
-            chart.x().range(x_orig.range().map(function(x){
-                return x * scale + offset;
-            }));
+            if (scale && (offset || offset === 0)) {
+                chart.x().range(x_orig.range().map(function(x){
+                    return x * scale + offset;
+                }));
+            }
             return chart;
         }
 
