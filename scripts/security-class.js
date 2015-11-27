@@ -30,6 +30,44 @@
  */
 
 jQuery(function($){
+
+    var comparision = $('#security-class-form').attr("resource") && calli.copyResourceData('#security-class-form');
+    $('#security-class-form').submit(function(event){
+        event.preventDefault();
+        var creating = event.target.getAttribute("enctype") == "text/turtle";
+        var slug = calli.slugify($('#label').val());
+        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
+        var resource = creating ? ns + slug : $(event.target).attr('resource');
+        if (creating) {
+            event.target.setAttribute("resource", resource);
+            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
+                screener.setItem("security-class", screener.getItem("security-class",'').split(' ').concat(redirect).join(' '));
+                window.location.replace(redirect);
+            }).catch(calli.error);
+        } else {
+            calli.submitUpdate(comparision, event);
+        }
+    });
+    var initialLabel = $('#label').val();
+    $('#saveas-security-class').click(function(event){
+        event.preventDefault();
+        if (initialLabel == $('#label').val()) {
+            $('#label').closest('.form-group').addClass("has-error");
+            return;
+        }
+        var form = $(event.target).closest('form')[0];
+        var slug = calli.slugify($('#label').val());
+        var type = $('#SecurityClass').attr('href');
+        var container = $('#container-resource').attr('resource');
+        var resource = container.replace(/\/?$/, '/') + slug;
+        form.setAttribute("resource", resource);
+        return calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
+            window.location.replace(redirect);
+        }).catch(calli.error).then(function(){
+            $('#label').closest('.form-group').removeClass("has-error");
+        });
+    });
+
     (function(populate_list){
         if (window.location.hash.length > 1) {
             $('#label').val(decodeURIComponent(window.location.hash.substring(1)));
@@ -232,43 +270,6 @@ jQuery(function($){
     })(screener.debouncePromise(populate_list.bind(this, $('#security-table thead th.month').toArray().map(function(th){
         return $(th).text();
     })), 500));
-
-    var comparision = $('#security-class-form').attr("resource") && calli.copyResourceData('#security-class-form');
-    $('#security-class-form').submit(function(event){
-        event.preventDefault();
-        var creating = event.target.getAttribute("enctype") == "text/turtle";
-        var slug = calli.slugify($('#label').val());
-        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
-        var resource = creating ? ns + slug : $(event.target).attr('resource');
-        if (creating) {
-            event.target.setAttribute("resource", resource);
-            calli.postTurtle(calli.getFormAction(event.target), calli.copyResourceData(event.target)).then(function(redirect){
-                screener.setItem("security-class", screener.getItem("security-class",'').split(' ').concat(redirect).join(' '));
-                window.location.replace(redirect);
-            }).catch(calli.error);
-        } else {
-            calli.submitUpdate(comparision, event);
-        }
-    });
-    var initialLabel = $('#label').val();
-    $('#saveas-security-class').click(function(event){
-        event.preventDefault();
-        if (initialLabel == $('#label').val()) {
-            $('#label').closest('.form-group').addClass("has-error");
-            return;
-        }
-        var form = $(event.target).closest('form')[0];
-        var slug = calli.slugify($('#label').val());
-        var type = $('#SecurityClass').attr('href');
-        var container = $('#container-resource').attr('resource');
-        var resource = container.replace(/\/?$/, '/') + slug;
-        form.setAttribute("resource", resource);
-        return calli.postTurtle(container + "?create=" + encodeURIComponent(type), calli.copyResourceData(form)).then(function(redirect){
-            window.location.replace(redirect);
-        }).catch(calli.error).then(function(){
-            $('#label').closest('.form-group').removeClass("has-error");
-        });
-    });
 
     function populate_list(labels){
         if ($('#security-table').is(":hover")) return;

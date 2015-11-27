@@ -85,7 +85,7 @@ jQuery(function($){
             }));
         }).then(_.flatten).then(function(list){
             return _.sortBy(list, function(item){
-                return item.hold.asof;
+                return (item.hold || item.watch).asof;
             });
         }).then(function(list){
             if (_.some(_.pluck(list, 'watch'), 'gain')) {

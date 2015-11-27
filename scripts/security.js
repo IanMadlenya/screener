@@ -430,6 +430,9 @@ jQuery(function($){
             return new Date(datum.asof);
         };
         var interval = screener.getItem("security-chart-interval", 'day');
+        if (!intervals[interval]) {
+            interval = 'day';
+        }
         var width = document.documentElement.clientWidth;
         var height = Math.max(200,Math.min(document.documentElement.clientHeight,800));
         var chart = block.chart;
@@ -447,8 +450,10 @@ jQuery(function($){
             var end = chart.x().invert(chart.innerWidth());
             var data = chart.datum();
             var int = optimalInterval(intervals, interval, chart);
-            screener.setItem("security-chart-interval", interval);
-            screener.setItem("security-chart-length", data.length);
+            if (data.length) {
+                screener.setItem("security-chart-interval", interval);
+                screener.setItem("security-chart-length", data.length);
+            }
             if (force || !data.length || int != interval ||
                     begin.valueOf() < chart.xPlot()(data[0]).valueOf() ||
                     loaded.valueOf() + intervals[int].millis < end.valueOf()) {
