@@ -988,11 +988,11 @@ jQuery(function($){
         var value = +(event.target.value || 1);
         var unit = $(event.target).closest('.form-group').find('.input-group-addon').text();
         if (unit.indexOf('D') >= 0 && value < 0) {
-            event.target.value = 24;
+            event.target.value = 24 + value;
             $(event.target).closest('.form-group').find('.input-group-addon').text('H');
             $(event.target).change();
         } else if (unit.indexOf('H') >= 0 && value > 24) {
-            event.target.value = 1;
+            event.target.value = value - 24;
             $(event.target).closest('.form-group').find('.input-group-addon').text('D');
             $(event.target).change();
         } else if (value < 0) {

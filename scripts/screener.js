@@ -433,10 +433,9 @@
                 if (length < 0 || length != Math.round(length)) throw Error("length must be a non-negative integer, not " + length);
                 if (!interval) throw Error("interval is required, not " + interval);
                 var int = interval.indexOf('/') ? interval.substring(interval.lastIndexOf('/') + 1) : interval;
-                return getExchangeOfSecurity(security).then(function(exchange){
+                return (_.isObject(security) ? Promise.resolve(security) : screener.getSecurity(security)).then(function(security){
                     return postDispatchMessage({
                         cmd: 'load',
-                        exchange: exchange,
                         security: security,
                         expressions: expressions,
                         interval: {value: int},
@@ -464,21 +463,25 @@
                     return screener.promiseWorkday(endDate, -begin);
                 }).then(function(beginDate){
                     return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                        return screener.inlineFilters(criteria).then(function(criteria){
-                            return {
-                                cmd: 'screen',
-                                begin: beginDate,
-                                end: endDate,
-                                load: load,
-                                securityClasses: securityClasses,
-                                criteria: criteria
-                            };
+                        return Promise.all(securityClasses.map(function(securityClass){
+                            return screener.inlineFilters(criteria).then(function(criteria){
+                                return {
+                                    cmd: 'screen',
+                                    begin: beginDate,
+                                    end: endDate,
+                                    load: load,
+                                    securityClass: securityClass,
+                                    criteria: criteria
+                                };
+                            }).then(postDispatchMessage).catch(function(data){
+                                if (load !== false && data.status == 'warning')
+                                    return data.result;
+                                else return Promise.reject(data);
+                            });
+                        })).then(function(results){
+                            return _.flatten(results);
                         });
                     });
-                }).then(postDispatchMessage).catch(function(data){
-                    if (load !== false && data.status == 'warning')
-                        return data.result;
-                    else return Promise.reject(data);
                 });
             },
 
@@ -499,21 +502,25 @@
                     return screener.promiseWorkday(endDate, -begin);
                 }).then(function(beginDate){
                     return inlineSecurityClasses(securityClasses).then(function(securityClasses) {
-                        return screener.inlineFilters(criteria).then(function(criteria){
-                            return {
-                                cmd: 'signals',
-                                begin: beginDate,
-                                end: endDate,
-                                load: load,
-                                securityClasses: securityClasses,
-                                criteria: criteria
-                            };
+                        return Promise.all(securityClasses.map(function(securityClass){
+                            return screener.inlineFilters(criteria).then(function(criteria){
+                                return {
+                                    cmd: 'signals',
+                                    begin: beginDate,
+                                    end: endDate,
+                                    load: load,
+                                    securityClass: securityClass,
+                                    criteria: criteria
+                                };
+                            }).then(postDispatchMessage).catch(function(data){
+                                if (load !== false && data.status == 'warning')
+                                    return data.result;
+                                else return Promise.reject(data);
+                            });
+                        })).then(function(results){
+                            return _.flatten(results);
                         });
                     });
-                }).then(postDispatchMessage).catch(function(data){
-                    if (load !== false && data.status == 'warning')
-                        return data.result;
-                    else return Promise.reject(data);
                 });
             }
         });
@@ -575,6 +582,7 @@
     }
 
     function inlineSecurityClasses(securityClasses) {
+        if (!_.isArray(securityClasses)) return inlineSecurityClasses([securityClasses]);
         return screener.listSecurityClasses().then(function(list){
             return Promise.all(securityClasses.map(function(securityClass) {
                 if (_.isObject(securityClass)) return securityClass;
@@ -609,7 +617,9 @@
                 countries: split(sc.countries || sc.includeCountries, '\t'),
                 includes: split(sc.includes).map(prefix),
                 excludes: split(sc.excludes).map(prefix)
-            }), _.isEmpty);
+            }), function(value){
+                return _.isUndefined(value) || _.isNull(value) || _.isEmpty(value) && (_.isArray(value) || _.isString(value));
+            });
         }).then(function(sc){
             if (_.isEmpty(sc.includes)) return sc;
             return Promise.all(sc.includes.map(function(security){
@@ -771,7 +781,7 @@
                 });
             });
         };
-        dispatch.promiseMessage = function(data) {
+        dispatch.promiseMessage = throttlePromise(function(data) {
             return dispatch.open().then(function(socket){
                 var id = ++dispatch.counter;
                 return new Promise(function(resolve, reject){
@@ -799,8 +809,38 @@
                     return Promise.reject(rejected);
                 });
             });
-        };
+        }, 64);
         return dispatch;
+    }
+
+    function throttlePromise(fn, limit) {
+        var max = limit || 1;
+        var currently = 0;
+        var queue = [];
+        var next = function(){
+            if (currently < max && queue.length) {
+                currently++;
+                queue.shift().call();
+            }
+        };
+        return function(/* arguments */) {
+            var context = this;
+            var args = arguments;
+            return new Promise(function(callback){
+                queue.push(callback);
+                next();
+            }).then(function(){
+                return fn.apply(context, args);
+            }).then(function(result){
+                currently--;
+                next();
+                return result;
+            }, function(error){
+                currently--;
+                next();
+                return Promise.reject(error);
+            });
+        };
     }
 
     function deepOmit(obj, iteratee, context) {
