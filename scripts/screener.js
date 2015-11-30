@@ -451,12 +451,8 @@
              * criteria: [{indicator:{expression:$expression, interval: $interval}}]
              * begin: new Date() || days
              * end: new Date()
-             * load:
-             * * When false, don't load anything and reject on any error, but include result (if available) as warning
-             * * When undefined, load if needed and treat warning as success
-             * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            screen: function(securityClasses, criteria, begin, end, load) {
+            screen: function(securityClasses, criteria, begin, end) {
                 var endDate = end || screener.now();
                 return Promise.resolve(begin).then(function(begin){
                     if (_.isDate(begin)) return begin;
@@ -469,15 +465,10 @@
                                     cmd: 'screen',
                                     begin: beginDate,
                                     end: endDate,
-                                    load: load,
                                     securityClass: securityClass,
                                     criteria: criteria
                                 };
-                            }).then(postDispatchMessage).catch(function(data){
-                                if (load !== false && data.status == 'warning')
-                                    return data.result;
-                                else return Promise.reject(data);
-                            });
+                            }).then(postDispatchMessage);
                         })).then(function(results){
                             return _.flatten(results);
                         });
@@ -490,12 +481,8 @@
              * criteria: [{indicator:{expression:$expression, interval: $interval}}]
              * begin: new Date() || days
              * end: new Date()
-             * load:
-             * * When false, don't load anything and reject on any error, but include result (if available) as warning
-             * * When undefined, load if needed and treat warning as success
-             * * When true, if load attempted and all loading attempts failed then error, if any (or none) loaded, treat warning as success
             */
-            signals: function(securityClasses, criteria, begin, end, load) {
+            signals: function(securityClasses, criteria, begin, end) {
                 var endDate = end || screener.now();
                 return Promise.resolve(begin).then(function(begin){
                     if (_.isDate(begin)) return begin;
@@ -508,15 +495,10 @@
                                     cmd: 'signals',
                                     begin: beginDate,
                                     end: endDate,
-                                    load: load,
                                     securityClass: securityClass,
                                     criteria: criteria
                                 };
-                            }).then(postDispatchMessage).catch(function(data){
-                                if (load !== false && data.status == 'warning')
-                                    return data.result;
-                                else return Promise.reject(data);
-                            });
+                            }).then(postDispatchMessage);
                         })).then(function(results){
                             return _.flatten(results);
                         });
@@ -757,6 +739,13 @@
                                 var pending = dispatch.outstanding[id];
                                 if (id && pending) {
                                     if (!data || data.status == 'success' || data.status === undefined) {
+                                        if (data && data.result) {
+                                            pending.resolve(data.result);
+                                        } else {
+                                            pending.resolve(data);
+                                        }
+                                    } else if (data.status == 'warning') {
+                                        console.warn(data.message);
                                         if (data && data.result) {
                                             pending.resolve(data.result);
                                         } else {
