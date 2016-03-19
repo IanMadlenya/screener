@@ -4,7 +4,7 @@
 @prefix screener: <https://probabilitytrading.net/screener/2014/schema.ttl#> .
 
 <> a <../../classes/Indicator> , screener:Indicator ;
-    rdfs:comment "The low of the current day, updated every 30 minutes" ;
+    rdfs:comment "The low of the current day (including pre-market trading), updated every 30 minutes" ;
     rdfs:label "Today's Low every Semihour" ;
     screener:expression "SINCE(1,MIN(100,low))" ;
     calli:administrator </auth/groups/admin> , </auth/groups/super> ;
