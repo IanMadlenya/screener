@@ -429,6 +429,38 @@
                 });
             }),
 
+            watch: function(security, notify) {
+                var ohlc = {}, last = {}, handle;
+                return (_.isObject(security) ? Promise.resolve(security) : screener.getSecurity(security)).then(function(security){
+                    return postDispatchMessage({
+                        cmd: 'watch',
+                        security: security
+                    }, function(update){
+                        var price = +update.price;
+                        ohlc = _.defaults({
+                            open: ohlc.open || price,
+                            high: Math.max(ohlc.high || price, price),
+                            low: Math.min(ohlc.low || price, price),
+                            close: price
+                        }, update);
+                        if (!handle && last.close != ohlc.close) handle = window.requestIdleCallback(function(){
+                            notify(ohlc);
+                            last = ohlc;
+                            ohlc = {};
+                            handle = null;
+                        });
+                    });
+                }).then(function(result){
+                    var price = +result.price;
+                    return last = _.defaults({
+                        open: price,
+                        high: price,
+                        low: price,
+                        close: price
+                    }, result);
+                });
+            },
+
             load: function(security, expressions, interval, length, lower, upper) {
                 if (length < 0 || length != Math.round(length)) throw Error("length must be a non-negative integer, not " + length);
                 if (!interval) throw Error("interval is required, not " + interval);
@@ -741,6 +773,8 @@
                                     if (!data || data.status == 'success' || data.status === undefined) {
                                         if (data && data.result) {
                                             pending.resolve(data.result);
+                                        } else if (data && data.update) {
+                                            pending.update(data.update);
                                         } else {
                                             pending.resolve(data);
                                         }
@@ -770,7 +804,7 @@
                 });
             });
         };
-        dispatch.promiseMessage = throttlePromise(function(data) {
+        dispatch.promiseMessage = throttlePromise(function(data, update) {
             return dispatch.open().then(function(socket){
                 var id = ++dispatch.counter;
                 return new Promise(function(resolve, reject){
@@ -778,6 +812,7 @@
                         request: data,
                         resolve: resolve,
                         reject: reject,
+                        update: update,
                         socket: socket
                     };
                     if (data && _.isObject(data)) {
@@ -790,11 +825,11 @@
                     socket.send(JSON.stringify(deepOmit(data, 'label', 'comment')) + '\n\n');
                 }).then(function(resolved){
                     dispatch.outstanding[id].response = resolved;
-                    delete dispatch.outstanding[id];
+                    if (!update) delete dispatch.outstanding[id];
                     return resolved;
                 }, function(rejected){
                     dispatch.outstanding[id].response = rejected;
-                    delete dispatch.outstanding[id];
+                    if (!update) delete dispatch.outstanding[id];
                     return Promise.reject(rejected);
                 });
             });
