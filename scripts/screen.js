@@ -1200,6 +1200,7 @@ jQuery(function($){
                         var gain = (high - hold.price) * 100 / hold.price;
                         var performance = (points[end-1].close - hold.price) * 100 / hold.price;
                         var value = valueOfCriteria(criteria, occurrence.watch, hold);
+                        if (!value) return undefined;
                         return {
                             value: value,
                             weight: 1,
@@ -1211,7 +1212,7 @@ jQuery(function($){
                         };
                     });
                 });
-            }).then(_.flatten);
+            }).then(_.flatten).then(_.compact);
         });
     }
 
