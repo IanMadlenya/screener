@@ -609,10 +609,12 @@
                         exchange: security.exchange,
                         includes: [security.iri]
                     });
+                }, function(error){
+                    console.warn(error);
                 });
             }));
         }).then(function(securityClasses) {
-            return Promise.all(securityClasses.map(inlineSecurityClass));
+            return Promise.all(_.compact(securityClasses).map(inlineSecurityClass));
         });
     }
 
@@ -637,9 +639,14 @@
         }).then(function(sc){
             if (_.isEmpty(sc.includes)) return sc;
             return Promise.all(sc.includes.map(function(security){
-                if (_.isString(security)) return screener.getSecurity(security);
-                else return security;
-            })).then(function(includes){
+                if (_.isString(security)) {
+                    return screener.getSecurity(security).catch(function(error){
+                        console.warn(error);
+                    });
+                } else {
+                    return security;
+                }
+            })).then(_.compact).then(function(includes){
                 return _.extend(sc, {
                     includes: includes
                 });

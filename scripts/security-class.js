@@ -197,8 +197,10 @@ jQuery(function($){
 
         var createTicker = function(id, exchangeId, multiple) {
             return Promise.resolve(_.isEmpty($(id).val()) ? [] : _.flatten([$(id).val()])).then(function(securities){
-                return Promise.all(securities.map(screener.getSecurity));
-            }).then(function(securities){
+                return Promise.all(securities.map(function(security){
+                    return screener.getSecurity(security).catch(console.warn.bind(console));
+                }));
+            }).then(_.compact).then(function(securities){
                 return {
                     maxItems: multiple ? 10000 : 1,
                     persist: false,
@@ -433,7 +435,7 @@ jQuery(function($){
                         "class": (total < 0 ? "text-danger " : '') + classes[tr.children().length],
                         "data-value": total
                     }).text(total.toFixed(2) + '%'))
-                }).catch(console.log.bind(console));
+                }).catch(console.error.bind(console));
             }));
         }).then(function(){
             screener.sortTable('#security-table');
